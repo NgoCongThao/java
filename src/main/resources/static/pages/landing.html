@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>S2O - Scan2Order | Quản lý nhà hàng thông minh</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome cho icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-color: #cc5500; /* Burnt Orange */
+        --primary-light: #ff8c42;
+        --primary-dark: #a34500;
+        --light-color: #f8f9fa;
+        --gray-color: #6c757d;
+        --dark-color: #343a40;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        color: var(--dark-color);
+        overflow-x: hidden;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5 {
+        font-weight: 700;
+      }
+
+      .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        padding: 12px 28px;
+        font-weight: 600;
+        border-radius: 8px;
+      }
+
+      .btn-primary:hover,
+      .btn-primary:focus {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+      }
+
+      .btn-outline-primary {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+        font-weight: 600;
+        border-radius: 8px;
+      }
+
+      .btn-outline-primary:hover {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+      }
+
+      /* Header */
+      .navbar {
+        padding: 20px 0;
+        transition: all 0.3s ease;
+        background-color: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.8rem;
+        color: var(--primary-color) !important;
+      }
+
+      .nav-link {
+        font-weight: 500;
+        color: var(--dark-color) !important;
+        margin: 0 8px;
+        padding: 8px 12px !important;
+        border-radius: 6px;
+      }
+
+      .nav-link:hover,
+      .nav-link.active {
+        color: var(--primary-color) !important;
+        background-color: rgba(204, 85, 0, 0.05);
+      }
+
+      .navbar-toggler {
+        border: none;
+        padding: 8px;
+      }
+
+      .navbar-toggler:focus {
+        box-shadow: none;
+      }
+
+      /* Hero Section */
+      .hero-section {
+        padding: 100px 0 60px;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 140, 66, 0.08) 0%,
+          rgba(255, 255, 255, 1) 100%
+        );
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-title {
+        font-size: 2.5rem;
+        line-height: 1.2;
+        margin-bottom: 20px;
+        color: var(--dark-color);
+      }
+
+      .hero-subtitle {
+        font-size: 1.1rem;
+        color: var(--gray-color);
+        margin-bottom: 30px;
+        line-height: 1.6;
+      }
+
+      /* About Section */
+      .about-section {
+        padding: 80px 0;
+        background-color: white;
+      }
+
+      .about-image {
+        width: 100%;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .about-title {
+        font-size: 2.2rem;
+        margin-bottom: 20px;
+        color: var(--dark-color);
+      }
+
+      .about-text {
+        color: var(--gray-color);
+        line-height: 1.7;
+        margin-bottom: 20px;
+      }
+
+      .stats-container {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-top: 30px;
+      }
+
+      .stat-item {
+        text-align: center;
+        flex: 1;
+        min-width: 120px;
+        margin: 10px;
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        line-height: 1;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: var(--gray-color);
+        margin-top: 5px;
+      }
+
+      /* How it works */
+      .section-title {
+        font-size: 2.2rem;
+        margin-bottom: 50px;
+        text-align: center;
+        color: var(--dark-color);
+      }
+
+      .step-card {
+        text-align: center;
+        padding: 30px 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        height: 100%;
+        transition: transform 0.3s ease;
+        background-color: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.03);
+      }
+
+      .step-card:hover {
+        transform: translateY(-10px);
+      }
+
+      .step-icon {
+        width: 80px;
+        height: 80px;
+        background-color: rgba(204, 85, 0, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        color: var(--primary-color);
+        font-size: 32px;
+      }
+
+      .step-title {
+        font-size: 1.4rem;
+        margin-bottom: 15px;
+        color: var(--dark-color);
+      }
+
+      .step-description {
+        color: var(--gray-color);
+        line-height: 1.6;
+      }
+
+      /* Partners Section */
+      .partners-section {
+        padding: 80px 0;
+        background-color: var(--light-color);
+      }
+
+      .partners-title {
+        font-size: 2.2rem;
+        margin-bottom: 50px;
+        text-align: center;
+        color: var(--dark-color);
+      }
+
+      .partners-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 30px;
+        align-items: center;
+      }
+
+      .partner-logo {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 120px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.03);
+      }
+
+      .partner-logo:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      .partner-logo img {
+        max-width: 100%;
+        max-height: 60px;
+        filter: grayscale(100%);
+        opacity: 0.7;
+        transition: all 0.3s ease;
+      }
+
+      .partner-logo:hover img {
+        filter: grayscale(0%);
+        opacity: 1;
+      }
+
+      /* Feature Section */
+      .feature-section {
+        padding: 80px 0;
+        background-color: white;
+      }
+
+      /* Restaurant Slider Styles */
+      .restaurant-slider-container {
+        position: relative;
+        overflow: hidden;
+        padding: 0 40px;
+      }
+
+      .restaurant-slider-wrapper {
+        display: flex;
+        transition: transform 0.5s ease;
+        gap: 30px;
+      }
+
+      .restaurant-slide {
+        flex: 0 0 calc(100% / 3 - 20px);
+        min-width: calc(100% / 3 - 20px);
+      }
+
+      .restaurant-card {
+        border-radius: 12px;
+        overflow: hidden;
+        background-color: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+        height: 100%;
+      }
+
+      .restaurant-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .restaurant-img {
+        height: 200px;
+        width: 100%;
+        object-fit: cover;
+      }
+
+      .restaurant-info {
+        padding: 20px;
+      }
+
+      .restaurant-name {
+        font-size: 1.3rem;
+        margin-bottom: 8px;
+        color: var(--dark-color);
+      }
+
+      .restaurant-category {
+        color: var(--primary-color);
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+      }
+
+      .restaurant-rating {
+        color: #ffc107;
+        margin-bottom: 10px;
+      }
+
+      .restaurant-description {
+        color: var(--gray-color);
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
+      .slider-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: white;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: var(--primary-color);
+        z-index: 10;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .slider-btn:hover {
+        background-color: var(--primary-color);
+        color: white;
+        transform: translateY(-50%) scale(1.1);
+      }
+
+      .slider-btn.prev {
+        left: 0;
+      }
+
+      .slider-btn.next {
+        right: 0;
+      }
+
+      .slider-btn.disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      .slider-btn.disabled:hover {
+        background-color: white;
+        color: var(--primary-color);
+        transform: translateY(-50%);
+      }
+
+      /* QR Code Real Image Container */
+      .qr-real-image-container {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+        text-align: center;
+        position: relative;
+      }
+
+      .qr-real-image {
+        width: 100%;
+        height: auto;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: 10px solid white;
+        background-color: white;
+      }
+
+      .qr-label {
+        margin-top: 15px;
+        font-weight: 600;
+        color: var(--primary-color);
+        font-size: 0.9rem;
+        background-color: rgba(204, 85, 0, 0.1);
+        padding: 8px 15px;
+        border-radius: 20px;
+        display: inline-block;
+      }
+
+      /* Footer */
+      footer {
+        background-color: var(--dark-color);
+        color: white;
+        padding: 60px 0 30px;
+      }
+
+      .footer-logo {
+        font-size: 2rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 20px;
+        display: inline-block;
+      }
+
+      .footer-logo span {
+        color: var(--primary-color);
+      }
+
+      .footer-heading {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        color: white;
+      }
+
+      .footer-links {
+        list-style: none;
+        padding: 0;
+      }
+
+      .footer-links li {
+        margin-bottom: 12px;
+      }
+
+      .footer-links a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+
+      .footer-links a:hover {
+        color: var(--primary-color);
+      }
+
+      .social-icons {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .social-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      .social-icon:hover {
+        background-color: var(--primary-color);
+        transform: translateY(-3px);
+      }
+
+      .app-badges img {
+        height: 45px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+
+      .copyright {
+        text-align: center;
+        padding-top: 30px;
+        margin-top: 40px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+      }
+      /* Video Modal Styles */
+      .modal-content {
+        border-radius: 12px;
+        overflow: hidden;
+        border: none;
+      }
+
+      .modal-header {
+        background-color: var(--primary-color);
+        color: white;
+        border-bottom: none;
+        padding: 15px 20px;
+      }
+
+      .modal-title {
+        font-weight: 600;
+      }
+
+      .modal-body {
+        padding: 0;
+      }
+
+      .modal-footer {
+        border-top: 1px solid #eee;
+        padding: 15px 20px;
+      }
+
+      #demoVideoPlayer {
+        width: 100%;
+        height: 100%;
+        outline: none;
+      }
+
+      /* Responsive video modal */
+      @media (max-width: 768px) {
+        .modal-dialog {
+          margin: 10px;
+        }
+      }
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 2rem;
+        }
+
+        .section-title {
+          font-size: 1.8rem;
+        }
+
+        .navbar-nav {
+          text-align: center;
+          padding-top: 15px;
+        }
+
+        .nav-link {
+          margin: 5px 0;
+        }
+
+        .restaurant-slider-container {
+          padding: 0 15px;
+        }
+
+        .restaurant-slide {
+          flex: 0 0 100%;
+          min-width: 100%;
+        }
+
+        .slider-btn {
+          width: 40px;
+          height: 40px;
+          font-size: 1rem;
+        }
+
+        .qr-real-image-container {
+          max-width: 300px;
+        }
+
+        .qr-real-image {
+          border-width: 8px;
+        }
+
+        .about-title {
+          font-size: 1.8rem;
+        }
+
+        .partners-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 20px;
+        }
+
+        .partner-logo {
+          height: 100px;
+          padding: 15px;
+        }
+      }
+
+      @media (min-width: 769px) and (max-width: 992px) {
+        .restaurant-slide {
+          flex: 0 0 calc(100% / 2 - 20px);
+          min-width: calc(100% / 2 - 20px);
+        }
+
+        .partners-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (min-width: 993px) and (max-width: 1200px) {
+        .partners-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+      @media (min-width: 992px) {
+        .hero-title {
+          font-size: 3rem;
+        }
+
+        .hero-section {
+          padding: 140px 0 100px;
+        }
+
+        .qr-real-image-container {
+          max-width: 450px;
+        }
+      }
+
+      /* Touch-friendly elements */
+      .btn,
+      .nav-link,
+      .social-icon,
+      .restaurant-card {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .btn-primary,
+      .btn-outline-primary {
+        min-height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header/Navbar -->
+    <header>
+      <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+          <a class="navbar-brand" href="#">
+            <span style="color: var(--primary-color)">S2O</span>
+          </a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+          >
+            <i class="fas fa-bars" style="color: var(--primary-color)"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item">
+                <a class="nav-link active" href="#about">Về chúng tôi</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#features">Tính năng</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#partners">Đối tác</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#contact">Liên hệ</a>
+              </li>
+              <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+                <div class="d-flex gap-2">
+                  <a class="btn btn-outline-primary" href="#">Đăng nhập</a>
+                  <a class="btn btn-primary" href="#">Đăng ký</a>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="hero">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-6 order-lg-1 order-2">
+            <h1 class="hero-title">Gọi món tức thì - Trải nghiệm tương lai</h1>
+            <p class="hero-subtitle">
+              S2O mang đến giải pháp đặt món thông minh qua QR code, giúp nhà
+              hàng tối ưu hóa vận hành và khách hàng có trải nghiệm an toàn,
+              tiện lợi.
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+              <button
+                type="button"
+                class="btn btn-outline-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#videoDemoModal"
+                id="openVideoDemo"
+              >
+                <i class="fas fa-play-circle me-2"></i> Xem Demo
+              </button>
+            </div>
+          </div>
+          <div class="col-lg-6 order-lg-2 order-1 mb-4 mb-lg-0">
+            <div class="text-center">
+              <!-- QR Code Real Image -->
+              <div class="qr-real-image-container">
+                <img
+                  src="../img/qrCode.png"
+                  alt="Quét QR code để gọi món tại nhà hàng"
+                  class="qr-real-image"
+                />
+                <div class="qr-label">Quét mã QR để gọi món</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section" id="about">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-6 mb-4 mb-lg-0">
+            <img
+              src="../img/Aboutme.jpg"
+              alt="Về chúng tôi - S2O"
+              class="about-image"
+            />
+          </div>
+          <div class="col-lg-6">
+            <h2 class="about-title">Về chúng tôi</h2>
+            <p class="about-text">
+              S2O - Scan2Order được thành lập vào năm 2025 với sứ mệnh cách mạng
+              hóa trải nghiệm ẩm thực tại các nhà hàng. Chúng tôi tin rằng công
+              nghệ có thể kết nối khách hàng với nhà hàng một cách thông minh và
+              hiệu quả hơn.
+            </p>
+            <p class="about-text">
+              Với nền tảng quét mã QR để gọi món, chúng tôi giúp nhà hàng tiết
+              kiệm thời gian, giảm thiểu sai sót và nâng cao trải nghiệm khách
+              hàng. Đồng thời, khách hàng có thể dễ dàng xem thực đơn, đặt món
+              và thanh toán chỉ với vài thao tác trên điện thoại.
+            </p>
+            <p class="about-text">
+              Đến nay, S2O đã hợp tác với hơn 500 nhà hàng trên toàn quốc và
+              phục vụ hơn 1 triệu lượt khách hàng hài lòng với dịch vụ của chúng
+              tôi.
+            </p>
+
+            <div class="stats-container">
+              <div class="stat-item">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Nhà hàng đối tác</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Khách hàng hài lòng</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Thành phố</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">0%</div>
+                <div class="stat-label">Độ hài lòng</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="py-5" id="how-it-works">
+      <div class="container py-5">
+        <h2 class="section-title">Cách thức hoạt động</h2>
+        <div class="row">
+          <div class="col-lg-4 col-md-6">
+            <div class="step-card">
+              <div class="step-icon">
+                <i class="fas fa-qrcode"></i>
+              </div>
+              <h3 class="step-title">1. Quét QR code</h3>
+              <p class="step-description">
+                Khách hàng sử dụng điện thoại quét mã QR code trên bàn để truy
+                cập thực đơn điện tử của nhà hàng.
+              </p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6">
+            <div class="step-card">
+              <div class="step-icon">
+                <i class="fas fa-utensils"></i>
+              </div>
+              <h3 class="step-title">2. Chọn món & đặt đồ</h3>
+              <p class="step-description">
+                Duyệt thực đơn, xem hình ảnh món ăn, mô tả chi tiết và đặt món
+                trực tiếp từ điện thoại.
+              </p>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6">
+            <div class="step-card">
+              <div class="step-icon">
+                <i class="fas fa-credit-card"></i>
+              </div>
+              <h3 class="step-title">3. Thanh toán & thưởng thức</h3>
+              <p class="step-description">
+                Thanh toán trực tuyến an toàn và chờ món ăn được phục vụ ngay
+                tại bàn của bạn.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Partners Section -->
+    <section class="partners-section" id="partners">
+      <div class="container">
+        <h2 class="partners-title">Đối tác của chúng tôi</h2>
+        <div class="partners-grid">
+          <!-- Partner 1 -->
+          <div class="partner-logo">
+            <img src="../img/mcLogo.png" alt="McDonald's" />
+          </div>
+
+          <!-- Partner 2 -->
+          <div class="partner-logo">
+            <img src="../img/kfc.png" alt="KFC" />
+          </div>
+
+          <!-- Partner 3 -->
+          <div class="partner-logo">
+            <img src="../img/starbuckLogo.png" alt="Starbucks" />
+          </div>
+
+          <!-- Partner 4 -->
+          <div class="partner-logo">
+            <img src="../img/pizzaHutLogo.png" alt="Pizza Hut" />
+          </div>
+
+          <!-- Partner 5 -->
+          <div class="partner-logo">
+            <img src="../img/buggerKingLogo.png" alt="Burger King" />
+          </div>
+
+          <!-- Partner 6 -->
+          <div class="partner-logo">
+            <img src="../img/subWayLogo.png" alt="Subway" />
+          </div>
+
+          <!-- Partner 7 -->
+          <div class="partner-logo">
+            <img src="../img/dimonoLogo.png" alt="Domino's Pizza" />
+          </div>
+
+          <!-- Partner 8 -->
+          <div class="partner-logo">
+            <img src="../img/tacoBellLogo.png" alt="Taco Bell" />
+          </div>
+
+          <!-- Partner 9 -->
+          <div class="partner-logo">
+            <img src="../img/dunKinLogo.png" alt="Dunkin' Donuts" />
+          </div>
+
+          <!-- Partner 10 -->
+          <div class="partner-logo">
+            <img src="../img/brLogo.png" alt="Baskin Robbins" />
+          </div>
+
+          <!-- Partner 11 -->
+          <div class="partner-logo">
+            <img src="../img/chipLogo.png" alt="Chipotle" />
+          </div>
+
+          <!-- Partner 12 -->
+          <div class="partner-logo">
+            <img src="../img/ssLogo.png" alt="Shake Shack" />
+          </div>
+
+          <!-- Partner 13 -->
+          <div class="partner-logo">
+            <img src="../img/wendyLogo.png" alt="Wendy's" />
+          </div>
+
+          <!-- Partner 14 -->
+          <div class="partner-logo">
+            <img src="../img/ppLogo.png" alt="Papa John's" />
+          </div>
+
+          <!-- Partner 15 -->
+          <div class="partner-logo">
+            <img src="../img/7Logo.png" alt="7-Eleven" />
+          </div>
+        </div>
+
+        <div class="text-center mt-5">
+          <p
+            class="mb-4"
+            style="color: var(--gray-color); max-width: 700px; margin: 0 auto"
+          >
+            Chúng tôi tự hào hợp tác với các thương hiệu nhà hàng hàng đầu thế
+            giới để mang đến trải nghiệm gọi món thông minh cho hàng triệu khách
+            hàng.
+          </p>
+          <a href="#" class="btn btn-primary">Trở thành đối tác</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Feature Section - Restaurants -->
+    <section class="feature-section" id="features">
+      <div class="container">
+        <h2 class="section-title">Nhà hàng nổi bật</h2>
+
+        <div class="restaurant-slider-container">
+          <button class="slider-btn prev disabled">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+
+          <div class="restaurant-slider-wrapper">
+            <!-- Restaurant 1 -->
+            <div class="restaurant-slide">
+              <div class="restaurant-card">
+                <img
+                  src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+                  alt="Nhà hàng The Grill"
+                  class="restaurant-img"
+                />
+                <div class="restaurant-info">
+                  <h4 class="restaurant-name">The Grill House</h4>
+                  <div class="restaurant-category">Steak & BBQ</div>
+                  <div class="restaurant-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                    <span class="ms-2">4.5 (120 đánh giá)</span>
+                  </div>
+                  <p class="restaurant-description">
+                    Chuyên các món bò steak cao cấp nhập khẩu và BBQ với công
+                    thức độc quyền.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Restaurant 2 -->
+            <div class="restaurant-slide">
+              <div class="restaurant-card">
+                <img
+                  src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+                  alt="Nhà hàng Hải sản"
+                  class="restaurant-img"
+                />
+                <div class="restaurant-info">
+                  <h4 class="restaurant-name">Ocean Seafood</h4>
+                  <div class="restaurant-category">Hải sản tươi sống</div>
+                  <div class="restaurant-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="far fa-star"></i>
+                    <span class="ms-2">4.0 (95 đánh giá)</span>
+                  </div>
+                  <p class="restaurant-description">
+                    Hải sản tươi sống được chọn lọc hàng ngày, chế biến theo
+                    phong cách Á - Âu.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Restaurant 3 -->
+            <div class="restaurant-slide">
+              <div class="restaurant-card">
+                <img
+                  src="https://images.unsplash.com/photo-1565299507177-b0ac66763828?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+                  alt="Nhà hàng Ý"
+                  class="restaurant-img"
+                />
+                <div class="restaurant-info">
+                  <h4 class="restaurant-name">Bella Italia</h4>
+                  <div class="restaurant-category">Ẩm thực Ý</div>
+                  <div class="restaurant-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <span class="ms-2">5.0 (210 đánh giá)</span>
+                  </div>
+                  <p class="restaurant-description">
+                    Pizza, pasta và các món Ý chính thống được chế biến bởi đầu
+                    bếp người Ý.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Additional restaurants for slider -->
+            <!-- Restaurant 4 -->
+            <div class="restaurant-slide">
+              <div class="restaurant-card">
+                <img
+                  src="https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+                  alt="Nhà hàng Pizza"
+                  class="restaurant-img"
+                />
+                <div class="restaurant-info">
+                  <h4 class="restaurant-name">Pizza Palace</h4>
+                  <div class="restaurant-category">Pizza & Mì Ý</div>
+                  <div class="restaurant-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                    <span class="ms-2">4.7 (180 đánh giá)</span>
+                  </div>
+                  <p class="restaurant-description">
+                    Pizza với lớp vỏ giòn tan, phô mai sợi dài và nguyên liệu
+                    tươi ngon nhất.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Restaurant 5 -->
+            <div class="restaurant-slide">
+              <div class="restaurant-card">
+                <img
+                  src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+                  alt="Nhà hàng Burger"
+                  class="restaurant-img"
+                />
+                <div class="restaurant-info">
+                  <h4 class="restaurant-name">Burger Kingpin</h4>
+                  <div class="restaurant-category">Burger & Fast Food</div>
+                  <div class="restaurant-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="far fa-star"></i>
+                    <span class="ms-2">4.2 (156 đánh giá)</span>
+                  </div>
+                  <p class="restaurant-description">
+                    Burger thịt bò 100% Úc, bánh mì tự làm và khoai tây chiên
+                    giòn rụm.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button class="slider-btn next">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <div class="text-center mt-5">
+          <a href="#" class="btn btn-outline-primary">Xem thêm nhà hàng</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+            <a href="#" class="footer-logo">S2<span>O</span></a>
+            <p class="mb-4" style="color: rgba(255, 255, 255, 0.7)">
+              Nền tảng quản lý nhà hàng thông minh với công nghệ Scan2Order,
+              giúp tối ưu hóa trải nghiệm khách hàng và vận hành nhà hàng.
+            </p>
+            <div class="social-icons">
+              <a href="#" class="social-icon"
+                ><i class="fab fa-facebook-f"></i
+              ></a>
+              <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+              <a href="#" class="social-icon"
+                ><i class="fab fa-instagram"></i
+              ></a>
+              <a href="#" class="social-icon"
+                ><i class="fab fa-linkedin-in"></i
+              ></a>
+            </div>
+          </div>
+
+          <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+            <h5 class="footer-heading">Liên kết</h5>
+            <ul class="footer-links">
+              <li><a href="#about">Về chúng tôi</a></li>
+              <li><a href="#features">Tính năng</a></li>
+              <li><a href="#partners">Đối tác</a></li>
+              <li><a href="#how-it-works">Cách hoạt động</a></li>
+              <li><a href="#contact">Liên hệ</a></li>
+              <li><a href="#">Chính sách bảo mật</a></li>
+            </ul>
+          </div>
+
+          <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+            <h5 class="footer-heading">Tải ứng dụng</h5>
+            <div class="app-badges">
+              <a href="#"
+                ><img
+                  src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg"
+                  alt="Google Play"
+              /></a>
+              <a href="#"
+                ><img
+                  src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg"
+                  alt="App Store"
+              /></a>
+            </div>
+            <p
+              class="mt-3"
+              style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem"
+            >
+              Tải ứng dụng S2O để trải nghiệm đặt món thông minh tại hơn 200 nhà
+              hàng đối tác.
+            </p>
+          </div>
+
+          <div class="col-lg-3 col-md-6">
+            <h5 class="footer-heading">Liên hệ</h5>
+            <ul class="footer-links">
+              <li>
+                <i class="fas fa-map-marker-alt me-2"></i> 123 Đường ABC, Quận
+                1, TP.HCM
+              </li>
+              <li><i class="fas fa-phone me-2"></i> (028) 1234 5678</li>
+              <li><i class="fas fa-envelope me-2"></i> info@s2o.vn</li>
+              <li><i class="fas fa-clock me-2"></i> 8:00 - 22:00 (T2 - CN)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="copyright">
+          <p>&copy; 2023 S2O - Scan2Order. Tất cả các quyền được bảo lưu.</p>
+        </div>
+      </div>
+    </footer>
+    <!-- Video Demo Modal -->
+    <div
+      class="modal fade"
+      id="videoDemoModal"
+      tabindex="-1"
+      aria-labelledby="videoDemoModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="videoDemoModalLabel">
+              <i class="fas fa-play-circle me-2"></i>Demo S2O - Scan2Order
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body p-0">
+            <div class="ratio ratio-16x9">
+              <video id="demoVideoPlayer" controls poster="../video/poster.png">
+                <source src="../video/demo-video.mp4" type="video/mp4" />
+                <source src="../video/demo-video.webm" type="video/webm" />
+                Trình duyệt của bạn không hỗ trợ phát video.
+              </video>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              <i class="fas fa-times me-2"></i>Đóng
+            </button>
+            <button type="button" class="btn btn-primary" id="replayVideo">
+              <i class="fas fa-redo me-2"></i>Xem lại
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Navbar scroll effect
+      window.addEventListener("scroll", function () {
+        const navbar = document.querySelector(".navbar");
+        if (window.scrollY > 50) {
+          navbar.style.padding = "10px 0";
+          navbar.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.1)";
+        } else {
+          navbar.style.padding = "20px 0";
+          navbar.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.05)";
+        }
+      });
+
+      // Smooth scrolling for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+
+          const targetId = this.getAttribute("href");
+          if (targetId === "#") return;
+
+          const targetElement = document.querySelector(targetId);
+          if (targetElement) {
+            window.scrollTo({
+              top: targetElement.offsetTop - 80,
+              behavior: "smooth",
+            });
+
+            // Close mobile menu when clicking a link
+            const navbarCollapse = document.querySelector(".navbar-collapse");
+            if (navbarCollapse.classList.contains("show")) {
+              const navbarToggler = document.querySelector(".navbar-toggler");
+              navbarToggler.click();
+            }
+          }
+        });
+      });
+
+      // Add active class to nav links on scroll
+      window.addEventListener("scroll", function () {
+        const sections = document.querySelectorAll("section[id]");
+        const navLinks = document.querySelectorAll(".navbar-nav .nav-link");
+
+        let currentSectionId = "";
+        sections.forEach((section) => {
+          const sectionTop = section.offsetTop - 100;
+          const sectionHeight = section.clientHeight;
+          if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
+            currentSectionId = "#" + section.getAttribute("id");
+          }
+        });
+
+        navLinks.forEach((link) => {
+          link.classList.remove("active");
+          if (link.getAttribute("href") === currentSectionId) {
+            link.classList.add("active");
+          }
+        });
+      });
+
+      // Restaurant Slider
+      document.addEventListener("DOMContentLoaded", function () {
+        const sliderWrapper = document.querySelector(
+          ".restaurant-slider-wrapper"
+        );
+        const slides = document.querySelectorAll(".restaurant-slide");
+        const prevBtn = document.querySelector(".slider-btn.prev");
+        const nextBtn = document.querySelector(".slider-btn.next");
+
+        let currentIndex = 0;
+        let slidesToShow = 3; // Default for desktop
+
+        function updateSlidesToShow() {
+          if (window.innerWidth < 769) {
+            slidesToShow = 1;
+          } else if (window.innerWidth < 993) {
+            slidesToShow = 2;
+          } else {
+            slidesToShow = 3;
+          }
+          updateSlider();
+        }
+
+        function updateSlider() {
+          const slideWidth = 100 / slidesToShow;
+          const translateX = -currentIndex * slideWidth;
+          sliderWrapper.style.transform = `translateX(${translateX}%)`;
+
+          // Update button states
+          prevBtn.classList.toggle("disabled", currentIndex === 0);
+          nextBtn.classList.toggle(
+            "disabled",
+            currentIndex >= slides.length - slidesToShow
+          );
+        }
+
+        function nextSlide() {
+          if (currentIndex < slides.length - slidesToShow) {
+            currentIndex++;
+            updateSlider();
+          }
+        }
+
+        function prevSlide() {
+          if (currentIndex > 0) {
+            currentIndex--;
+            updateSlider();
+          }
+        }
+
+        // Event listeners
+        nextBtn.addEventListener("click", nextSlide);
+        prevBtn.addEventListener("click", prevSlide);
+
+        // Initialize
+        updateSlidesToShow();
+
+        // Update on window resize
+        window.addEventListener("resize", updateSlidesToShow);
+
+        // Optional: Add swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        sliderWrapper.addEventListener("touchstart", function (e) {
+          touchStartX = e.changedTouches[0].screenX;
+        });
+
+        sliderWrapper.addEventListener("touchend", function (e) {
+          touchEndX = e.changedTouches[0].screenX;
+          handleSwipe();
+        });
+
+        function handleSwipe() {
+          const swipeThreshold = 50;
+          const diff = touchStartX - touchEndX;
+
+          if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0) {
+              // Swipe left - next slide
+              nextSlide();
+            } else {
+              // Swipe right - previous slide
+              prevSlide();
+            }
+          }
+        }
+      });
+      // Video Demo Modal Control
+      document.addEventListener("DOMContentLoaded", function () {
+        const videoDemoModal = document.getElementById("videoDemoModal");
+        const videoPlayer = document.getElementById("demoVideoPlayer");
+        const openVideoBtn = document.getElementById("openVideoDemo");
+        const replayBtn = document.getElementById("replayVideo");
+
+        // Play video when modal opens
+        videoDemoModal.addEventListener("shown.bs.modal", function () {
+          videoPlayer.play().catch(function (error) {
+            console.log("Auto-play prevented:", error);
+            // Hiển thị thông báo nếu cần
+          });
+        });
+
+        // Pause video when modal closes
+        videoDemoModal.addEventListener("hidden.bs.modal", function () {
+          videoPlayer.pause();
+          videoPlayer.currentTime = 0;
+        });
+
+        // Replay button
+        replayBtn.addEventListener("click", function () {
+          videoPlayer.currentTime = 0;
+          videoPlayer.play();
+        });
+
+        // Open video modal on button click (backup method)
+        openVideoBtn.addEventListener("click", function () {
+          // Bootstrap modal sẽ tự mở nhờ data-bs-toggle
+        });
+      });
+    </script>
+  </body>
+</html>
