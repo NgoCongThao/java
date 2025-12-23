@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>S2O - Danh sách nhà hàng</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css"
+    />
+    <!-- Font Google -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-color: #e85d04; /* Burnt Orange */
+        --primary-light: #ff9e66;
+        --primary-dark: #c14a04;
+        --light-bg: #f8f9fa;
+        --gray-light: #e9ecef;
+        --gray-medium: #adb5bd;
+        --gray-dark: #495057;
+        --success-color: #2e8b57;
+        --closed-color: #6c757d;
+      }
+
+      * {
+        font-family: "Inter", sans-serif;
+      }
+
+      body {
+        background-color: #ffffff;
+        padding-bottom: 70px; /* Space for bottom nav */
+      }
+
+      /* Header & Search */
+      .sticky-search {
+        position: sticky;
+        top: 0;
+        z-index: 1020;
+        background-color: white;
+        padding: 12px 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .search-bar {
+        border-radius: 50px;
+        border: 1px solid var(--gray-light);
+        padding-left: 45px;
+        background-color: white;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+      }
+
+      .search-bar:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 2px 8px rgba(232, 93, 4, 0.15);
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray-medium);
+        z-index: 5;
+      }
+
+      /* Categories */
+      .categories-container {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding: 10px 0;
+        margin-bottom: 10px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .categories-container::-webkit-scrollbar {
+        height: 3px;
+      }
+
+      .categories-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+
+      .categories-container::-webkit-scrollbar-thumb {
+        background: var(--primary-light);
+        border-radius: 10px;
+      }
+
+      .category-pill {
+        display: inline-block;
+        padding: 8px 16px;
+        margin-right: 8px;
+        border-radius: 50px;
+        background-color: var(--gray-light);
+        color: var(--gray-dark);
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        border: none;
+      }
+
+      .category-pill:hover,
+      .category-pill.active {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      /* Restaurant Cards */
+      .restaurant-card {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--gray-light);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 20px;
+        height: 100%;
+      }
+
+      .restaurant-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(232, 93, 4, 0.1);
+      }
+
+      .restaurant-img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+      }
+
+      .restaurant-info {
+        padding: 15px;
+      }
+
+      .restaurant-name {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+        color: var(--gray-dark);
+        display: flex;
+        align-items: center;
+      }
+
+      .verified-badge {
+        color: var(--primary-color);
+        margin-left: 5px;
+        font-size: 0.9rem;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .status-open {
+        background-color: rgba(46, 139, 87, 0.1);
+        color: var(--success-color);
+      }
+
+      .status-closed {
+        background-color: rgba(108, 117, 125, 0.1);
+        color: var(--closed-color);
+      }
+
+      .restaurant-meta {
+        display: flex;
+        justify-content: space-between;
+        color: var(--gray-medium);
+        font-size: 0.9rem;
+      }
+
+      .rating {
+        color: #ffc107;
+      }
+
+      /* Bottom Navigation */
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: white;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+        z-index: 1030;
+        padding: 10px 0;
+      }
+
+      .nav-item {
+        text-align: center;
+        color: var(--gray-medium);
+        text-decoration: none;
+        flex: 1;
+        padding: 8px 0;
+        transition: color 0.2s ease;
+      }
+
+      .nav-item.active,
+      .nav-item:hover {
+        color: var(--primary-color);
+      }
+
+      .nav-icon {
+        font-size: 1.4rem;
+        display: block;
+        margin-bottom: 3px;
+      }
+
+      .nav-text {
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--gray-medium);
+      }
+
+      .empty-state-icon {
+        font-size: 4rem;
+        color: var(--gray-light);
+        margin-bottom: 20px;
+      }
+
+      /* Responsive adjustments */
+      @media (min-width: 768px) {
+        .restaurant-img {
+          height: 180px;
+        }
+
+        .categories-container {
+          padding: 15px 0;
+        }
+
+        .category-pill {
+          padding: 10px 20px;
+          margin-right: 12px;
+          font-size: 1rem;
+        }
+      }
+
+      @media (min-width: 992px) {
+        .restaurant-img {
+          height: 200px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header with Search -->
+    <header class="sticky-search">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col">
+            <h1
+              class="h4 mb-0"
+              style="color: var(--primary-color); font-weight: 700"
+            >
+              S2O Restaurants
+            </h1>
+            <p class="text-muted mb-0 small">Đặt món nhanh với QR Code</p>
+          </div>
+          <div class="col-auto">
+            <div class="position-relative">
+              <i class="bi bi-search search-icon"></i>
+              <input
+                type="text"
+                class="form-control search-bar"
+                id="searchInput"
+                placeholder="Tìm nhà hàng, món ăn..."
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+      <!-- Categories -->
+      <div class="categories-container">
+        <div class="d-flex">
+          <button class="category-pill active" data-category="all">
+            Tất cả
+          </button>
+          <button class="category-pill" data-category="Cơm">Cơm</button>
+          <button class="category-pill" data-category="Phở">Phở</button>
+          <button class="category-pill" data-category="Trà sữa">Trà sữa</button>
+          <button class="category-pill" data-category="Lẩu">Lẩu</button>
+          <button class="category-pill" data-category="Gà rán">Gà rán</button>
+          <button class="category-pill" data-category="Pizza">Pizza</button>
+          <button class="category-pill" data-category="Đồ uống">Đồ uống</button>
+        </div>
+      </div>
+
+      <!-- Restaurant List -->
+      <div id="restaurantList" class="row">
+        <!-- Restaurant cards will be rendered here by JavaScript -->
+      </div>
+
+      <!-- Empty State (Hidden by default) -->
+      <div id="emptyState" class="empty-state" style="display: none">
+        <i class="bi bi-shop empty-state-icon"></i>
+        <h4 class="mb-3">Không tìm thấy nhà hàng phù hợp</h4>
+        <p class="text-muted">
+          Hãy thử tìm kiếm với từ khóa khác hoặc chọn danh mục khác
+        </p>
+      </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <div class="container">
+        <div class="d-flex justify-content-around">
+          <a href="#" class="nav-item active">
+            <i class="bi bi-house-door-fill nav-icon"></i>
+            <span class="nav-text">Trang chủ</span>
+          </a>
+          <a href="#" class="nav-item">
+            <i class="bi bi-receipt nav-icon"></i>
+            <span class="nav-text">Đơn hàng</span>
+          </a>
+          <a href="#" class="nav-item">
+            <i class="bi bi-heart nav-icon"></i>
+            <span class="nav-text">Yêu thích</span>
+          </a>
+          <a href="#" class="nav-item">
+            <i class="bi bi-person nav-icon"></i>
+            <span class="nav-text">Tài khoản</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Mock Data - Restaurant Array
+      const restaurants = [
+        {
+          id: 1,
+          name: "Cơm Gà Hà Nội",
+          image:
+            "https://images.unsplash.com/photo-1563245372-f21724e3856d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80",
+          rating: 4.5,
+          distance: 1.2,
+          category: "Cơm",
+          status: "active",
+          isOpen: true,
+        },
+        {
+          id: 2,
+          name: "Phở Bò Sài Gòn",
+          image:
+            "https://images.unsplash.com/photo-1591814468924-caf88d1232e1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+          rating: 4.7,
+          distance: 2.5,
+          category: "Phở",
+          status: "active",
+          isOpen: true,
+        },
+        {
+          id: 3,
+          name: "Trà Sữa Tocotoco",
+          image:
+            "https://images.unsplash.com/photo-1563379091339-03246963d9d6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+          rating: 4.3,
+          distance: 0.8,
+          category: "Trà sữa",
+          status: "inactive",
+          isOpen: false,
+        },
+        {
+          id: 4,
+          name: "Lẩu Thái Hotpot",
+          image:
+            "https://images.unsplash.com/photo-1555244162-803834f70033?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+          rating: 4.8,
+          distance: 3.1,
+          category: "Lẩu",
+          status: "active",
+          isOpen: true,
+        },
+        {
+          id: 5,
+          name: "Gà Rán KFC",
+          image:
+            "https://file.hstatic.net/200000700229/article/ga-ran-vi-kfc-1_0c2450efe15d4b6f9e6bd2637b71d88d.jpg",
+          rating: 4.2,
+          distance: 1.8,
+          category: "Gà rán",
+          status: "active",
+          isOpen: false,
+        },
+        {
+          id: 6,
+          name: "Pizza Hut",
+          image:
+            "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1981&q=80",
+          rating: 4.6,
+          distance: 4.2,
+          category: "Pizza",
+          status: "inactive",
+          isOpen: true,
+        },
+        {
+          id: 7,
+          name: "Highlands Coffee",
+          image:
+            "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+          rating: 4.4,
+          distance: 1.5,
+          category: "Đồ uống",
+          status: "active",
+          isOpen: true,
+        },
+        {
+          id: 8,
+          name: "Bún Chả Hương Liên",
+          image:
+            "https://images.prismic.io/nutriinfo/aAoO2PIqRLdaBkWx_hinh-anh-bun-cha.jpg?auto=format,compress",
+          rating: 4.9,
+          distance: 2.7,
+          category: "Cơm",
+          status: "active",
+          isOpen: true,
+        },
+      ];
+
+      // DOM Elements
+      const restaurantList = document.getElementById("restaurantList");
+      const searchInput = document.getElementById("searchInput");
+      const categoryPills = document.querySelectorAll(".category-pill");
+      const emptyState = document.getElementById("emptyState");
+
+      // Current filter state
+      let currentFilter = {
+        searchText: "",
+        category: "all",
+      };
+
+      // Function to render restaurants based on filter
+      function renderRestaurants() {
+        // Filter restaurants based on status and current filter
+        const filteredRestaurants = restaurants.filter((restaurant) => {
+          // Only show active restaurants (business requirement)
+          if (restaurant.status !== "active") return false;
+
+          // Apply search filter
+          if (
+            currentFilter.searchText &&
+            !restaurant.name
+              .toLowerCase()
+              .includes(currentFilter.searchText.toLowerCase()) &&
+            !restaurant.category
+              .toLowerCase()
+              .includes(currentFilter.searchText.toLowerCase())
+          ) {
+            return false;
+          }
+
+          // Apply category filter
+          if (
+            currentFilter.category !== "all" &&
+            restaurant.category !== currentFilter.category
+          ) {
+            return false;
+          }
+
+          return true;
+        });
+
+        // Clear current list
+        restaurantList.innerHTML = "";
+
+        // Show empty state if no restaurants found
+        if (filteredRestaurants.length === 0) {
+          emptyState.style.display = "block";
+          return;
+        }
+
+        // Hide empty state
+        emptyState.style.display = "none";
+
+        // Render filtered restaurants
+        filteredRestaurants.forEach((restaurant) => {
+          const restaurantCard = createRestaurantCard(restaurant);
+          restaurantList.innerHTML += restaurantCard;
+        });
+      }
+
+      // Function to create restaurant card HTML
+      function createRestaurantCard(restaurant) {
+        const statusText = restaurant.isOpen ? "Mở cửa" : "Đóng cửa";
+        const statusClass = restaurant.isOpen ? "status-open" : "status-closed";
+
+        // Generate star rating HTML
+        let starsHtml = "";
+        const fullStars = Math.floor(restaurant.rating);
+        const hasHalfStar = restaurant.rating % 1 >= 0.5;
+
+        for (let i = 0; i < fullStars; i++) {
+          starsHtml += '<i class="bi bi-star-fill rating"></i>';
+        }
+
+        if (hasHalfStar) {
+          starsHtml += '<i class="bi bi-star-half rating"></i>';
+        }
+
+        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+        for (let i = 0; i < emptyStars; i++) {
+          starsHtml += '<i class="bi bi-star rating"></i>';
+        }
+
+        return `
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="restaurant-card">
+                        <img src="${restaurant.image}" alt="${restaurant.name}" class="restaurant-img">
+                        <div class="restaurant-info">
+                            <div class="restaurant-name">
+                                ${restaurant.name}
+                                <i class="bi bi-patch-check-fill verified-badge" 
+                                   data-bs-toggle="tooltip" 
+                                   data-bs-placement="top" 
+                                   title="Đối tác chính thức"></i>
+                            </div>
+                            <div class="status-badge ${statusClass}">${statusText}</div>
+                            <div class="restaurant-meta">
+                                <div>
+                                    ${starsHtml}
+                                    <span class="ms-1">${restaurant.rating}</span>
+                                </div>
+                                <div>
+                                    <i class="bi bi-geo-alt"></i>
+                                    <span>${restaurant.distance} km</span>
+                                </div>
+                            </div>
+                            <div class="mt-2 small text-muted">
+                                <i class="bi bi-tag"></i> ${restaurant.category}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+      }
+
+      // Initialize tooltips
+      function initTooltips() {
+        const tooltipTriggerList = [].slice.call(
+          document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        );
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+      }
+
+      // Event Listeners
+      function setupEventListeners() {
+        // Search input event
+        searchInput.addEventListener("input", function () {
+          currentFilter.searchText = this.value;
+          renderRestaurants();
+        });
+
+        // Category pills events
+        categoryPills.forEach((pill) => {
+          pill.addEventListener("click", function () {
+            // Remove active class from all pills
+            categoryPills.forEach((p) => p.classList.remove("active"));
+
+            // Add active class to clicked pill
+            this.classList.add("active");
+
+            // Update current filter
+            currentFilter.category = this.getAttribute("data-category");
+
+            // Re-render restaurants
+            renderRestaurants();
+          });
+        });
+
+        // Bottom nav items events
+        const navItems = document.querySelectorAll(".nav-item");
+        navItems.forEach((item) => {
+          item.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            // Remove active class from all nav items
+            navItems.forEach((nav) => nav.classList.remove("active"));
+
+            // Add active class to clicked item
+            this.classList.add("active");
+
+            // In a real app, you would navigate to the corresponding page
+            console.log(
+              `Navigating to: ${this.querySelector(".nav-text").textContent}`
+            );
+          });
+        });
+      }
+
+      // Initialize the page
+      function init() {
+        renderRestaurants();
+        setupEventListeners();
+
+        // Initialize tooltips after a short delay to ensure DOM is ready
+        setTimeout(initTooltips, 500);
+      }
+
+      // Run initialization when DOM is loaded
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
