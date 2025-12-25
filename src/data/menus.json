@@ -1,0 +1,1237 @@
+[
+  {
+    "restaurantId": 1,
+    "restaurantName": "Cơm Tấm Cali - Nguyễn Huệ",
+    "menu": [
+      {
+        "category": "Món Chính",
+        "items": [
+          {
+            "id": 101,
+            "name": "Cơm Sườn Que Nướng",
+            "price": 85000,
+            "image": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80",
+            "description": "Sườn que loại 1 nướng than hồng sốt mật ong."
+          },
+          {
+            "id": 102,
+            "name": "Cơm Tấm Ba Rọi",
+            "price": 75000,
+            "image": "https://images.unsplash.com/photo-1519708227418-c8fd9a3a277d?auto=format&fit=crop&w=400&q=80",
+            "description": "Ba rọi rút sườn nướng cháy cạnh thơm lừng."
+          },
+          {
+            "id": 103,
+            "name": "Cơm Gà Nướng Ngũ Vị",
+            "price": 68000,
+            "image": "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?auto=format&fit=crop&w=400&q=80",
+            "description": "Đùi gà góc tư nướng da giòn thấm vị."
+          },
+          {
+            "id": 104,
+            "name": "Cơm Sườn Bì Chả",
+            "price": 75000,
+            "image": "https://images.unsplash.com/photo-1596200216743-39294273c52f?auto=format&fit=crop&w=400&q=80",
+            "description": "Combo huyền thoại: Sườn, bì, chả."
+          },
+          {
+            "id": 105,
+            "name": "Cơm Bì Chả Trứng",
+            "price": 60000,
+            "image": "https://images.unsplash.com/photo-1585505085449-74d6c442436f?auto=format&fit=crop&w=400&q=80",
+            "description": "Bữa sáng nhẹ nhàng với trứng lòng đào."
+          }
+        ]
+      },
+      {
+        "category": "Canh & Món Thêm",
+        "items": [
+          {
+            "id": 106,
+            "name": "Canh Khổ Qua",
+            "price": 25000,
+            "image": "https://images.unsplash.com/photo-1606850875986-63dbb48074d6?auto=format&fit=crop&w=400&q=80",
+            "description": "Khổ qua rừng ít đắng, nhân thịt."
+          },
+          {
+            "id": 107,
+            "name": "Canh Rong Biển",
+            "price": 25000,
+            "image": "https://images.unsplash.com/photo-1547592166-23acbe346499?auto=format&fit=crop&w=400&q=80",
+            "description": "Canh rong biển nấu tôm thịt."
+          },
+          {
+            "id": 108,
+            "name": "Chả Giò Cali",
+            "price": 20000,
+            "image": "https://images.unsplash.com/photo-1548029960-695d127f4543?auto=format&fit=crop&w=400&q=80",
+            "description": "Chả giò rế nhân tôm thịt."
+          },
+          {
+            "id": 109,
+            "name": "Trà Đá",
+            "price": 5000,
+            "image": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=400&q=80",
+            "description": "Trà lài mát lạnh."
+          },
+          {
+            "id": 110,
+            "name": "Sâm Bí Đao",
+            "price": 20000,
+            "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80",
+            "description": "Nhà làm, ít ngọt."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "restaurantId": 2,
+    "restaurantName": "Phở Hùng - Nguyễn Trãi",
+    "menu": [
+      {
+        "category": "Phở Bò",
+        "items": [
+          {
+            "id": 201,
+            "name": "Phở Tái",
+            "price": 75000,
+            "image": "https://images.unsplash.com/photo-1582878826629-297529f32b38?auto=format&fit=crop&w=400&q=80",
+            "description": "Thịt bò thăn tái mềm."
+          },
+          {
+            "id": 202,
+            "name": "Phở Nạm Gầu",
+            "price": 85000,
+            "image": "https://images.unsplash.com/photo-1621800043295-a73fe2f76e2c?auto=format&fit=crop&w=400&q=80",
+            "description": "Nạm mềm, gầu giòn béo."
+          },
+          {
+            "id": 203,
+            "name": "Phở Đặc Biệt",
+            "price": 105000,
+            "image": "https://images.unsplash.com/photo-1503764654157-72d979d9af2f?auto=format&fit=crop&w=400&q=80",
+            "description": "Tô xe lửa đầy đủ topping."
+          },
+          {
+            "id": 204,
+            "name": "Phở Bò Viên",
+            "price": 75000,
+            "image": "https://images.unsplash.com/photo-1634863688220-4e36d4122dd6?auto=format&fit=crop&w=400&q=80",
+            "description": "Bò viên gân dai giòn."
+          }
+        ]
+      },
+      {
+        "category": "Phở Gà",
+        "items": [
+          {
+            "id": 205,
+            "name": "Phở Gà Ta",
+            "price": 75000,
+            "image": "https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&w=400&q=80",
+            "description": "Gà ta xé phay, da vàng."
+          },
+          {
+            "id": 206,
+            "name": "Phở Đùi Gà",
+            "price": 85000,
+            "image": "https://images.unsplash.com/photo-1585233968278-620253488737?auto=format&fit=crop&w=400&q=80",
+            "description": "Nguyên đùi gà góc tư."
+          }
+        ]
+      },
+      {
+        "category": "Món Thêm",
+        "items": [
+          {
+            "id": 207,
+            "name": "Trứng Chần",
+            "price": 10000,
+            "image": "https://images.unsplash.com/photo-1490810194309-344b3661ba39?auto=format&fit=crop&w=400&q=80",
+            "description": "Trứng gà ta chần tái."
+          },
+          {
+            "id": 208,
+            "name": "Quẩy Giòn",
+            "price": 10000,
+            "image": "https://images.unsplash.com/photo-1626809712726-28247db206a4?auto=format&fit=crop&w=400&q=80",
+            "description": "Ăn kèm phở."
+          },
+          {
+            "id": 209,
+            "name": "Chén Bò Viên",
+            "price": 35000,
+            "image": "https://images.unsplash.com/photo-1541593026-62058b765271?auto=format&fit=crop&w=400&q=80",
+            "description": "Chén bò viên riêng."
+          },
+          {
+            "id": 210,
+            "name": "Cà Phê Sữa",
+            "price": 35000,
+            "image": "https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?auto=format&fit=crop&w=400&q=80",
+            "description": "Cà phê phin đậm đà."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "restaurantId": 3,
+    "restaurantName": "KOI Thé - Bitexco Tower",
+    "menu": [
+      {
+        "category": "Macchiato",
+        "items": [
+          {
+            "id": 301,
+            "name": "Black Tea Macchiato",
+            "price": 45000,
+            "image": "https://images.unsplash.com/photo-1558350315-8aa00e8e4590?auto=format&fit=crop&w=400&q=80",
+            "description": "Hồng trà kem sữa mặn."
+          },
+          {
+            "id": 302,
+            "name": "Green Tea Macchiato",
+            "price": 45000,
+            "image": "https://images.unsplash.com/photo-1596522354195-e84de26cd1e1?auto=format&fit=crop&w=400&q=80",
+            "description": "Lục trà nhài kem sữa."
+          },
+          {
+            "id": 303,
+            "name": "Ovaltine Macchiato",
+            "price": 55000,
+            "image": "https://images.unsplash.com/photo-1546171753-97d7676e4602?auto=format&fit=crop&w=400&q=80",
+            "description": "Vị socola lúa mạch."
+          }
+        ]
+      },
+      {
+        "category": "Trà Sữa",
+        "items": [
+          {
+            "id": 304,
+            "name": "TS Trân Châu Hoàng Kim",
+            "price": 55000,
+            "image": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=400&q=80",
+            "description": "Best seller trân châu vàng."
+          },
+          {
+            "id": 305,
+            "name": "TS Sương Sáo",
+            "price": 50000,
+            "image": "https://images.unsplash.com/photo-1626202271680-e374528d9047?auto=format&fit=crop&w=400&q=80",
+            "description": "Kèm thạch sương sáo dai."
+          },
+          {
+            "id": 306,
+            "name": "TS Khoai Môn",
+            "price": 58000,
+            "image": "https://images.unsplash.com/photo-1571328003758-4a3921661729?auto=format&fit=crop&w=400&q=80",
+            "description": "Vị khoai môn bùi béo."
+          },
+          {
+            "id": 307,
+            "name": "Lục Trà Chanh Dây",
+            "price": 52000,
+            "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80",
+            "description": "Chua ngọt giải nhiệt."
+          },
+          {
+            "id": 308,
+            "name": "Trà Đào",
+            "price": 58000,
+            "image": "https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?auto=format&fit=crop&w=400&q=80",
+            "description": "Kèm miếng đào giòn."
+          },
+          {
+            "id": 309,
+            "name": "Thêm Trân Châu",
+            "price": 12000,
+            "image": "https://images.unsplash.com/photo-1558160074-4d7d8bdf4256?auto=format&fit=crop&w=400&q=80",
+            "description": "Topping thêm."
+          },
+          {
+            "id": 310,
+            "name": "Thêm Thạch Konjac",
+            "price": 12000,
+            "image": "https://images.unsplash.com/photo-1605191837599-4704a5009228?auto=format&fit=crop&w=400&q=80",
+            "description": "Topping thêm."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "restaurantId": 4,
+    "restaurantName": "Haidilao Hotpot - Vincom",
+    "menu": [
+      {
+        "category": "Nước Lẩu & Thịt",
+        "items": [
+          {
+            "id": 401,
+            "name": "Lẩu Cà Chua",
+            "price": 80000,
+            "image": "https://images.unsplash.com/photo-1547592166-23acbe346499?auto=format&fit=crop&w=400&q=80",
+            "description": "Vị chua ngọt huyền thoại."
+          },
+          {
+            "id": 402,
+            "name": "Lẩu Mala Dầu Cay",
+            "price": 95000,
+            "image": "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=400&q=80",
+            "description": "Cay tê chuẩn Tứ Xuyên."
+          },
+          {
+            "id": 403,
+            "name": "Lẩu Nấm",
+            "price": 75000,
+            "image": "https://images.unsplash.com/photo-1604152135912-04a022e23696?auto=format&fit=crop&w=400&q=80",
+            "description": "Thanh đạm bổ dưỡng."
+          },
+          {
+            "id": 404,
+            "name": "Bò Mỹ Haidilao",
+            "price": 180000,
+            "image": "https://images.unsplash.com/photo-1608620888283-7c014f09d8d6?auto=format&fit=crop&w=400&q=80",
+            "description": "Thịt bò mềm tan."
+          },
+          {
+            "id": 405,
+            "name": "Ba Chỉ Bò Mỹ",
+            "price": 150000,
+            "image": "https://images.unsplash.com/photo-1599321955726-e04842d994e7?auto=format&fit=crop&w=400&q=80",
+            "description": "Nạc mỡ hòa quyện."
+          },
+          {
+            "id": 406,
+            "name": "Thịt Dê",
+            "price": 210000,
+            "image": "https://images.unsplash.com/photo-1615937691194-97dbd3f3dc29?auto=format&fit=crop&w=400&q=80",
+            "description": "Tươi ngon không hôi."
+          },
+          {
+            "id": 407,
+            "name": "Tôm Sú Băm",
+            "price": 160000,
+            "image": "https://images.unsplash.com/photo-1559742811-822873691df8?auto=format&fit=crop&w=400&q=80",
+            "description": "Tôm tươi quết dẻo."
+          },
+          {
+            "id": 408,
+            "name": "Mực Phía",
+            "price": 140000,
+            "image": "https://images.unsplash.com/photo-1599058945522-28d584b6f0ff?auto=format&fit=crop&w=400&q=80",
+            "description": "Giòn sần sật."
+          },
+          {
+            "id": 409,
+            "name": "Combo Rau",
+            "price": 85000,
+            "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80",
+            "description": "Rau nấm tổng hợp."
+          },
+          {
+            "id": 410,
+            "name": "Múa Mì",
+            "price": 20000,
+            "image": "https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?auto=format&fit=crop&w=400&q=80",
+            "description": "Biểu diễn tại bàn."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "restaurantId": 5,
+    "restaurantName": "McDonald's Bưu Điện TP",
+    "menu": [
+      {
+        "category": "Burger & Gà",
+        "items": [
+          {
+            "id": 501,
+            "name": "Big Mac",
+            "price": 79000,
+            "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80",
+            "description": "Burger bò 2 lớp."
+          },
+          {
+            "id": 502,
+            "name": "McChicken",
+            "price": 55000,
+            "image": "https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?auto=format&fit=crop&w=400&q=80",
+            "description": "Burger gà sốt mayo."
+          },
+          {
+            "id": 503,
+            "name": "Double Cheese",
+            "price": 65000,
+            "image": "https://images.unsplash.com/photo-1605789538467-f715d58e03f9?auto=format&fit=crop&w=400&q=80",
+            "description": "2 bò 2 phô mai."
+          },
+          {
+            "id": 504,
+            "name": "Gà Rán Giòn",
+            "price": 38000,
+            "image": "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=400&q=80",
+            "description": "Da giòn thịt mềm."
+          },
+          {
+            "id": 505,
+            "name": "6 McNuggets",
+            "price": 55000,
+            "image": "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=400&q=80",
+            "description": "Gà viên chiên."
+          },
+          {
+            "id": 506,
+            "name": "Cơm Gà Rán",
+            "price": 45000,
+            "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=400&q=80",
+            "description": "Cơm trắng kèm gà."
+          },
+          {
+            "id": 507,
+            "name": "Khoai Tây Chiên",
+            "price": 35000,
+            "image": "https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?auto=format&fit=crop&w=400&q=80",
+            "description": "Vàng giòn."
+          },
+          {
+            "id": 508,
+            "name": "Coca-Cola",
+            "price": 25000,
+            "image": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80",
+            "description": "Tươi mát lạnh."
+          },
+          {
+            "id": 509,
+            "name": "Kem Vani",
+            "price": 15000,
+            "image": "https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?auto=format&fit=crop&w=400&q=80",
+            "description": "Kem tươi ốc quế."
+          },
+          {
+            "id": 510,
+            "name": "Bánh Táo",
+            "price": 30000,
+            "image": "https://images.unsplash.com/photo-1568571780765-9276ac8b75a2?auto=format&fit=crop&w=400&q=80",
+            "description": "Nóng hổi thơm quế."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "restaurantId": 6,
+    "restaurantName": "Pizza 4P's - Chợ Bến Thành",
+    "menu": [
+      {
+        "category": "Pizza & Pasta",
+        "items": [
+          {
+            "id": 601,
+            "name": "Pizza 4 Cheese",
+            "price": 280000,
+            "image": "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400&q=80",
+            "description": "Kèm mật ong."
+          },
+          {
+            "id": 602,
+            "name": "Pizza Cá Hồi",
+            "price": 260000,
+            "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=400&q=80",
+            "description": "Sốt miso béo ngậy."
+          },
+          {
+            "id": 603,
+            "name": "Pizza Burrata",
+            "price": 390000,
+            "image": "https://images.unsplash.com/photo-1595854341625-f33ee10d8e7b?auto=format&fit=crop&w=400&q=80",
+            "description": "Phô mai tươi nguyên khối."
+          },
+          {
+            "id": 604,
+            "name": "Mỳ Cua Kem",
+            "price": 250000,
+            "image": "https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?auto=format&fit=crop&w=400&q=80",
+            "description": "Sốt kem cà chua thịt cua."
+          },
+          {
+            "id": 605,
+            "name": "Mỳ Bò Bằm",
+            "price": 180000,
+            "image": "https://images.unsplash.com/photo-1626844131082-256783844137?auto=format&fit=crop&w=400&q=80",
+            "description": "Bolognese nấu chậm."
+          },
+          {
+            "id": 606,
+            "name": "Salad Burrata",
+            "price": 190000,
+            "image": "https://images.unsplash.com/photo-1529312266912-b33cf6227e2f?auto=format&fit=crop&w=400&q=80",
+            "description": "Trái cây nhiệt đới."
+          },
+          {
+            "id": 607,
+            "name": "Khoai Nghiền",
+            "price": 60000,
+            "image": "https://images.unsplash.com/photo-1633424540567-27b726a1e675?auto=format&fit=crop&w=400&q=80",
+            "description": "Mịn màng sốt gravy."
+          },
+          {
+            "id": 608,
+            "name": "Pizza Táo Kem",
+            "price": 120000,
+            "image": "https://images.unsplash.com/photo-1562007908-17c67e8724db?auto=format&fit=crop&w=400&q=80",
+            "description": "Tráng miệng đặc biệt."
+          },
+          {
+            "id": 609,
+            "name": "Tiramisu",
+            "price": 90000,
+            "image": "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=400&q=80",
+            "description": "Chuẩn vị Ý."
+          },
+          {
+            "id": 610,
+            "name": "Pudding",
+            "price": 65000,
+            "image": "https://images.unsplash.com/photo-1517762587533-3bc568e6620c?auto=format&fit=crop&w=400&q=80",
+            "description": "Pudding phô mai."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "restaurantId": 7,
+    "restaurantName": "Highlands Coffee - Hồ Con Rùa",
+    "menu": [
+      {
+        "category": "Cà Phê & Trà",
+        "items": [
+          {
+            "id": 701,
+            "name": "Phin Sữa Đá",
+            "price": 39000,
+            "image": "https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?auto=format&fit=crop&w=400&q=80",
+            "description": "Đậm đà truyền thống."
+          },
+          {
+            "id": 702,
+            "name": "Phin Đen Đá",
+            "price": 35000,
+            "image": "https://images.unsplash.com/photo-1559496417-e7f25cb247f3?auto=format&fit=crop&w=400&q=80",
+            "description": "Mạnh mẽ."
+          },
+          {
+            "id": 703,
+            "name": "Bạc Xỉu",
+            "price": 39000,
+            "image": "https://images.unsplash.com/photo-1582236319363-2216839eb948?auto=format&fit=crop&w=400&q=80",
+            "description": "Nhiều sữa ít cafe."
+          },
+          {
+            "id": 704,
+            "name": "Freeze Trà Xanh",
+            "price": 55000,
+            "image": "https://images.unsplash.com/photo-1512568400610-62da28bc8a13?auto=format&fit=crop&w=400&q=80",
+            "description": "Kèm thạch dai."
+          },
+          {
+            "id": 705,
+            "name": "Caramel Freeze",
+            "price": 59000,
+            "image": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=400&q=80",
+            "description": "Đá xay caramel."
+          },
+          {
+            "id": 706,
+            "name": "Cookies & Cream",
+            "price": 59000,
+            "image": "https://images.unsplash.com/photo-1563583594-c78207ba0639?auto=format&fit=crop&w=400&q=80",
+            "description": "Đá xay bánh quy."
+          },
+          {
+            "id": 707,
+            "name": "Trà Sen Vàng",
+            "price": 55000,
+            "image": "https://images.unsplash.com/photo-1594266396996-2244b77c5c02?auto=format&fit=crop&w=400&q=80",
+            "description": "Hạt sen kem mặn."
+          },
+          {
+            "id": 708,
+            "name": "Trà Thạch Đào",
+            "price": 55000,
+            "image": "https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?auto=format&fit=crop&w=400&q=80",
+            "description": "Miếng đào giòn."
+          },
+          {
+            "id": 709,
+            "name": "Bánh Mì Que",
+            "price": 19000,
+            "image": "https://images.unsplash.com/photo-1626509653295-802528373684?auto=format&fit=crop&w=400&q=80",
+            "description": "Pate cay."
+          },
+          {
+            "id": 710,
+            "name": "Bánh Chuối",
+            "price": 29000,
+            "image": "https://images.unsplash.com/photo-1603532648955-039310d9ed75?auto=format&fit=crop&w=400&q=80",
+            "description": "Thơm mềm."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "restaurantId": 8,
+    "restaurantName": "Bánh Mì Huỳnh Hoa",
+    "menu": [
+      {
+        "category": "Bánh Mì & Đồ Nguội",
+        "items": [
+          {
+            "id": 801,
+            "name": "Bánh Mì Đặc Biệt",
+            "price": 68000,
+            "image": "https://images.unsplash.com/photo-1599341777229-22a3041925b4?auto=format&fit=crop&w=400&q=80",
+            "description": "Full topping thịt chả."
+          },
+          {
+            "id": 802,
+            "name": "Bánh Mì Chả Lụa",
+            "price": 50000,
+            "image": "https://images.unsplash.com/photo-1630225303798-349a4697970d?auto=format&fit=crop&w=400&q=80",
+            "description": "Chả lụa truyền thống."
+          },
+          {
+            "id": 803,
+            "name": "Bánh Mì Xíu Mại",
+            "price": 55000,
+            "image": "https://images.unsplash.com/photo-1591540307373-d02951756247?auto=format&fit=crop&w=400&q=80",
+            "description": "Sốt cà chua đậm đà."
+          },
+          {
+            "id": 804,
+            "name": "Hộp Pate 200g",
+            "price": 120000,
+            "image": "https://images.unsplash.com/photo-1571527376036-7c9ff7a39794?auto=format&fit=crop&w=400&q=80",
+            "description": "Pate độc quyền béo ngậy."
+          },
+          {
+            "id": 805,
+            "name": "Hộp Bơ 100g",
+            "price": 60000,
+            "image": "https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=400&q=80",
+            "description": "Bơ trứng đánh tay."
+          },
+          {
+            "id": 806,
+            "name": "Hộp Chả Lụa",
+            "price": 180000,
+            "image": "https://images.unsplash.com/photo-1601625479246-174092b34a6c?auto=format&fit=crop&w=400&q=80",
+            "description": "500g chả sạch."
+          },
+          {
+            "id": 807,
+            "name": "Nước Sâm",
+            "price": 15000,
+            "image": "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=400&q=80",
+            "description": "Sâm lạnh nhà nấu."
+          },
+          {
+            "id": 808,
+            "name": "Sữa Đậu Nành",
+            "price": 15000,
+            "image": "https://images.unsplash.com/photo-1603569283847-aa295f0d016a?auto=format&fit=crop&w=400&q=80",
+            "description": "Nguyên chất."
+          },
+          {
+            "id": 809,
+            "name": "Coca Cola",
+            "price": 15000,
+            "image": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=400&q=80",
+            "description": "Lon 330ml."
+          },
+          {
+            "id": 810,
+            "name": "Nước Suối",
+            "price": 10000,
+            "image": "https://images.unsplash.com/photo-1560023907-5f339617ea30?auto=format&fit=crop&w=400&q=80",
+            "description": "Chai 500ml."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "restaurantId": 9,
+    "restaurantName": "Kichi Kichi - Cao Thắng",
+    "menu": [
+      {
+        "category": "Buffet & Lẩu",
+        "items": [
+          {
+            "id": 901,
+            "name": "Buffet Trưa",
+            "price": 269000,
+            "image": "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=400&q=80",
+            "description": "Thứ 2 - Thứ 6."
+          },
+          {
+            "id": 902,
+            "name": "Buffet Tối",
+            "price": 299000,
+            "image": "https://images.unsplash.com/photo-1583096114844-06ce5a5f2fa2?auto=format&fit=crop&w=400&q=80",
+            "description": "Tối và cuối tuần."
+          },
+          {
+            "id": 903,
+            "name": "Vé Trẻ Em",
+            "price": 120000,
+            "image": "https://images.unsplash.com/photo-1606820246220-4df2334cb50c?auto=format&fit=crop&w=400&q=80",
+            "description": "Dưới 1m3."
+          },
+          {
+            "id": 904,
+            "name": "Lẩu Thái",
+            "price": 0,
+            "image": "https://images.unsplash.com/photo-1546241072-48010ad2862c?auto=format&fit=crop&w=400&q=80",
+            "description": "Chua cay."
+          },
+          {
+            "id": 905,
+            "name": "Lẩu Nấm",
+            "price": 0,
+            "image": "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=400&q=80",
+            "description": "Thanh đạm."
+          },
+          {
+            "id": 906,
+            "name": "Lẩu Cua Đồng",
+            "price": 0,
+            "image": "https://images.unsplash.com/photo-1634862772594-e0c332924379?auto=format&fit=crop&w=400&q=80",
+            "description": "Dân dã."
+          },
+          {
+            "id": 907,
+            "name": "Combo Hải Sản",
+            "price": 150000,
+            "image": "https://images.unsplash.com/photo-1623962470690-087a7837b6c3?auto=format&fit=crop&w=400&q=80",
+            "description": "Tôm mực gọi thêm."
+          },
+          {
+            "id": 908,
+            "name": "Bò Wagyu 100g",
+            "price": 199000,
+            "image": "https://images.unsplash.com/photo-1615937722923-67f6deaf2cc9?auto=format&fit=crop&w=400&q=80",
+            "description": "Vân mỡ đẹp."
+          },
+          {
+            "id": 909,
+            "name": "Nước Ngọt Refill",
+            "price": 39000,
+            "image": "https://images.unsplash.com/photo-1581006852262-e4307cf6283a?auto=format&fit=crop&w=400&q=80",
+            "description": "Uống thả ga."
+          },
+          {
+            "id": 910,
+            "name": "Bia Tiger",
+            "price": 35000,
+            "image": "https://images.unsplash.com/photo-1567696911980-2eed69a46042?auto=format&fit=crop&w=400&q=80",
+            "description": "Ướp lạnh."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "restaurantId": 10,
+    "restaurantName": "Phúc Long - Ngô Đức Kế",
+    "menu": [
+      {
+        "category": "Trà & Cà Phê",
+        "items": [
+          {
+            "id": 1001,
+            "name": "Trà Sữa Phúc Long",
+            "price": 55000,
+            "image": "https://images.unsplash.com/photo-1551988890-50b69c73797b?auto=format&fit=crop&w=400&q=80",
+            "description": "Đậm vị trà."
+          },
+          {
+            "id": 1002,
+            "name": "Hồng Trà Sữa",
+            "price": 50000,
+            "image": "https://images.unsplash.com/photo-1558855410-3112e474558d?auto=format&fit=crop&w=400&q=80",
+            "description": "Truyền thống."
+          },
+          {
+            "id": 1003,
+            "name": "Ô Long Sữa",
+            "price": 55000,
+            "image": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=400&q=80",
+            "description": "Thơm nhẹ."
+          },
+          {
+            "id": 1004,
+            "name": "Trà Đào Cam Sả",
+            "price": 60000,
+            "image": "https://images.unsplash.com/photo-1622353139332-9cb42ceb33dc?auto=format&fit=crop&w=400&q=80",
+            "description": "Best seller."
+          },
+          {
+            "id": 1005,
+            "name": "Trà Vải Lài",
+            "price": 55000,
+            "image": "https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=400&q=80",
+            "description": "Thơm ngát."
+          },
+          {
+            "id": 1006,
+            "name": "Trà Nhãn Sen",
+            "price": 55000,
+            "image": "https://images.unsplash.com/photo-1594266396996-2244b77c5c02?auto=format&fit=crop&w=400&q=80",
+            "description": "Thanh mát."
+          },
+          {
+            "id": 1007,
+            "name": "Choco Đá Xay",
+            "price": 65000,
+            "image": "https://images.unsplash.com/photo-1570158863921-6b8349232938?auto=format&fit=crop&w=400&q=80",
+            "description": "Xay mịn whipping."
+          },
+          {
+            "id": 1008,
+            "name": "Cà Phê Sữa",
+            "price": 35000,
+            "image": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=400&q=80",
+            "description": "Đậm đà."
+          },
+          {
+            "id": 1009,
+            "name": "Latte Nóng",
+            "price": 45000,
+            "image": "https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&w=400&q=80",
+            "description": "Sữa nóng."
+          },
+          {
+            "id": 1010,
+            "name": "Bánh Croissant",
+            "price": 35000,
+            "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=400&q=80",
+            "description": "Nhân trứng muối."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "restaurantId": 11,
+    "restaurantName": "Texas Chicken - Nguyễn Thái Học",
+    "menu": [
+      {
+        "category": "Gà & Combo",
+        "items": [
+          {
+            "id": 1101,
+            "name": "Combo 1 Người",
+            "price": 99000,
+            "image": "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=400&q=80",
+            "description": "2 gà + bánh + nước."
+          },
+          {
+            "id": 1102,
+            "name": "Combo 2 Người",
+            "price": 189000,
+            "image": "https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=400&q=80",
+            "description": "3 gà + burger + 2 nước."
+          },
+          {
+            "id": 1103,
+            "name": "Gà Rán Cay",
+            "price": 39000,
+            "image": "https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=400&q=80",
+            "description": "Tươi 100%."
+          },
+          {
+            "id": 1104,
+            "name": "Gà Truyền Thống",
+            "price": 39000,
+            "image": "https://images.unsplash.com/photo-1527477396000-64ca9c0016cb?auto=format&fit=crop&w=400&q=80",
+            "description": "Không cay."
+          },
+          {
+            "id": 1105,
+            "name": "Gà Không Xương",
+            "price": 45000,
+            "image": "https://images.unsplash.com/photo-1563897539633-267169d2305d?auto=format&fit=crop&w=400&q=80",
+            "description": "Ức gà mềm."
+          },
+          {
+            "id": 1106,
+            "name": "Burger Tôm",
+            "price": 49000,
+            "image": "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80",
+            "description": "Tôm nguyên miếng."
+          },
+          {
+            "id": 1107,
+            "name": "Cuốn Gà",
+            "price": 55000,
+            "image": "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=400&q=80",
+            "description": "Sốt mayonnaise."
+          },
+          {
+            "id": 1108,
+            "name": "Bánh Mật Ong",
+            "price": 15000,
+            "image": "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?auto=format&fit=crop&w=400&q=80",
+            "description": "Nổi tiếng Texas."
+          },
+          {
+            "id": 1109,
+            "name": "Khoai Nghiền",
+            "price": 25000,
+            "image": "https://images.unsplash.com/photo-1618449840665-9ed506d73a34?auto=format&fit=crop&w=400&q=80",
+            "description": "Sốt nâu."
+          },
+          {
+            "id": 1110,
+            "name": "Bắp Cải Trộn",
+            "price": 25000,
+            "image": "https://images.unsplash.com/photo-1550304943-4f24f54ddde9?auto=format&fit=crop&w=400&q=80",
+            "description": "Chống ngán."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "restaurantId": 12,
+    "restaurantName": "Manwah Taiwanese Hotpot",
+    "menu": [
+      {
+        "category": "Buffet & Lẩu",
+        "items": [
+          {
+            "id": 1201,
+            "name": "Buffet Người Lớn",
+            "price": 439000,
+            "image": "https://images.unsplash.com/photo-1536304993881-ff00228b4db1?auto=format&fit=crop&w=400&q=80",
+            "description": "Lẩu Đài Loan."
+          },
+          {
+            "id": 1202,
+            "name": "Buffet Trẻ Em",
+            "price": 219000,
+            "image": "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=400&q=80",
+            "description": "Dưới 1m3."
+          },
+          {
+            "id": 1203,
+            "name": "Lẩu Mala",
+            "price": 0,
+            "image": "https://images.unsplash.com/photo-1549488344-c7052fb51c5b?auto=format&fit=crop&w=400&q=80",
+            "description": "Cay nồng."
+          },
+          {
+            "id": 1204,
+            "name": "Lẩu Nấm",
+            "price": 0,
+            "image": "https://images.unsplash.com/photo-1547592166-23acbe346499?auto=format&fit=crop&w=400&q=80",
+            "description": "Ngọt thanh."
+          },
+          {
+            "id": 1205,
+            "name": "Gầu Hoa Bò",
+            "price": 0,
+            "image": "https://images.unsplash.com/photo-1599321955726-e04842d994e7?auto=format&fit=crop&w=400&q=80",
+            "description": "Giòn sần sật."
+          },
+          {
+            "id": 1206,
+            "name": "Bắp Bò Cừu",
+            "price": 0,
+            "image": "https://images.unsplash.com/photo-1615937691194-97dbd3f3dc29?auto=format&fit=crop&w=400&q=80",
+            "description": "Thơm mềm."
+          },
+          {
+            "id": 1207,
+            "name": "Heo Iberico",
+            "price": 0,
+            "image": "https://images.unsplash.com/photo-1606820246220-4df2334cb50c?auto=format&fit=crop&w=400&q=80",
+            "description": "Heo đen TBN."
+          },
+          {
+            "id": 1208,
+            "name": "Kem Fanny",
+            "price": 0,
+            "image": "https://images.unsplash.com/photo-1505394033641-40c6ad1178d7?auto=format&fit=crop&w=400&q=80",
+            "description": "10 vị."
+          },
+          {
+            "id": 1209,
+            "name": "Chè Khúc Bạch",
+            "price": 0,
+            "image": "https://images.unsplash.com/photo-1629853347530-5b53027b469b?auto=format&fit=crop&w=400&q=80",
+            "description": "Hạnh nhân."
+          },
+          {
+            "id": 1210,
+            "name": "Rượu Mơ",
+            "price": 89000,
+            "image": "https://images.unsplash.com/photo-1516552906809-7756f6424164?auto=format&fit=crop&w=400&q=80",
+            "description": "Nhật Bản."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "restaurantId": 13,
+    "restaurantName": "Gong Cha - Hồ Tùng Mậu",
+    "menu": [
+      {
+        "category": "Trà Sữa",
+        "items": [
+          {
+            "id": 1301,
+            "name": "TS Trân Châu Đen",
+            "price": 47000,
+            "image": "https://images.unsplash.com/photo-1558855410-3112e474558d?auto=format&fit=crop&w=400&q=80",
+            "description": "Truyền thống."
+          },
+          {
+            "id": 1302,
+            "name": "TS Hokkaido",
+            "price": 52000,
+            "image": "https://images.unsplash.com/photo-1546171753-97d7676e4602?auto=format&fit=crop&w=400&q=80",
+            "description": "Vị kẹo bơ."
+          },
+          {
+            "id": 1303,
+            "name": "TS Khoai Môn",
+            "price": 50000,
+            "image": "https://images.unsplash.com/photo-1571328003758-4a3921661729?auto=format&fit=crop&w=400&q=80",
+            "description": "Bùi béo."
+          },
+          {
+            "id": 1304,
+            "name": "Trà Xanh Đào",
+            "price": 49000,
+            "image": "https://images.unsplash.com/photo-1627435601361-ec25f5b1d0e5?auto=format&fit=crop&w=400&q=80",
+            "description": "Mứt đào."
+          },
+          {
+            "id": 1305,
+            "name": "Trà Alisan Vải",
+            "price": 52000,
+            "image": "https://images.unsplash.com/photo-1622353139332-9cb42ceb33dc?auto=format&fit=crop&w=400&q=80",
+            "description": "Hương vải."
+          },
+          {
+            "id": 1306,
+            "name": "Oolong Xoài",
+            "price": 52000,
+            "image": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=400&q=80",
+            "description": "Xoài nhiệt đới."
+          },
+          {
+            "id": 1307,
+            "name": "Trà Xanh Milk Foam",
+            "price": 45000,
+            "image": "https://images.unsplash.com/photo-1596522354195-e84de26cd1e1?auto=format&fit=crop&w=400&q=80",
+            "description": "Kem mặn."
+          },
+          {
+            "id": 1308,
+            "name": "Oolong Milk Foam",
+            "price": 45000,
+            "image": "https://images.unsplash.com/photo-1558350315-8aa00e8e4590?auto=format&fit=crop&w=400&q=80",
+            "description": "Trà rang."
+          },
+          {
+            "id": 1309,
+            "name": "Trân Châu Trắng",
+            "price": 10000,
+            "image": "https://images.unsplash.com/photo-1558160074-4d7d8bdf4256?auto=format&fit=crop&w=400&q=80",
+            "description": "Giòn."
+          },
+          {
+            "id": 1310,
+            "name": "Kem Milk Foam",
+            "price": 16000,
+            "image": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=400&q=80",
+            "description": "Thêm kem."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "restaurantId": 14,
+    "restaurantName": "Cơm Niêu Thiên Lý",
+    "menu": [
+      {
+        "category": "Cơm Niêu",
+        "items": [
+          {
+            "id": 1401,
+            "name": "Cơm Niêu Cháy",
+            "price": 20000,
+            "image": "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=400&q=80",
+            "description": "Cháy giòn 1 mặt."
+          },
+          {
+            "id": 1402,
+            "name": "Gà Sốt Nấm",
+            "price": 75000,
+            "image": "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?auto=format&fit=crop&w=400&q=80",
+            "description": "Nấm đông cô."
+          },
+          {
+            "id": 1403,
+            "name": "Bò Lúc Lắc",
+            "price": 95000,
+            "image": "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=400&q=80",
+            "description": "Bò mềm tiêu đen."
+          },
+          {
+            "id": 1404,
+            "name": "Cá Lóc Kho Tộ",
+            "price": 85000,
+            "image": "https://images.unsplash.com/photo-1516824711718-9c1e683412ac?auto=format&fit=crop&w=400&q=80",
+            "description": "Miền Tây."
+          },
+          {
+            "id": 1405,
+            "name": "Thịt Kho Mắm Ruốc",
+            "price": 75000,
+            "image": "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?auto=format&fit=crop&w=400&q=80",
+            "description": "Huế."
+          },
+          {
+            "id": 1406,
+            "name": "Sườn Chua Ngọt",
+            "price": 80000,
+            "image": "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80",
+            "description": "Sườn non."
+          },
+          {
+            "id": 1407,
+            "name": "Canh Cua Rau Đay",
+            "price": 55000,
+            "image": "https://images.unsplash.com/photo-1547592166-23acbe346499?auto=format&fit=crop&w=400&q=80",
+            "description": "Kèm cà pháo."
+          },
+          {
+            "id": 1408,
+            "name": "Thiên Lý Xào Tỏi",
+            "price": 45000,
+            "image": "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=400&q=80",
+            "description": "Xanh mướt."
+          },
+          {
+            "id": 1409,
+            "name": "Rau Kho Quẹt",
+            "price": 65000,
+            "image": "https://images.unsplash.com/photo-1605206927918-1c4b7b3b4507?auto=format&fit=crop&w=400&q=80",
+            "description": "Tôm khô."
+          },
+          {
+            "id": 1410,
+            "name": "Nước Sấu",
+            "price": 25000,
+            "image": "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=400&q=80",
+            "description": "Hà Nội."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "restaurantId": 15,
+    "restaurantName": "Starbucks Reserve - Hàn Thuyên",
+    "menu": [
+      {
+        "category": "Starbucks Coffee",
+        "items": [
+          {
+            "id": 1501,
+            "name": "Caffe Latte",
+            "price": 70000,
+            "image": "https://images.unsplash.com/photo-1551024601-5629436bb58c?auto=format&fit=crop&w=400&q=80",
+            "description": "Espresso sữa."
+          },
+          {
+            "id": 1502,
+            "name": "Caramel Macchiato",
+            "price": 80000,
+            "image": "https://images.unsplash.com/photo-1485808191679-5f8c7c97f2aa?auto=format&fit=crop&w=400&q=80",
+            "description": "Sốt caramel."
+          },
+          {
+            "id": 1503,
+            "name": "Americano",
+            "price": 60000,
+            "image": "https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=400&q=80",
+            "description": "Pha loãng."
+          },
+          {
+            "id": 1504,
+            "name": "Green Tea Cream",
+            "price": 95000,
+            "image": "https://images.unsplash.com/photo-1563583594-c78207ba0639?auto=format&fit=crop&w=400&q=80",
+            "description": "Matcha đá xay."
+          },
+          {
+            "id": 1505,
+            "name": "Java Chip",
+            "price": 95000,
+            "image": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=400&q=80",
+            "description": "Chip socola."
+          },
+          {
+            "id": 1506,
+            "name": "Caramel Frap",
+            "price": 90000,
+            "image": "https://images.unsplash.com/photo-1605270271506-f6d2b7d28743?auto=format&fit=crop&w=400&q=80",
+            "description": "Đá xay caramel."
+          },
+          {
+            "id": 1507,
+            "name": "Hibiscus Tea",
+            "price": 85000,
+            "image": "https://images.unsplash.com/photo-1594266396996-2244b77c5c02?auto=format&fit=crop&w=400&q=80",
+            "description": "Trân châu lựu."
+          },
+          {
+            "id": 1508,
+            "name": "Chai Tea Latte",
+            "price": 75000,
+            "image": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=400&q=80",
+            "description": "Hương gia vị."
+          },
+          {
+            "id": 1509,
+            "name": "Croissant Bơ",
+            "price": 45000,
+            "image": "https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=400&q=80",
+            "description": "Pháp."
+          },
+          {
+            "id": 1510,
+            "name": "Muffin Việt Quất",
+            "price": 50000,
+            "image": "https://images.unsplash.com/photo-1558401367-936d40775d71?auto=format&fit=crop&w=400&q=80",
+            "description": "Xốp mềm."
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>S2O - Tài khoản</title>
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css"
+    />
+    <!-- Font Google -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-color: #e85d04; /* Burnt Orange */
+        --primary-light: #ff9e66;
+        --primary-dark: #c14a04;
+        --light-bg: #f8f9fa;
+        --gray-light: #e9ecef;
+        --gray-medium: #adb5bd;
+        --gray-dark: #495057;
+        --gold-color: #ffd700;
+        --silver-color: #c0c0c0;
+      }
+
+      * {
+        font-family: "Inter", sans-serif;
+      }
+
+      body {
+        background-color: #ffffff;
+        padding-bottom: 70px; /* Space for bottom nav */
+      }
+
+      /* Header */
+      .sticky-header {
+        position: sticky;
+        top: 0;
+        z-index: 1020;
+        background-color: white;
+        padding: 15px 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .page-title {
+        color: var(--primary-color);
+        font-weight: 700;
+        margin-bottom: 0;
+      }
+
+      /* User Profile Section */
+      .profile-header {
+        background: linear-gradient(
+          135deg,
+          var(--primary-light) 0%,
+          var(--primary-color) 100%
+        );
+        border-radius: 15px;
+        padding: 25px 20px;
+        margin-bottom: 25px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .profile-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: translate(30%, -30%);
+      }
+
+      .profile-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 3px solid white;
+        object-fit: cover;
+        margin-bottom: 15px;
+      }
+
+      .user-name {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+      }
+
+      .user-email {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-bottom: 15px;
+      }
+
+      /* Membership Badge */
+      .membership-badge {
+        display: inline-flex;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 6px 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+      }
+
+      .membership-icon {
+        margin-right: 8px;
+        font-size: 1rem;
+      }
+
+      .membership-gold {
+        color: var(--gold-color);
+      }
+
+      .membership-silver {
+        color: var(--silver-color);
+      }
+
+      /* Stats */
+      .stats-container {
+        display: flex;
+        justify-content: space-around;
+        background-color: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+
+      .stat-item {
+        text-align: center;
+        flex: 1;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        font-size: 0.85rem;
+        color: var(--gray-medium);
+      }
+
+      /* Menu Items */
+      .menu-container {
+        background-color: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        margin-bottom: 25px;
+      }
+
+      .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 18px 20px;
+        text-decoration: none;
+        color: var(--gray-dark);
+        border-bottom: 1px solid var(--gray-light);
+        transition: all 0.2s ease;
+      }
+
+      .menu-item:last-child {
+        border-bottom: none;
+      }
+
+      .menu-item:hover {
+        background-color: var(--light-bg);
+        color: var(--primary-color);
+      }
+
+      .menu-item:hover .menu-icon {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .menu-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background-color: var(--light-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        transition: all 0.2s ease;
+      }
+
+      .menu-text {
+        flex: 1;
+        font-weight: 500;
+      }
+
+      .menu-arrow {
+        color: var(--gray-medium);
+        font-size: 0.9rem;
+      }
+
+      /* Settings Section */
+      .settings-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--gray-dark);
+        margin-bottom: 15px;
+        padding-left: 10px;
+      }
+
+      /* Logout Button */
+      .logout-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border: 1px solid var(--gray-light);
+        border-radius: 12px;
+        color: #dc3545;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+
+      .logout-btn:hover {
+        background-color: #dc3545;
+        color: white;
+        border-color: #dc3545;
+      }
+
+      /* Bottom Navigation */
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: white;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+        z-index: 1030;
+        padding: 10px 0;
+      }
+
+      .nav-item {
+        text-align: center;
+        color: var(--gray-medium);
+        text-decoration: none;
+        flex: 1;
+        padding: 8px 0;
+        transition: color 0.2s ease;
+      }
+
+      .nav-item.active,
+      .nav-item:hover {
+        color: var(--primary-color);
+      }
+
+      .nav-icon {
+        font-size: 1.4rem;
+        display: block;
+        margin-bottom: 3px;
+      }
+
+      .nav-text {
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+
+      /* Responsive adjustments */
+      @media (min-width: 768px) {
+        .profile-avatar {
+          width: 100px;
+          height: 100px;
+        }
+
+        .user-name {
+          font-size: 1.6rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="sticky-header">
+      <div class="container">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <h1 class="page-title h4 mb-0">Tài khoản</h1>
+            <p class="text-muted mb-0 small">Quản lý thông tin cá nhân</p>
+          </div>
+          <div class="position-relative">
+            <i
+              class="bi bi-gear"
+              style="font-size: 1.2rem; color: var(--gray-medium)"
+            ></i>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="text-center">
+          <img
+            src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80"
+            alt="Người dùng"
+            class="profile-avatar"
+          />
+          <div class="user-name">Nguyễn Văn A</div>
+          <div class="user-email">nguyenvana@email.com</div>
+          <div class="membership-badge">
+            <i class="bi bi-award-fill membership-icon membership-gold"></i>
+            Thành viên Gold
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-container">
+        <div class="stat-item">
+          <div class="stat-value">24</div>
+          <div class="stat-label">Đơn hàng</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">8</div>
+          <div class="stat-label">Yêu thích</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">2,450</div>
+          <div class="stat-label">Điểm tích lũy</div>
+        </div>
+      </div>
+
+      <!-- Main Menu -->
+      <div class="menu-container">
+        <a href="#" class="menu-item" id="personalInfo">
+          <div class="menu-icon">
+            <i class="bi bi-person-circle"></i>
+          </div>
+          <div class="menu-text">Thông tin cá nhân</div>
+          <div class="menu-arrow">
+            <i class="bi bi-chevron-right"></i>
+          </div>
+        </a>
+
+        <a href="#" class="menu-item" id="savedAddresses">
+          <div class="menu-icon">
+            <i class="bi bi-geo-alt"></i>
+          </div>
+          <div class="menu-text">Địa chỉ đã lưu</div>
+          <div class="menu-arrow">
+            <i class="bi bi-chevron-right"></i>
+          </div>
+        </a>
+
+        <a href="#" class="menu-item" id="paymentMethods">
+          <div class="menu-icon">
+            <i class="bi bi-credit-card"></i>
+          </div>
+          <div class="menu-text">Phương thức thanh toán</div>
+          <div class="menu-arrow">
+            <i class="bi bi-chevron-right"></i>
+          </div>
+        </a>
+
+        <a href="#" class="menu-item" id="voucherWallet">
+          <div class="menu-icon">
+            <i class="bi bi-wallet2"></i>
+          </div>
+          <div class="menu-text">Ví ưu đãi</div>
+          <div class="menu-arrow">
+            <span class="badge bg-primary">3 mới</span>
+            <i class="bi bi-chevron-right ms-2"></i>
+          </div>
+        </a>
+      </div>
+
+      <!-- Settings Menu -->
+      <div class="settings-title">Cài đặt</div>
+
+      <div class="menu-container">
+        <a href="#" class="menu-item" id="notifications">
+          <div class="menu-icon">
+            <i class="bi bi-bell"></i>
+          </div>
+          <div class="menu-text">Thông báo</div>
+          <div class="menu-arrow">
+            <i
+              class="bi bi-toggle-on"
+              style="color: var(--primary-color); font-size: 1.2rem"
+            ></i>
+          </div>
+        </a>
+
+        <a href="#" class="menu-item" id="privacy">
+          <div class="menu-icon">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <div class="menu-text">Quyền riêng tư</div>
+          <div class="menu-arrow">
+            <i class="bi bi-chevron-right"></i>
+          </div>
+        </a>
+
+        <a href="#" class="menu-item" id="help">
+          <div class="menu-icon">
+            <i class="bi bi-question-circle"></i>
+          </div>
+          <div class="menu-text">Trợ giúp & Hỗ trợ</div>
+          <div class="menu-arrow">
+            <i class="bi bi-chevron-right"></i>
+          </div>
+        </a>
+
+        <a href="#" class="menu-item" id="about">
+          <div class="menu-icon">
+            <i class="bi bi-info-circle"></i>
+          </div>
+          <div class="menu-text">Về S2O</div>
+          <div class="menu-arrow">
+            <i class="bi bi-chevron-right"></i>
+          </div>
+        </a>
+      </div>
+
+      <!-- Logout Button -->
+      <button class="logout-btn mt-4" id="logoutBtn">
+        <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
+      </button>
+
+      <!-- Version Info -->
+      <div class="text-center mt-4 mb-5">
+        <small class="text-muted">S2O App phiên bản 1.0.0</small>
+      </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <div class="container">
+        <div class="d-flex justify-content-around">
+          <a href="restaurant-list.html" class="nav-item">
+            <i class="bi bi-house-door nav-icon"></i>
+            <span class="nav-text">Trang chủ</span>
+          </a>
+          <a href="tracking.html" class="nav-item">
+            <i class="bi bi-receipt nav-icon"></i>
+            <span class="nav-text">Đơn hàng</span>
+          </a>
+          <a href="restaurant-list.html" class="nav-item">
+            <i class="bi bi-heart nav-icon"></i>
+            <span class="nav-text">Yêu thích</span>
+          </a>
+          <a href="profile.html" class="nav-item active">
+            <i class="bi bi-person nav-icon"></i>
+            <span class="nav-text">Tài khoản</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // Mock user data
+      const userData = {
+        name: "Nguyễn Văn A",
+        email: "nguyenvana@email.com",
+        phone: "0987654321",
+        membership: "gold",
+        joinDate: "15/03/2023",
+        totalOrders: 24,
+        totalFavorites: 8,
+        loyaltyPoints: 2450,
+      };
+
+      // DOM Elements
+      const logoutBtn = document.getElementById("logoutBtn");
+      const menuItems = document.querySelectorAll(".menu-item");
+      const notificationToggle = document.querySelector(
+        "#notifications .menu-arrow i"
+      );
+
+      // Update user stats
+      function updateUserStats() {
+        document.querySelector(".user-name").textContent = userData.name;
+        document.querySelector(".user-email").textContent = userData.email;
+        document.querySelector(".stat-value:nth-child(1)").textContent =
+          userData.totalOrders;
+        document.querySelector(".stat-value:nth-child(2)").textContent =
+          userData.totalFavorites;
+        document.querySelector(".stat-value:nth-child(3)").textContent =
+          userData.loyaltyPoints.toLocaleString();
+
+        // Update membership badge
+        const membershipBadge = document.querySelector(".membership-badge");
+        const membershipIcon = document.querySelector(".membership-icon");
+
+        if (userData.membership === "gold") {
+          membershipBadge.innerHTML =
+            '<i class="bi bi-award-fill membership-icon membership-gold"></i> Thành viên Gold';
+          membershipIcon.className =
+            "bi bi-award-fill membership-icon membership-gold";
+        } else {
+          membershipBadge.innerHTML =
+            '<i class="bi bi-award-fill membership-icon membership-silver"></i> Thành viên Silver';
+          membershipIcon.className =
+            "bi bi-award-fill membership-icon membership-silver";
+        }
+      }
+
+      // Toggle notification
+      function toggleNotification() {
+        if (notificationToggle.classList.contains("bi-toggle-on")) {
+          notificationToggle.classList.remove("bi-toggle-on");
+          notificationToggle.classList.add("bi-toggle-off");
+          notificationToggle.style.color = "var(--gray-medium)";
+          alert("Đã tắt thông báo");
+        } else {
+          notificationToggle.classList.remove("bi-toggle-off");
+          notificationToggle.classList.add("bi-toggle-on");
+          notificationToggle.style.color = "var(--primary-color)";
+          alert("Đã bật thông báo");
+        }
+      }
+
+      // Event Listeners
+      function setupEventListeners() {
+        // Logout button
+        logoutBtn.addEventListener("click", function () {
+          if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+            alert("Đã đăng xuất thành công!");
+            // Trong ứng dụng thực tế, sẽ chuyển hướng đến trang đăng nhập
+            // window.location.href = 'login.html';
+          }
+        });
+
+        // Menu items click events
+        menuItems.forEach((item) => {
+          item.addEventListener("click", function (e) {
+            e.preventDefault();
+            const menuId = this.id;
+
+            switch (menuId) {
+              case "personalInfo":
+                alert('Tính năng "Thông tin cá nhân" đang được phát triển!');
+                break;
+              case "savedAddresses":
+                alert('Tính năng "Địa chỉ đã lưu" đang được phát triển!');
+                break;
+              case "paymentMethods":
+                alert(
+                  'Tính năng "Phương thức thanh toán" đang được phát triển!'
+                );
+                break;
+              case "voucherWallet":
+                alert('Tính năng "Ví ưu đãi" đang được phát triển!');
+                break;
+              case "notifications":
+                toggleNotification();
+                break;
+              case "privacy":
+                alert('Tính năng "Quyền riêng tư" đang được phát triển!');
+                break;
+              case "help":
+                alert('Tính năng "Trợ giúp & Hỗ trợ" đang được phát triển!');
+                break;
+              case "about":
+                alert("S2O - Scan2Order\nPhiên bản 1.0.0\n© 2024 S2O Team");
+                break;
+            }
+          });
+        });
+
+        // Bottom nav items events
+        const navItems = document.querySelectorAll(".nav-item");
+        navItems.forEach((item) => {
+          item.addEventListener("click", function (e) {
+            // Remove active class from all nav items
+            navItems.forEach((nav) => nav.classList.remove("active"));
+
+            // Add active class to clicked item
+            this.classList.add("active");
+          });
+        });
+      }
+
+      // Initialize the page
+      function init() {
+        updateUserStats();
+        setupEventListeners();
+      }
+
+      // Run initialization when DOM is loaded
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
