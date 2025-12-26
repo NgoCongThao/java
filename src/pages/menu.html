@@ -3,2315 +3,924 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>S2O Food - Đặt món trực tuyến</title>
+    <title>S2O Food - Menu & Đánh giá</title>
 
-    <!-- Bootstrap 5 CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-
-    <!-- Font Awesome -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
 
     <style>
-      /* Custom CSS Variables */
       :root {
-        --primary-color: #e85d04;
-        --primary-light: #ff9d4e;
-        --primary-dark: #c34a02;
-        --secondary-color: #6c757d;
-        --success-color: #28a745;
-        --danger-color: #dc3545;
-        --warning-color: #fd7e14;
-        --info-color: #17a2b8;
-        --light-color: #f8f9fa;
-        --dark-color: #212529;
-        --white: #ffffff;
-        --gray-100: #f8f9fa;
-        --gray-200: #e9ecef;
-        --gray-300: #dee2e6;
-        --gray-400: #ced4da;
-        --gray-500: #adb5bd;
-        --gray-600: #6c757d;
-        --gray-700: #495057;
-        --gray-800: #343a40;
-        --gray-900: #212529;
-
-        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
-        --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.12);
-        --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.15);
-
-        --border-radius-sm: 8px;
-        --border-radius-md: 12px;
-        --border-radius-lg: 16px;
-        --border-radius-xl: 20px;
-        --border-radius-full: 9999px;
-
-        --transition-fast: 0.2s ease;
-        --transition-normal: 0.3s ease;
-        --transition-slow: 0.5s ease;
+        --primary: #e85d04;
+        --dark: #1a1a1a;
+        --gray: #6c757d;
+        --light-bg: #f8f9fa;
+        --radius: 12px;
       }
-
-      /* Base Styles */
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
       body {
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-          Roboto, Oxygen, Ubuntu, sans-serif;
-        background-color: var(--white);
-        color: var(--gray-900);
-        line-height: 1.5;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        overflow-x: hidden;
-        padding-bottom: 80px;
+        font-family: "Inter", sans-serif;
+        background: var(--light-bg);
+        padding-bottom: 100px;
       }
 
-      /* Header với Parallax Effect */
+      /* HEADER & NAV */
       .restaurant-header {
         position: relative;
         height: 35vh;
-        min-height: 280px;
-        max-height: 400px;
-        overflow: hidden;
-        background: linear-gradient(135deg, var(--gray-900), var(--gray-800));
+        min-height: 250px;
+        background-color: var(--dark);
+        color: white;
+        display: flex;
+        align-items: flex-end;
       }
-
-      .parallax-bg {
+      .header-bg {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
-        height: 120%;
+        height: 100%;
         background-size: cover;
         background-position: center;
-        background-repeat: no-repeat;
-        transform: translateZ(0);
-        will-change: transform;
-        opacity: 0.8;
+        opacity: 0.6;
+        mask-image: linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 1),
+          rgba(0, 0, 0, 0.3)
+        );
       }
-
-      .header-overlay {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 70%;
-        background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
-        z-index: 1;
-      }
-
       .header-content {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        padding: 20px 20px 24px;
-        color: var(--white);
+        position: relative;
         z-index: 2;
+        padding: 20px;
+        width: 100%;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
       }
-
       .back-btn {
         position: absolute;
         top: 20px;
-        left: 16px;
-        width: 44px;
-        height: 44px;
-        border-radius: var(--border-radius-full);
-        background-color: rgba(255, 255, 255, 0.95);
-        border: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--gray-900);
-        font-size: 20px;
-        box-shadow: var(--shadow-md);
+        left: 20px;
         z-index: 10;
-        cursor: pointer;
-        transition: all var(--transition-fast);
-      }
-
-      .back-btn:hover {
-        background-color: var(--white);
-        transform: scale(1.05);
-      }
-
-      .restaurant-name {
-        font-size: 1.75rem;
-        font-weight: 900;
-        margin-bottom: 8px;
-        line-height: 1.2;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      }
-
-      .restaurant-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        margin-bottom: 16px;
-        font-size: 0.9rem;
-        opacity: 0.95;
-      }
-
-      .restaurant-meta-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
-
-      .restaurant-rating {
-        display: inline-flex;
-        align-items: center;
-        background-color: rgba(255, 255, 255, 0.2);
-        padding: 6px 14px;
-        border-radius: var(--border-radius-full);
-        font-size: 0.9rem;
-        font-weight: 600;
-        backdrop-filter: blur(4px);
-      }
-
-      .restaurant-rating i {
-        color: #ffd700;
-        margin-right: 6px;
-      }
-
-      /* Sticky Category Navigation */
-      .category-nav-container {
-        position: sticky;
-        top: 0;
-        z-index: 900;
-        background-color: var(--white);
-        box-shadow: var(--shadow-sm);
-        transition: all var(--transition-normal);
-      }
-
-      .category-nav {
-        display: flex;
-        overflow-x: auto;
-        padding: 12px 16px;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-      }
-
-      .category-nav::-webkit-scrollbar {
-        display: none;
-      }
-
-      .category-item {
-        padding: 10px 20px;
-        white-space: nowrap;
-        font-weight: 500;
-        color: var(--gray-600);
-        background-color: transparent;
+        background: rgba(255, 255, 255, 0.9);
         border: none;
-        border-radius: var(--border-radius-full);
-        cursor: pointer;
-        transition: all var(--transition-fast);
-        flex-shrink: 0;
-        margin-right: 8px;
-        font-size: 0.95rem;
-      }
-
-      .category-item:hover {
-        color: var(--primary-color);
-        background-color: rgba(232, 93, 4, 0.05);
-      }
-
-      .category-item.active {
-        color: var(--primary-color);
-        background-color: rgba(232, 93, 4, 0.1);
-        font-weight: 700;
-      }
-
-      /* Menu Item Cards */
-      .menu-container {
-        max-width: 100%;
-        padding: 0 16px 24px;
-      }
-
-      .category-section {
-        margin-bottom: 32px;
-        scroll-margin-top: 100px;
-      }
-
-      .category-title {
-        font-size: 1.4rem;
-        font-weight: 800;
-        margin-bottom: 20px;
-        color: var(--gray-900);
-        padding-bottom: 12px;
-        border-bottom: 2px solid var(--gray-200);
-        position: relative;
-      }
-
-      .category-title::after {
-        content: "";
-        position: absolute;
-        bottom: -2px;
-        left: 0;
-        width: 60px;
-        height: 2px;
-        background-color: var(--primary-color);
-      }
-
-      .menu-item-card {
-        display: flex;
-        padding: 18px 0;
-        border-bottom: 1px solid var(--gray-200);
-        cursor: pointer;
-        transition: all var(--transition-fast);
-        position: relative;
-      }
-
-      .menu-item-card:last-child {
-        border-bottom: none;
-      }
-
-      .menu-item-card:hover {
-        background-color: rgba(232, 93, 4, 0.02);
-        transform: translateX(4px);
-      }
-
-      .menu-item-image {
-        width: 100px;
-        height: 100px;
-        border-radius: var(--border-radius-md);
-        overflow: hidden;
-        flex-shrink: 0;
-        margin-right: 16px;
-        box-shadow: var(--shadow-sm);
-        position: relative;
-      }
-
-      .menu-item-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform var(--transition-normal);
-      }
-
-      .menu-item-card:hover .menu-item-image img {
-        transform: scale(1.05);
-      }
-
-      .menu-item-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-      }
-
-      .menu-item-name {
-        font-size: 1.05rem;
-        font-weight: 700;
-        margin-bottom: 6px;
-        color: var(--gray-900);
-        line-height: 1.3;
-      }
-
-      .menu-item-description {
-        font-size: 0.875rem;
-        color: var(--gray-600);
-        margin-bottom: 12px;
-        line-height: 1.4;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-
-      .menu-item-price {
-        font-size: 1.1rem;
-        font-weight: 800;
-        color: var(--primary-color);
-      }
-
-      .menu-item-rating {
-        display: flex;
-        align-items: center;
-        margin-top: 8px;
-        font-size: 0.8rem;
-        color: var(--gray-600);
-      }
-
-      .menu-item-rating i {
-        color: #ffd700;
-        margin-right: 4px;
-      }
-
-      /* Bottom Cart Bar */
-      .bottom-cart-bar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background-color: var(--white);
-        padding: 16px 20px;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        z-index: 1000;
-        transform: translateY(100%);
-        transition: transform var(--transition-normal);
-      }
-
-      .bottom-cart-bar.visible {
-        transform: translateY(0);
-      }
-
-      .cart-summary {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-      }
-
-      .cart-items-count {
-        font-weight: 600;
-        color: var(--gray-800);
-        margin-bottom: 4px;
-        font-size: 0.95rem;
-      }
-
-      .cart-total-price {
-        font-size: 1.3rem;
-        font-weight: 800;
-        color: var(--primary-color);
-      }
-
-      .view-cart-btn {
-        background-color: var(--primary-color);
-        color: var(--white);
-        border: none;
-        border-radius: var(--border-radius-md);
-        padding: 14px 28px;
-        font-weight: 700;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: all var(--transition-fast);
-        white-space: nowrap;
-        margin-left: 16px;
-        box-shadow: var(--shadow-sm);
-      }
-
-      .view-cart-btn:hover {
-        background-color: var(--primary-dark);
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-      }
-
-      /* Item Detail Modal - Custom Style */
-      .modal-dialog {
-        margin: 0;
-        max-width: 100%;
-        height: 100%;
-      }
-
-      .modal-content {
-        border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
-        border: none;
-        min-height: 80vh;
-        max-height: 90vh;
-        overflow-y: auto;
-      }
-
-      .modal-header {
-        border-bottom: 1px solid var(--gray-200);
-        padding: 20px;
-        position: relative;
-      }
-
-      .modal-title {
-        font-weight: 800;
-        color: var(--gray-900);
-      }
-
-      .modal-body {
-        padding: 0;
-      }
-
-      /* Item Detail Content */
-      .item-detail-image {
-        width: 100%;
-        height: 250px;
-        object-fit: cover;
-        border-radius: 0;
-      }
-
-      .item-detail-content {
-        padding: 24px;
-      }
-
-      .item-detail-name {
-        font-size: 1.6rem;
-        font-weight: 800;
-        margin-bottom: 12px;
-        color: var(--gray-900);
-      }
-
-      .item-detail-price {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: var(--primary-color);
-        margin-bottom: 20px;
-      }
-
-      .item-detail-description {
-        font-size: 1rem;
-        color: var(--gray-700);
-        line-height: 1.6;
-        margin-bottom: 30px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid var(--gray-200);
-      }
-
-      /* Reviews Tab */
-      .nav-tabs {
-        border-bottom: 1px solid var(--gray-200);
-        padding: 0 24px;
-      }
-
-      .nav-tabs .nav-link {
-        border: none;
-        color: var(--gray-600);
-        font-weight: 600;
-        padding: 16px 20px;
-        border-radius: 0;
-        position: relative;
-      }
-
-      .nav-tabs .nav-link.active {
-        color: var(--primary-color);
-        background-color: transparent;
-      }
-
-      .nav-tabs .nav-link.active::after {
-        content: "";
-        position: absolute;
-        bottom: -1px;
-        left: 0;
-        width: 100%;
-        height: 3px;
-        background-color: var(--primary-color);
-      }
-
-      .tab-content {
-        padding: 24px;
-      }
-
-      /* Reviews List */
-      .review-item {
-        padding: 20px 0;
-        border-bottom: 1px solid var(--gray-200);
-      }
-
-      .review-item:last-child {
-        border-bottom: none;
-      }
-
-      .review-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-      }
-
-      .review-user {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .review-avatar {
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background-color: var(--primary-light);
+        color: var(--dark);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--white);
-        font-weight: 700;
-        font-size: 1.1rem;
-      }
-
-      .review-user-info h5 {
-        font-weight: 700;
-        margin-bottom: 4px;
-        font-size: 1rem;
-      }
-
-      .review-rating {
-        color: #ffd700;
-        font-size: 0.9rem;
-      }
-
-      .review-date {
-        color: var(--gray-500);
-        font-size: 0.85rem;
-      }
-
-      .review-comment {
-        color: var(--gray-700);
-        line-height: 1.5;
-      }
-
-      /* Review Form */
-      .review-form {
-        background-color: var(--gray-100);
-        padding: 24px;
-        border-radius: var(--border-radius-md);
-        margin-top: 30px;
-      }
-
-      .star-rating {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 20px;
-      }
-
-      .star-rating i {
-        font-size: 1.5rem;
-        color: var(--gray-300);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         cursor: pointer;
-        transition: color var(--transition-fast);
+        transition: 0.2s;
       }
 
-      .star-rating i:hover,
-      .star-rating i.active {
-        color: #ffd700;
+      .sticky-nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: white;
+        padding: 10px 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
       }
-
-      /* Quantity Selector */
-      .quantity-selector {
+      .nav-scroll {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 20px;
-        margin: 30px 0;
-        padding: 0 24px;
+        overflow-x: auto;
+        padding: 0 15px;
+        gap: 10px;
+        scrollbar-width: none;
+      }
+      .nav-scroll::-webkit-scrollbar {
+        display: none;
+      }
+      .cat-btn {
+        border: 1px solid #eee;
+        background: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        color: var(--gray);
+        white-space: nowrap;
+        transition: 0.2s;
+      }
+      .cat-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
       }
 
-      .quantity-btn {
-        width: 44px;
-        height: 44px;
-        border-radius: var(--border-radius-full);
-        background-color: var(--primary-color);
-        color: var(--white);
-        border: none;
+      /* MENU ITEMS */
+      .menu-section {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px 15px;
+      }
+      .cat-title {
+        font-weight: 800;
         font-size: 1.2rem;
-        font-weight: 700;
+        margin: 20px 0 15px;
+        color: var(--dark);
+        border-left: 4px solid var(--primary);
+        padding-left: 10px;
+      }
+      .item-card {
+        background: white;
+        border-radius: var(--radius);
+        padding: 12px;
+        margin-bottom: 15px;
         display: flex;
-        align-items: center;
-        justify-content: center;
+        gap: 15px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
         cursor: pointer;
-        transition: all var(--transition-fast);
+        transition: 0.2s;
       }
-
-      .quantity-btn:hover {
-        background-color: var(--primary-dark);
-        transform: scale(1.1);
-      }
-
-      .quantity-btn:disabled {
-        background-color: var(--gray-400);
-        cursor: not-allowed;
-        transform: none;
-      }
-
-      .quantity-value {
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: var(--gray-900);
-        min-width: 60px;
-        text-align: center;
-      }
-
-      .add-to-cart-modal-btn {
-        background-color: var(--primary-color);
-        color: var(--white);
-        border: none;
-        border-radius: var(--border-radius-md);
-        padding: 18px;
-        font-weight: 800;
-        font-size: 1.1rem;
-        width: calc(100% - 48px);
-        margin: 0 24px 30px;
-        cursor: pointer;
-        transition: all var(--transition-fast);
-        box-shadow: var(--shadow-md);
-      }
-
-      .add-to-cart-modal-btn:hover {
-        background-color: var(--primary-dark);
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-lg);
-      }
-
-      /* Cart Offcanvas */
-      .offcanvas {
-        border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
-        height: 85vh !important;
-      }
-
-      .offcanvas-header {
-        border-bottom: 1px solid var(--gray-200);
-        padding: 24px;
-      }
-
-      .offcanvas-title {
-        font-weight: 800;
-        color: var(--gray-900);
-        font-size: 1.4rem;
-      }
-
-      .offcanvas-body {
-        padding: 0;
-        overflow-y: auto;
-      }
-
-      /* Cart Items List */
-      .cart-items-list {
-        padding: 0 24px;
-      }
-
-      .cart-item {
-        display: flex;
-        padding: 20px 0;
-        border-bottom: 1px solid var(--gray-200);
-        align-items: center;
-      }
-
-      .cart-item-image {
-        width: 80px;
-        height: 80px;
-        border-radius: var(--border-radius-md);
-        overflow: hidden;
-        margin-right: 16px;
+      .item-img {
+        width: 110px;
+        height: 110px;
+        border-radius: var(--radius);
+        object-fit: cover;
         flex-shrink: 0;
+        background: #eee;
+      }
+      .item-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .item-name {
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 4px;
+      }
+      .item-price {
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 1.1rem;
       }
 
-      .cart-item-image img {
+      /* MODAL & REVIEWS */
+      .modal-content {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+      }
+      .modal-img-wrapper {
+        position: relative;
+        height: 280px;
+        background: #eee;
+      }
+      .modal-img {
         width: 100%;
         height: 100%;
         object-fit: cover;
       }
-
-      .cart-item-info {
-        flex: 1;
-      }
-
-      .cart-item-name {
-        font-weight: 700;
-        margin-bottom: 6px;
-        color: var(--gray-900);
-        font-size: 1rem;
-      }
-
-      .cart-item-price {
-        font-weight: 700;
-        color: var(--primary-color);
-        font-size: 1.1rem;
-      }
-
-      .cart-item-controls {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .cart-quantity-btn {
-        width: 36px;
-        height: 36px;
-        border-radius: var(--border-radius-full);
-        background-color: var(--gray-200);
-        color: var(--gray-800);
+      .modal-close-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(0, 0, 0, 0.3);
         border: none;
-        font-size: 1rem;
-        font-weight: 700;
+        color: white;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
-        transition: all var(--transition-fast);
+        backdrop-filter: blur(4px);
       }
 
-      .cart-quantity-btn:hover {
-        background-color: var(--gray-300);
+      .review-card {
+        border-bottom: 1px solid #eee;
+        padding: 15px 0;
       }
-
-      .cart-quantity-value {
-        font-weight: 700;
-        color: var(--gray-900);
-        min-width: 30px;
-        text-align: center;
-      }
-
-      .remove-item-btn {
-        background: none;
-        border: none;
-        color: var(--danger-color);
-        font-size: 1.2rem;
-        cursor: pointer;
-        padding: 8px;
-        margin-left: 8px;
-      }
-
-      /* Voucher Section */
-      .voucher-section {
-        padding: 24px;
-        border-top: 1px solid var(--gray-200);
-        border-bottom: 1px solid var(--gray-200);
-        background-color: var(--gray-100);
-      }
-
-      .voucher-input-group {
+      .review-avatar {
+        width: 40px;
+        height: 40px;
+        background: #e9ecef;
+        color: #555;
+        border-radius: 50%;
         display: flex;
-        gap: 12px;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 10px;
       }
-
-      .voucher-input {
-        flex: 1;
-        padding: 14px 18px;
-        border: 2px solid var(--gray-300);
-        border-radius: var(--border-radius-md);
-        font-size: 1rem;
-        transition: border-color var(--transition-fast);
-      }
-
-      .voucher-input:focus {
-        outline: none;
-        border-color: var(--primary-color);
-      }
-
-      .apply-voucher-btn {
-        background-color: var(--gray-800);
-        color: var(--white);
-        border: none;
-        border-radius: var(--border-radius-md);
-        padding: 14px 24px;
-        font-weight: 700;
+      .star-rating i {
+        font-size: 1.5rem;
+        color: #dee2e6;
         cursor: pointer;
-        transition: all var(--transition-fast);
-        white-space: nowrap;
+        transition: 0.2s;
+        margin-right: 5px;
+      }
+      .star-rating i.active {
+        color: #ffc107;
+      }
+      .star-display {
+        color: #ffc107;
+        font-size: 0.9rem;
       }
 
-      .apply-voucher-btn:hover {
-        background-color: var(--gray-900);
-      }
-
-      /* Cart Summary */
-      .cart-summary-section {
-        padding: 24px;
-      }
-
-      .summary-row {
+      /* CART & OFFCANVAS */
+      .cart-bar {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(150%);
+        width: 90%;
+        max-width: 600px;
+        background: var(--dark);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 50px;
         display: flex;
         justify-content: space-between;
-        margin-bottom: 16px;
-        font-size: 1rem;
-      }
-
-      .summary-label {
-        color: var(--gray-600);
-      }
-
-      .summary-value {
-        font-weight: 600;
-        color: var(--gray-900);
-      }
-
-      .discount-value {
-        color: var(--success-color);
-      }
-
-      .total-row {
-        border-top: 2px solid var(--gray-300);
-        padding-top: 16px;
-        margin-top: 16px;
-        font-size: 1.2rem;
-      }
-
-      .total-label {
-        font-weight: 800;
-        color: var(--gray-900);
-      }
-
-      .total-value {
-        font-weight: 900;
-        color: var(--primary-color);
-        font-size: 1.4rem;
-      }
-
-      .checkout-btn {
-        background-color: var(--primary-color);
-        color: var(--white);
-        border: none;
-        border-radius: var(--border-radius-md);
-        padding: 20px;
-        font-weight: 800;
-        font-size: 1.1rem;
-        width: 100%;
-        cursor: pointer;
-        transition: all var(--transition-fast);
-        margin-top: 20px;
-        box-shadow: var(--shadow-md);
-      }
-
-      .checkout-btn:hover {
-        background-color: var(--primary-dark);
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-lg);
-      }
-
-      /* Empty States */
-      .empty-cart {
-        display: flex;
-        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        padding: 60px 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        z-index: 990;
+        transition: 0.4s;
+      }
+      .cart-bar.show {
+        transform: translateX(-50%) translateY(0);
+      }
+      .offcanvas-bottom {
+        height: 85vh !important;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+      }
+      .cart-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px 0;
+        border-bottom: 1px solid #eee;
+      }
+      .cart-item-img {
+        width: 60px;
+        height: 60px;
+        border-radius: 10px;
+        object-fit: cover;
+        margin-right: 10px;
+      }
+      .qty-mini-control {
+        display: flex;
+        align-items: center;
+        background: #f1f1f1;
+        border-radius: 20px;
+        padding: 2px 8px;
+      }
+      .qty-mini-btn {
+        border: none;
+        background: none;
+        color: var(--primary);
+        font-weight: bold;
+        width: 25px;
+      }
+
+      /* UTILS */
+      .loading {
         text-align: center;
-        color: var(--gray-500);
+        padding: 50px;
+        color: var(--gray);
       }
-
-      .empty-cart i {
-        font-size: 4rem;
-        margin-bottom: 20px;
-        color: var(--gray-300);
-      }
-
-      /* Loading Spinner */
-      .loading-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 300px;
-        flex-direction: column;
-        gap: 20px;
-      }
-
-      .spinner {
-        width: 50px;
-        height: 50px;
-        border: 4px solid var(--gray-200);
-        border-top-color: var(--primary-color);
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-
-      /* Toast Notification */
-      .toast-container {
-        position: fixed;
-        top: 100px;
-        right: 20px;
-        z-index: 1100;
-      }
-
-      .toast {
-        background-color: var(--white);
-        border-radius: var(--border-radius-md);
-        box-shadow: var(--shadow-lg);
+      .btn-add-cart {
+        background: var(--primary);
+        color: white;
         border: none;
-        overflow: hidden;
-        max-width: 350px;
+        padding: 12px 30px;
+        border-radius: 30px;
+        font-weight: 700;
+        flex: 1;
+        margin-left: 15px;
       }
-
-      .toast-header {
-        background-color: var(--primary-color);
-        color: var(--white);
-        border-bottom: none;
-        font-weight: 600;
+      .qty-control {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        background: #f1f1f1;
+        border-radius: 30px;
+        padding: 5px 15px;
       }
-
-      /* Responsive Design */
-      @media (min-width: 768px) {
-        .restaurant-header {
-          height: 40vh;
-          min-height: 350px;
-        }
-
-        .restaurant-name {
-          font-size: 2.2rem;
-        }
-
-        .menu-container {
-          max-width: 720px;
-          margin: 0 auto;
-          padding: 0 16px 32px;
-        }
-
-        .modal-dialog {
-          margin: 1.75rem auto;
-          max-width: 700px;
-          height: auto;
-        }
-
-        .modal-content {
-          border-radius: var(--border-radius-xl);
-          max-height: 85vh;
-        }
-
-        .offcanvas {
-          width: 450px !important;
-          height: 100vh !important;
-          border-radius: 0;
-        }
-      }
-
-      @media (min-width: 992px) {
-        .menu-container {
-          max-width: 800px;
-        }
-      }
-
-      /* Utility Classes */
-      .text-truncate-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+      .qty-btn {
+        border: none;
+        background: none;
+        font-size: 1.5rem;
+        color: var(--primary);
       }
     </style>
   </head>
   <body>
-    <!-- Restaurant Header -->
     <header class="restaurant-header">
-      <div class="parallax-bg" id="restaurantImage"></div>
-      <div class="header-overlay"></div>
-
-      <button class="back-btn" id="backBtn">
-        <i class="fas fa-chevron-left"></i>
+      <div id="headerBg" class="header-bg"></div>
+      <button
+        class="back-btn"
+        onclick="window.location.href='restaurant-list.html'"
+      >
+        <i class="fas fa-arrow-left"></i>
       </button>
-
-      <div class="header-content">
-        <h1 class="restaurant-name" id="restaurantName">Đang tải...</h1>
-
-        <div class="restaurant-meta">
-          <div class="restaurant-meta-item">
-            <i class="fas fa-map-marker-alt"></i>
-            <span id="restaurantAddress">Đang tải...</span>
-          </div>
-          <div class="restaurant-meta-item">
-            <i class="fas fa-clock"></i>
-            <span id="restaurantTime">Đang tải...</span>
-          </div>
-        </div>
-
-        <div class="restaurant-rating" id="restaurantRating">
-          <i class="fas fa-star"></i>
-          <span id="restaurantRatingValue">4.8</span>
-          <span> • </span>
-          <span id="restaurantReviewCount">200+ đánh giá</span>
+      <div class="header-content container">
+        <h1 id="resName" class="mb-1">Đang tải...</h1>
+        <div class="d-flex align-items-center gap-3 font-sm">
+          <span
+            ><i class="fas fa-star text-warning"></i>
+            <span id="resRating">--</span></span
+          >
+          <span><i class="fas fa-clock"></i> <span id="resTime">--</span></span>
+          <span
+            ><i class="fas fa-map-marker-alt"></i>
+            <span id="resAddr">--</span></span
+          >
         </div>
       </div>
     </header>
 
-    <!-- Sticky Category Navigation -->
-    <div class="category-nav-container">
-      <nav class="category-nav" id="categoryNav">
-        <!-- Categories will be dynamically added here -->
-      </nav>
+    <div class="sticky-nav">
+      <div class="nav-scroll" id="catNav"></div>
     </div>
 
-    <!-- Main Menu Content -->
-    <main class="menu-container" id="menuContainer">
-      <div class="loading-container">
-        <div class="spinner"></div>
-        <p>Đang tải menu...</p>
+    <main id="menuContainer" class="menu-section">
+      <div class="loading">
+        <div class="spinner-border text-warning"></div>
+        <br />Đang tải thực đơn...
       </div>
     </main>
 
-    <!-- Bottom Cart Bar -->
-    <div class="bottom-cart-bar" id="bottomCartBar">
-      <div class="cart-summary">
-        <div class="cart-items-count" id="cartItemsCount">0 món</div>
-        <div class="cart-total-price" id="cartTotalPrice">0đ</div>
+    <div id="cartBar" class="cart-bar">
+      <div>
+        <div class="small opacity-75">Tổng cộng</div>
+        <div class="fw-bold fs-5" id="floatTotal">0đ</div>
       </div>
-      <button
-        class="view-cart-btn"
-        id="viewCartBtn"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#cartOffcanvas"
-      >
-        Xem giỏ hàng
-      </button>
+      <div class="d-flex align-items-center gap-3">
+        <span class="badge bg-danger rounded-pill" id="floatCount">0</span>
+        <button
+          class="btn btn-light rounded-pill fw-bold text-dark px-3 py-1"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#cartOffcanvas"
+        >
+          Xem giỏ
+        </button>
+      </div>
     </div>
 
-    <!-- Item Detail Modal -->
-    <div
-      class="modal fade"
-      id="itemDetailModal"
-      tabindex="-1"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-dialog-centered">
+    <div class="modal fade" id="itemModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="itemDetailModalLabel">Chi tiết món</h5>
+          <div class="modal-img-wrapper">
+            <img id="modalImg" src="" class="modal-img" />
             <button
               type="button"
-              class="btn-close"
+              class="modal-close-btn"
               data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
+            >
+              <i class="fas fa-times"></i>
+            </button>
           </div>
-          <div class="modal-body">
-            <!-- Content will be dynamically added here -->
+
+          <div class="modal-body p-4">
+            <h2 id="modalName" class="fw-bold mb-1">Tên món</h2>
+            <div id="modalPrice" class="text-primary fw-bold fs-4 mb-3">0đ</div>
+
+            <ul class="nav nav-tabs mb-3">
+              <li class="nav-item">
+                <button
+                  class="nav-link active"
+                  data-bs-toggle="tab"
+                  data-bs-target="#info-tab"
+                >
+                  Thông tin
+                </button>
+              </li>
+              <li class="nav-item">
+                <button
+                  class="nav-link"
+                  data-bs-toggle="tab"
+                  data-bs-target="#review-tab"
+                >
+                  Đánh giá
+                </button>
+              </li>
+            </ul>
+
+            <div class="tab-content">
+              <div class="tab-pane fade show active" id="info-tab">
+                <p id="modalDesc" class="text-muted">Mô tả món ăn...</p>
+              </div>
+
+              <div class="tab-pane fade" id="review-tab">
+                <div
+                  id="reviewsList"
+                  style="
+                    max-height: 250px;
+                    overflow-y: auto;
+                    padding-right: 5px;
+                  "
+                >
+                  <div class="text-center text-muted py-3">
+                    Đang tải đánh giá...
+                  </div>
+                </div>
+
+                <div class="mt-3 pt-3 border-top bg-light p-3 rounded">
+                  <h6 class="fw-bold mb-2">Viết đánh giá của bạn</h6>
+                  <div class="star-rating mb-2" id="starSelect">
+                    <i class="fas fa-star active" onclick="setRating(1)"></i>
+                    <i class="fas fa-star active" onclick="setRating(2)"></i>
+                    <i class="fas fa-star active" onclick="setRating(3)"></i>
+                    <i class="fas fa-star active" onclick="setRating(4)"></i>
+                    <i class="fas fa-star active" onclick="setRating(5)"></i>
+                    <span class="ms-2 text-warning fw-bold" id="ratingText"
+                      >5.0 Tuyệt vời</span
+                    >
+                  </div>
+
+                  <textarea
+                    id="reviewInput"
+                    class="form-control mb-2"
+                    rows="2"
+                    placeholder="Chia sẻ cảm nhận về món ăn..."
+                  ></textarea>
+                  <div class="d-flex justify-content-end">
+                    <button
+                      class="btn btn-primary btn-sm px-4 rounded-pill"
+                      onclick="submitReview()"
+                    >
+                      Gửi đánh giá
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="modal-footer d-flex justify-content-between align-items-center bg-white border-top p-3"
+          >
+            <div class="qty-control">
+              <button class="qty-btn" onclick="updateModalQty(-1)">-</button>
+              <span id="modalQty" class="qty-val">1</span>
+              <button class="qty-btn" onclick="updateModalQty(1)">+</button>
+            </div>
+            <button class="btn-add-cart" onclick="addToCartFromModal()">
+              Thêm - <span id="modalBtnPrice">0đ</span>
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Cart Offcanvas -->
-    <div
-      class="offcanvas offcanvas-bottom"
-      tabindex="-1"
-      id="cartOffcanvas"
-      aria-labelledby="cartOffcanvasLabel"
-    >
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="cartOffcanvasLabel">
-          Giỏ hàng của bạn
-        </h5>
+    <div class="offcanvas offcanvas-bottom" tabindex="-1" id="cartOffcanvas">
+      <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title fw-bold">Giỏ hàng của bạn</h5>
         <button
           type="button"
           class="btn-close"
           data-bs-dismiss="offcanvas"
-          aria-label="Close"
         ></button>
       </div>
       <div class="offcanvas-body">
-        <!-- Cart items will be dynamically added here -->
+        <div id="cartListItems"></div>
+
+        <div class="bg-light p-3 rounded mt-3">
+          <div class="input-group mb-2">
+            <input
+              type="text"
+              id="voucherCode"
+              class="form-control"
+              placeholder="Mã giảm giá (VD: SAVE10)"
+            />
+            <button class="btn btn-dark" onclick="applyVoucher()">
+              Áp dụng
+            </button>
+          </div>
+          <div id="voucherMsg" class="small ms-1"></div>
+        </div>
+
+        <div class="p-3 border-top mt-3">
+          <div class="d-flex justify-content-between mb-2">
+            <span>Tạm tính</span><span id="cartSubtotal">0đ</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2 text-success">
+            <span>Giảm giá</span><span id="cartDiscount">0đ</span>
+          </div>
+          <div
+            class="d-flex justify-content-between fw-bold fs-5 pt-2 border-top"
+          >
+            <span>Tổng thanh toán</span
+            ><span id="cartFinalTotal" class="text-primary">0đ</span>
+          </div>
+          <button
+            class="btn btn-primary w-100 py-3 rounded-pill fw-bold fs-5 mt-3"
+            onclick="checkout()"
+          >
+            ĐẶT ĐƠN
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Toast Container -->
-    <div
-      class="toast-container position-fixed top-0 end-0 p-3"
-      id="toastContainer"
-    >
-      <!-- Toasts will be dynamically added here -->
-    </div>
-
-    <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Main JavaScript -->
     <script>
-      // ============================================
-      // GLOBAL VARIABLES & CONFIGURATION
-      // ============================================
+      // === CẤU HÌNH & TRẠNG THÁI ===
+      const REST_ID = new URLSearchParams(window.location.search).get("id");
+      const CART_KEY = `s2o_cart_${REST_ID}`;
+      const IMG_BACKUP = "../img/anhbackup.jpg";
+      const VOUCHERS = { SAVE10: 0.1, FREESHIP: 15000 };
 
-      // DOM Elements
-      const restaurantImage = document.getElementById("restaurantImage");
-      const restaurantName = document.getElementById("restaurantName");
-      const restaurantAddress = document.getElementById("restaurantAddress");
-      const restaurantTime = document.getElementById("restaurantTime");
-      const restaurantRatingValue = document.getElementById(
-        "restaurantRatingValue"
-      );
-      const restaurantReviewCount = document.getElementById(
-        "restaurantReviewCount"
-      );
-      const backBtn = document.getElementById("backBtn");
-      const categoryNav = document.getElementById("categoryNav");
-      const menuContainer = document.getElementById("menuContainer");
-      const bottomCartBar = document.getElementById("bottomCartBar");
-      const cartItemsCount = document.getElementById("cartItemsCount");
-      const cartTotalPrice = document.getElementById("cartTotalPrice");
-      const viewCartBtn = document.getElementById("viewCartBtn");
-      const itemDetailModal = document.getElementById("itemDetailModal");
-      const cartOffcanvas = document.getElementById("cartOffcanvas");
-      const toastContainer = document.getElementById("toastContainer");
+      // Giả lập User đang đăng nhập
+      const CURRENT_USER = { id: 101, name: "Minh Tuấn", avatar: "MT" };
 
-      // Global State Variables
-      let restaurantId = null;
-      let restaurantData = null;
-      let menuData = null;
-      let currentCart = [];
-      let currentVoucher = null;
-      let isLoggedIn = true; // Giả lập đăng nhập
+      let cart = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+      let currentItem = null;
+      let modalQty = 1;
+      let userRating = 5; // Số sao user đang chọn
+      let appliedVoucher = null;
 
-      // Cart Storage Key
-      const CART_STORAGE_KEY_PREFIX = "s2o_cart_";
+      // === 1. KHỞI TẠO ===
+      async function init() {
+        if (!REST_ID) return alert("Lỗi: Thiếu ID nhà hàng");
+        renderCartOffcanvas();
 
-      // ============================================
-      // MOCK DATA - VOUCHERS & REVIEWS
-      // ============================================
-
-      // Danh sách voucher khả dụng
-      const AVAILABLE_VOUCHERS = [
-        {
-          code: "SAVE10",
-          type: "percentage",
-          value: 10,
-          minOrder: 100000,
-          description: "Giảm 10% cho đơn hàng từ 100.000đ",
-        },
-        {
-          code: "FREESHIP",
-          type: "fixed",
-          value: 15000,
-          minOrder: 50000,
-          description: "Giảm 15.000đ phí vận chuyển",
-        },
-        {
-          code: "S2OFOOD",
-          type: "percentage",
-          value: 15,
-          minOrder: 150000,
-          description: "Giảm 15% cho đơn hàng từ 150.000đ",
-        },
-      ];
-
-      // Mock reviews data sẽ được thêm vào mỗi item
-      const MOCK_REVIEWS = [
-        {
-          id: 1,
-          user: "Nguyễn Văn An",
-          avatar: "NA",
-          rating: 5,
-          comment: "Món ăn rất ngon, hương vị đậm đà. Sẽ quay lại ủng hộ!",
-          date: "15/12/2024",
-        },
-        {
-          id: 2,
-          user: "Trần Thị Bích",
-          avatar: "TB",
-          rating: 4,
-          comment: "Ngon nhưng hơi mặn. Phục vụ rất nhiệt tình.",
-          date: "10/12/2024",
-        },
-        {
-          id: 3,
-          user: "Lê Minh Cường",
-          avatar: "LC",
-          rating: 5,
-          comment: "Đúng vị truyền thống, giá cả hợp lý.",
-          date: "05/12/2024",
-        },
-        {
-          id: 4,
-          user: "Phạm Hồng Đức",
-          avatar: "PD",
-          rating: 3,
-          comment: "Tạm được, không có gì đặc biệt.",
-          date: "01/12/2024",
-        },
-      ];
-
-      // ============================================
-      // INITIALIZATION
-      // ============================================
-
-      document.addEventListener("DOMContentLoaded", function () {
-        // Get restaurant ID from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        restaurantId = urlParams.get("id");
-
-        if (!restaurantId) {
-          showError("Không tìm thấy nhà hàng");
-          return;
-        }
-
-        // Load cart from localStorage
-        loadCartFromStorage();
-
-        // Set up event listeners
-        setupEventListeners();
-
-        // Fetch restaurant and menu data
-        fetchData();
-
-        // Initialize scroll spy
-        initScrollSpy();
-
-        // Initialize parallax effect
-        initParallax();
-      });
-
-      // ============================================
-      // EVENT LISTENERS SETUP
-      // ============================================
-
-      function setupEventListeners() {
-        // Back button
-        backBtn.addEventListener("click", function () {
-          window.history.back();
-        });
-
-        // Update cart when offcanvas is shown
-        cartOffcanvas.addEventListener("show.bs.offcanvas", function () {
-          renderCartOffcanvas();
-        });
-
-        // Listen for modal close to update cart buttons
-        itemDetailModal.addEventListener("hidden.bs.modal", function () {
-          // Update all add buttons to reflect current cart quantities
-          updateAllAddButtons();
-        });
-      }
-
-      // ============================================
-      // DATA FETCHING & INITIAL RENDERING
-      // ============================================
-
-      async function fetchData() {
         try {
-          // Fetch both data sources in parallel
-          const [restaurantsResponse, menusResponse] = await Promise.all([
-            fetch("../data/restaurants.json"),
-            fetch("../data/menus.json"),
-          ]);
-
-          // Check if responses are ok
-          if (!restaurantsResponse.ok || !menusResponse.ok) {
-            throw new Error("Không thể tải dữ liệu");
+          // Load Info
+          const rRes = await fetch("../data/restaurants.json");
+          const restaurants = await rRes.json();
+          const info = restaurants.find((r) => r.id == REST_ID);
+          if (info) {
+            document.getElementById("resName").textContent = info.name;
+            document.getElementById("resAddr").textContent = info.address;
+            document.getElementById("resTime").textContent = info.time;
+            document.getElementById("resRating").textContent = info.rating;
+            const bg = new Image();
+            bg.src = info.image;
+            bg.onload = () =>
+              (document.getElementById(
+                "headerBg"
+              ).style.backgroundImage = `url('${info.image}')`);
+            bg.onerror = () =>
+              (document.getElementById(
+                "headerBg"
+              ).style.backgroundImage = `url('${IMG_BACKUP}')`);
           }
 
-          // Parse JSON
-          const restaurants = await restaurantsResponse.json();
-          const menus = await menusResponse.json();
+          // Load Menu
+          const mRes = await fetch("../data/menus.json");
+          const menus = await mRes.json();
+          const shopMenu = menus.find((m) => m.restaurantId == REST_ID);
 
-          // Find restaurant data
-          restaurantData = restaurants.find((r) => r.id == restaurantId);
-          if (!restaurantData) {
-            showError("Không tìm thấy thông tin nhà hàng");
-            return;
-          }
-
-          // Find menu data
-          menuData = menus.find((m) => m.restaurantId == restaurantId);
-          if (!menuData) {
-            showError("Nhà hàng này chưa có menu");
-            return;
-          }
-
-          // Add mock reviews to each menu item
-          enhanceMenuDataWithReviews();
-
-          // Render the data
-          renderRestaurantInfo();
-          renderCategories();
-          renderMenuItems();
-        } catch (error) {
-          console.error("Error loading data:", error);
-          showError("Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.");
+          if (shopMenu) renderMenu(shopMenu.menu);
+          else
+            document.getElementById("menuContainer").innerHTML =
+              '<div class="text-center mt-5">Chưa có thực đơn</div>';
+        } catch (e) {
+          console.error(e);
+          alert("Lỗi tải dữ liệu!");
         }
       }
 
-      // ============================================
-      // DATA ENHANCEMENT FUNCTIONS
-      // ============================================
+      // === 2. RENDER MENU ===
+      function renderMenu(categories) {
+        const nav = document.getElementById("catNav");
+        const container = document.getElementById("menuContainer");
+        nav.innerHTML = "";
+        container.innerHTML = "";
 
-      function enhanceMenuDataWithReviews() {
-        // Add reviews to each menu item
-        menuData.menu.forEach((category) => {
-          if (category.items && category.items.length > 0) {
-            category.items.forEach((item) => {
-              // Add reviews to item
-              item.reviews = [...MOCK_REVIEWS];
+        categories.forEach((cat, idx) => {
+          const btn = document.createElement("button");
+          btn.className = `cat-btn ${idx === 0 ? "active" : ""}`;
+          btn.textContent = cat.category;
+          btn.onclick = () => {
+            document
+              .querySelectorAll(".cat-btn")
+              .forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            document
+              .getElementById(`cat-${idx}`)
+              .scrollIntoView({ behavior: "smooth", block: "start" });
+          };
+          nav.appendChild(btn);
 
-              // Calculate average rating
-              if (item.reviews.length > 0) {
-                const totalRating = item.reviews.reduce(
-                  (sum, review) => sum + review.rating,
-                  0
-                );
-                item.averageRating = (
-                  totalRating / item.reviews.length
-                ).toFixed(1);
-              } else {
-                item.averageRating = "5.0";
-              }
-            });
-          }
-        });
-      }
-
-      // ============================================
-      // RENDERING FUNCTIONS
-      // ============================================
-
-      function renderRestaurantInfo() {
-        // Set background image with error handling
-        restaurantImage.style.backgroundImage = `url('${restaurantData.image}')`;
-
-        // Set other restaurant info
-        restaurantName.textContent = restaurantData.name;
-        restaurantAddress.textContent = restaurantData.address;
-        restaurantTime.textContent = restaurantData.time || "8:00 - 22:00";
-
-        // Set rating if available
-        if (restaurantData.rating) {
-          restaurantRatingValue.textContent = restaurantData.rating;
-        }
-
-        if (restaurantData.reviewCount) {
-          restaurantReviewCount.textContent = `${restaurantData.reviewCount}+ đánh giá`;
-        }
-      }
-
-      function renderCategories() {
-        // Clear existing categories
-        categoryNav.innerHTML = "";
-
-        // Add each category from menu
-        menuData.menu.forEach((category, index) => {
-          const categoryElement = document.createElement("button");
-          categoryElement.className = "category-item";
-          if (index === 0) {
-            categoryElement.classList.add("active");
-          }
-          categoryElement.textContent = category.category;
-          categoryElement.dataset.category = category.category;
-
-          categoryElement.addEventListener("click", function () {
-            // Scroll to category
-            const categorySection = document.getElementById(
-              `category-${category.category.replace(/\s+/g, "-")}`
-            );
-            if (categorySection) {
-              const headerOffset = 100;
-              const elementPosition =
-                categorySection.getBoundingClientRect().top;
-              const offsetPosition =
-                elementPosition + window.pageYOffset - headerOffset;
-
-              window.scrollTo({
-                top: offsetPosition,
-                behavior: "smooth",
-              });
-
-              // Update active category after scroll
-              setTimeout(() => {
-                setActiveCategory(category.category);
-              }, 300);
-            }
+          let html = `<div id="cat-${idx}"><div class="cat-title">${cat.category}</div>`;
+          cat.items.forEach((item) => {
+            html += `
+              <div class="item-card" onclick='openModal(${JSON.stringify(
+                item
+              )})'>
+                <img src="${
+                  item.image
+                }" class="item-img" onerror="this.onerror=null; this.src='${IMG_BACKUP}'">
+                <div class="item-info">
+                  <div><div class="item-name">${
+                    item.name
+                  }</div><div class="small text-muted">${
+              item.description || ""
+            }</div></div>
+                  <div class="item-price mt-2">${item.price.toLocaleString()}đ</div>
+                </div>
+                <div class="align-self-end text-primary"><i class="fas fa-plus-circle fa-2x"></i></div>
+              </div>`;
           });
-
-          categoryNav.appendChild(categoryElement);
+          html += `</div>`;
+          container.innerHTML += html;
         });
       }
 
-      function renderMenuItems() {
-        // Clear loading state
-        menuContainer.innerHTML = "";
+      // === 3. MODAL LOGIC ===
+      function openModal(item) {
+        currentItem = item;
+        modalQty = 1;
+        setRating(5); // Reset rating về 5 sao
 
-        // If no menu items, show empty state
-        if (!menuData.menu || menuData.menu.length === 0) {
-          menuContainer.innerHTML = `
-                    <div class="empty-cart">
-                        <i class="fas fa-utensils"></i>
-                        <h3>Chưa có món ăn</h3>
-                        <p>Nhà hàng này chưa cập nhật menu</p>
-                    </div>
-                `;
-          return;
-        }
-
-        // Render each category
-        menuData.menu.forEach((category) => {
-          const categorySection = document.createElement("section");
-          categorySection.id = `category-${category.category.replace(
-            /\s+/g,
-            "-"
-          )}`;
-          categorySection.className = "category-section";
-
-          // Category title
-          const categoryTitle = document.createElement("h2");
-          categoryTitle.className = "category-title";
-          categoryTitle.textContent = category.category;
-          categorySection.appendChild(categoryTitle);
-
-          // Render each item in the category
-          if (category.items && category.items.length > 0) {
-            category.items.forEach((item) => {
-              const menuItem = createMenuItemElement(item);
-              categorySection.appendChild(menuItem);
-            });
-          } else {
-            const emptyMessage = document.createElement("p");
-            emptyMessage.className = "empty-cart";
-            emptyMessage.textContent = "Chưa có món ăn trong danh mục này";
-            categorySection.appendChild(emptyMessage);
-          }
-
-          menuContainer.appendChild(categorySection);
-        });
-      }
-
-      function createMenuItemElement(item) {
-        const menuItemCard = document.createElement("div");
-        menuItemCard.className = "menu-item-card";
-        menuItemCard.dataset.itemId = item.id;
-
-        // Check if item is in cart
-        const cartItem = currentCart.find((ci) => ci.id === item.id);
-
-        // Item image with error handling
-        const itemImageDiv = document.createElement("div");
-        itemImageDiv.className = "menu-item-image";
-        const itemImage = document.createElement("img");
-        itemImage.src = item.image;
-        itemImage.alt = item.name;
-        itemImage.onerror = function () {
-          this.src =
-            "https://images.unsplash.com/photo-1559314809-2b99056a8c4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80";
+        document.getElementById("modalName").textContent = item.name;
+        document.getElementById("modalPrice").textContent =
+          item.price.toLocaleString() + "đ";
+        document.getElementById("modalDesc").textContent =
+          item.description || "Món ngon mỗi ngày.";
+        document.getElementById("modalImg").src = item.image;
+        document.getElementById("modalImg").onerror = function () {
+          this.src = IMG_BACKUP;
         };
-        itemImageDiv.appendChild(itemImage);
 
-        // Item content
-        const itemContent = document.createElement("div");
-        itemContent.className = "menu-item-content";
+        document.getElementById("modalQty").textContent = 1;
+        document.getElementById("modalBtnPrice").textContent =
+          item.price.toLocaleString() + "đ";
 
-        // Item name and description
-        const itemName = document.createElement("h3");
-        itemName.className = "menu-item-name";
-        itemName.textContent = item.name;
+        // GIẢ LẬP GỌI API LẤY REVIEW (GET /api/reviews?itemId=...)
+        // Thực tế bạn sẽ fetch API ở đây
+        loadFakeReviews();
 
-        const itemDescription = document.createElement("p");
-        itemDescription.className = "menu-item-description text-truncate-2";
-        itemDescription.textContent = item.description || "Món ăn hấp dẫn";
-
-        // Item price
-        const itemPrice = document.createElement("div");
-        itemPrice.className = "menu-item-price";
-        itemPrice.textContent = formatCurrency(item.price);
-
-        // Item rating (if available)
-        const itemRating = document.createElement("div");
-        itemRating.className = "menu-item-rating";
-        if (item.averageRating) {
-          itemRating.innerHTML = `
-                    <i class="fas fa-star"></i>
-                    <span>${item.averageRating}</span>
-                    <span> • ${
-                      item.reviews ? item.reviews.length : 0
-                    } đánh giá</span>
-                `;
-        }
-
-        // Assemble the item
-        itemContent.appendChild(itemName);
-        itemContent.appendChild(itemDescription);
-        itemContent.appendChild(itemPrice);
-        itemContent.appendChild(itemRating);
-
-        menuItemCard.appendChild(itemImageDiv);
-        menuItemCard.appendChild(itemContent);
-
-        // Add click event to open modal
-        menuItemCard.addEventListener("click", function () {
-          openItemDetailModal(item);
-        });
-
-        return menuItemCard;
+        new bootstrap.Modal(document.getElementById("itemModal")).show();
       }
 
-      // ============================================
-      // ITEM DETAIL MODAL FUNCTIONS
-      // ============================================
+      function updateModalQty(change) {
+        if (modalQty + change > 0) {
+          modalQty += change;
+          document.getElementById("modalQty").textContent = modalQty;
+          document.getElementById("modalBtnPrice").textContent =
+            (currentItem.price * modalQty).toLocaleString() + "đ";
+        }
+      }
 
-      function openItemDetailModal(item) {
-        // Clear modal content
-        const modalBody = itemDetailModal.querySelector(".modal-body");
-        modalBody.innerHTML = "";
+      function addToCartFromModal() {
+        const exist = cart.find((i) => i.id === currentItem.id);
+        if (exist) exist.qty += modalQty;
+        else cart.push({ ...currentItem, qty: modalQty });
+        saveCart();
+        bootstrap.Modal.getInstance(
+          document.getElementById("itemModal")
+        ).hide();
+        new bootstrap.Offcanvas(
+          document.getElementById("cartOffcanvas")
+        ).show();
+      }
 
-        // Set modal title
-        document.getElementById("itemDetailModalLabel").textContent = item.name;
+      // === 4. REVIEW SYSTEM (BACKEND READY) ===
 
-        // Check if item is in cart
-        const cartItem = currentCart.find((ci) => ci.id === item.id);
-        const currentQuantity = cartItem ? cartItem.quantity : 0;
+      // Hàm hiển thị sao đánh giá (Click Event)
+      function setRating(n) {
+        userRating = n;
+        const stars = document.querySelectorAll("#starSelect i");
+        const text = document.getElementById("ratingText");
+        const labels = ["Tệ", "Kém", "Bình thường", "Tốt", "Tuyệt vời"];
 
-        // Create modal content
-        const modalContent = `
-                <div class="item-detail-container">
-                    <img src="${item.image}" alt="${
-          item.name
-        }" class="item-detail-image" onerror="this.src='https://images.unsplash.com/photo-1559314809-2b99056a8c4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
-                    
-                    <div class="item-detail-content">
-                        <h1 class="item-detail-name">${item.name}</h1>
-                        <div class="item-detail-price">${formatCurrency(
-                          item.price
-                        )}</div>
-                        <p class="item-detail-description">${
-                          item.description ||
-                          "Món ăn hấp dẫn, được chế biến từ nguyên liệu tươi ngon."
-                        }</p>
-                        
-                        <!-- Navigation Tabs -->
-                        <ul class="nav nav-tabs" id="itemDetailTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info-tab-pane" type="button" role="tab">Thông tin</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews-tab-pane" type="button" role="tab">Đánh giá (${
-                                  item.reviews ? item.reviews.length : 0
-                                })</button>
-                            </li>
-                        </ul>
-                        
-                        <!-- Tab Content -->
-                        <div class="tab-content" id="itemDetailTabContent">
-                            <!-- Info Tab -->
-                            <div class="tab-pane fade show active" id="info-tab-pane" role="tabpanel" tabindex="0">
-                                <h4 class="mb-3">Thông tin chi tiết</h4>
-                                <p>Món ăn được chế biến từ nguyên liệu tươi ngon, đảm bảo vệ sinh an toàn thực phẩm. Thời gian chuẩn bị: 15-20 phút.</p>
-                                <p><strong>Khẩu phần:</strong> 1 người ăn</p>
-                                <p><strong>Thành phần:</strong> Nguyên liệu tươi theo mùa</p>
-                            </div>
-                            
-                            <!-- Reviews Tab -->
-                            <div class="tab-pane fade" id="reviews-tab-pane" role="tabpanel" tabindex="0">
-                                <h4 class="mb-3">Đánh giá từ khách hàng</h4>
-                                
-                                <!-- Reviews List -->
-                                <div id="reviewsList">
-                                    ${renderReviews(item.reviews || [])}
-                                </div>
-                                
-                                <!-- Review Form (if logged in) -->
-                                ${
-                                  isLoggedIn
-                                    ? renderReviewForm()
-                                    : '<p class="text-center mt-4">Vui lòng đăng nhập để đánh giá món ăn.</p>'
-                                }
-                            </div>
-                        </div>
-                        
-                        <!-- Quantity Selector -->
-                        <div class="quantity-selector">
-                            <button class="quantity-btn" id="decreaseQuantity" ${
-                              currentQuantity <= 0 ? "disabled" : ""
-                            }>-</button>
-                            <div class="quantity-value" id="quantityValue">${currentQuantity}</div>
-                            <button class="quantity-btn" id="increaseQuantity">+</button>
-                        </div>
-                        
-                        <!-- Add to Cart Button -->
-                        <button class="add-to-cart-modal-btn" id="addToCartModalBtn" data-item-id="${
-                          item.id
-                        }">
-                            ${
-                              currentQuantity > 0
-                                ? "Cập nhật giỏ hàng"
-                                : "Thêm vào giỏ hàng"
-                            } • ${formatCurrency(item.price)}
-                        </button>
-                    </div>
+        stars.forEach((star, index) => {
+          if (index < n) star.classList.add("active");
+          else star.classList.remove("active");
+        });
+        text.textContent = `${n}.0 ${labels[n - 1]}`;
+      }
+
+      // Hàm giả lập lấy đánh giá từ Server
+      function loadFakeReviews() {
+        // MOCK DATA (Thay thế bằng fetch API)
+        const reviews = [
+          {
+            user: "Thanh Hằng",
+            avatar: "TH",
+            rate: 5,
+            comment: "Món này ngon xuất sắc!",
+            date: "20/12/2025",
+          },
+          {
+            user: "Đức Phúc",
+            avatar: "ĐP",
+            rate: 4,
+            comment: "Hơi cay xíu nhưng vẫn ok.",
+            date: "21/12/2025",
+          },
+        ];
+        renderReviewsList(reviews);
+      }
+
+      function renderReviewsList(reviews) {
+        let html = "";
+        reviews.forEach((r) => {
+          html += `
+            <div class="review-card">
+              <div class="d-flex justify-content-between mb-1">
+                <div class="d-flex align-items-center">
+                  <div class="review-avatar">${r.avatar}</div>
+                  <div>
+                    <div class="fw-bold font-sm">${r.user}</div>
+                    <div class="star-display">${"★".repeat(r.rate)}${"☆".repeat(
+            5 - r.rate
+          )}</div>
+                  </div>
                 </div>
-            `;
-
-        modalBody.innerHTML = modalContent;
-
-        // Initialize tab functionality
-        const triggerTabList = modalBody.querySelectorAll(
-          "#itemDetailTabs button"
-        );
-        triggerTabList.forEach((triggerEl) => {
-          const tabTrigger = new bootstrap.Tab(triggerEl);
-          triggerEl.addEventListener("click", (event) => {
-            event.preventDefault();
-            tabTrigger.show();
-          });
+                <div class="small text-muted">${r.date}</div>
+              </div>
+              <p class="mb-0 small text-muted ps-5">${r.comment}</p>
+            </div>
+          `;
         });
-
-        // Set up quantity controls
-        const decreaseBtn = modalBody.querySelector("#decreaseQuantity");
-        const increaseBtn = modalBody.querySelector("#increaseQuantity");
-        const quantityValue = modalBody.querySelector("#quantityValue");
-        const addToCartBtn = modalBody.querySelector("#addToCartModalBtn");
-
-        let quantity = currentQuantity;
-
-        decreaseBtn.addEventListener("click", function () {
-          if (quantity > 0) {
-            quantity--;
-            quantityValue.textContent = quantity;
-
-            if (quantity === 0) {
-              decreaseBtn.disabled = true;
-              addToCartBtn.textContent = `Thêm vào giỏ hàng • ${formatCurrency(
-                item.price
-              )}`;
-            } else {
-              addToCartBtn.textContent = `Cập nhật giỏ hàng • ${formatCurrency(
-                item.price * quantity
-              )}`;
-            }
-          }
-        });
-
-        increaseBtn.addEventListener("click", function () {
-          quantity++;
-          quantityValue.textContent = quantity;
-
-          if (quantity > 0) {
-            decreaseBtn.disabled = false;
-          }
-
-          addToCartBtn.textContent = `Cập nhật giỏ hàng • ${formatCurrency(
-            item.price * quantity
-          )}`;
-        });
-
-        // Set up add to cart button
-        addToCartBtn.addEventListener("click", function () {
-          if (quantity > 0) {
-            updateCartItem(item.id, quantity);
-            showToast("success", "Cập nhật giỏ hàng thành công");
-
-            // Close modal after a delay
-            setTimeout(() => {
-              const modal = bootstrap.Modal.getInstance(itemDetailModal);
-              modal.hide();
-            }, 1000);
-          } else {
-            // Remove item from cart if quantity is 0
-            removeCartItem(item.id);
-            showToast("info", "Đã xóa món khỏi giỏ hàng");
-
-            setTimeout(() => {
-              const modal = bootstrap.Modal.getInstance(itemDetailModal);
-              modal.hide();
-            }, 1000);
-          }
-        });
-
-        // Initialize review form if present
-        if (isLoggedIn) {
-          initializeReviewForm(item.id);
-        }
-
-        // Show the modal
-        const modal = new bootstrap.Modal(itemDetailModal);
-        modal.show();
+        document.getElementById("reviewsList").innerHTML = html;
       }
 
-      function renderReviews(reviews) {
-        if (!reviews || reviews.length === 0) {
-          return '<p class="text-center text-muted">Chưa có đánh giá nào.</p>';
-        }
+      // Hàm Gửi Đánh Giá (POST API)
+      function submitReview() {
+        const text = document.getElementById("reviewInput").value;
+        if (!text) return alert("Vui lòng nhập nội dung đánh giá!");
 
-        return reviews
-          .map(
-            (review) => `
-                <div class="review-item">
-                    <div class="review-header">
-                        <div class="review-user">
-                            <div class="review-avatar">${review.avatar}</div>
-                            <div class="review-user-info">
-                                <h5>${review.user}</h5>
-                                <div class="review-rating">
-                                    ${"★".repeat(review.rating)}${"☆".repeat(
-              5 - review.rating
-            )}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="review-date">${review.date}</div>
-                    </div>
-                    <div class="review-comment">${review.comment}</div>
+        // 1. Tạo Data chuẩn Backend yêu cầu
+        const payload = {
+          userId: CURRENT_USER.id,
+          userName: CURRENT_USER.name,
+          itemId: currentItem.id,
+          rating: userRating,
+          comment: text,
+          createdAt: new Date().toISOString(),
+        };
+
+        // 2. Log ra console cho Backend Dev xem
+        console.log("SENDING TO BACKEND (POST /api/reviews):", payload);
+
+        // 3. UI Update (Giả lập thành công)
+        const newReview = {
+          user: CURRENT_USER.name,
+          avatar: CURRENT_USER.avatar,
+          rate: userRating,
+          comment: text,
+          date: "Vừa xong",
+        };
+
+        // Thêm vào đầu danh sách (Optimistic UI)
+        const currentHTML = document.getElementById("reviewsList").innerHTML;
+        document.getElementById("reviewsList").innerHTML =
+          `
+            <div class="review-card bg-light border-start border-primary border-3">
+              <div class="d-flex justify-content-between mb-1">
+                <div class="d-flex align-items-center">
+                  <div class="review-avatar bg-primary text-white">${
+                    newReview.avatar
+                  }</div>
+                  <div><div class="fw-bold font-sm">${
+                    newReview.user
+                  }</div><div class="star-display">${"★".repeat(
+            newReview.rate
+          )}</div></div>
                 </div>
-            `
-          )
-          .join("");
+                <div class="small text-muted">Vừa xong</div>
+              </div>
+              <p class="mb-0 small text-muted ps-5">${newReview.comment}</p>
+            </div>
+        ` + currentHTML;
+
+        alert("Đánh giá thành công!");
+        document.getElementById("reviewInput").value = ""; // Reset form
       }
 
-      function renderReviewForm() {
-        return `
-                <div class="review-form mt-4">
-                    <h5>Đánh giá của bạn</h5>
-                    <div class="star-rating mb-3" id="starRating">
-                        <i class="fas fa-star" data-rating="1"></i>
-                        <i class="fas fa-star" data-rating="2"></i>
-                        <i class="fas fa-star" data-rating="3"></i>
-                        <i class="fas fa-star" data-rating="4"></i>
-                        <i class="fas fa-star" data-rating="5"></i>
-                    </div>
-                    <div class="mb-3">
-                        <textarea class="form-control" id="reviewComment" rows="3" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
-                    </div>
-                    <button class="btn btn-primary" id="submitReviewBtn">Gửi đánh giá</button>
-                </div>
-            `;
-      }
-
-      function initializeReviewForm(itemId) {
-        const starRating = document.querySelector("#starRating");
-        const submitReviewBtn = document.querySelector("#submitReviewBtn");
-
-        if (!starRating || !submitReviewBtn) return;
-
-        let selectedRating = 5;
-
-        // Star rating interaction
-        const stars = starRating.querySelectorAll("i");
-        stars.forEach((star) => {
-          star.addEventListener("click", function () {
-            const rating = parseInt(this.dataset.rating);
-            selectedRating = rating;
-
-            // Update star display
-            stars.forEach((s, index) => {
-              if (index < rating) {
-                s.classList.add("active");
-              } else {
-                s.classList.remove("active");
-              }
-            });
-          });
-
-          // Initialize with 5 stars
-          star.classList.add("active");
-        });
-
-        // Submit review button
-        submitReviewBtn.addEventListener("click", function () {
-          const comment = document.querySelector("#reviewComment").value.trim();
-
-          if (!comment) {
-            showToast("warning", "Vui lòng nhập nội dung đánh giá");
-            return;
-          }
-
-          // In a real app, this would send to server
-          // For demo, we'll just show a success message
-          showToast("success", "Cảm ơn đánh giá của bạn!");
-
-          // Clear form
-          document.querySelector("#reviewComment").value = "";
-
-          // Reset stars
-          stars.forEach((star) => star.classList.remove("active"));
-          stars.forEach((star, index) => {
-            if (index < 5) star.classList.add("active");
-          });
-          selectedRating = 5;
-        });
-      }
-
-      // ============================================
-      // CART MANAGEMENT FUNCTIONS
-      // ============================================
-
-      function updateCartItem(itemId, quantity) {
-        // Find item in menu
-        let item = null;
-        for (const category of menuData.menu) {
-          const foundItem = category.items.find((i) => i.id == itemId);
-          if (foundItem) {
-            item = foundItem;
-            break;
-          }
-        }
-
-        if (!item) return;
-
-        // Find item in cart
-        const existingItemIndex = currentCart.findIndex(
-          (cartItem) => cartItem.id == itemId
-        );
-
-        if (existingItemIndex >= 0) {
-          // Update quantity
-          if (quantity > 0) {
-            currentCart[existingItemIndex].quantity = quantity;
-          } else {
-            // Remove if quantity is 0
-            currentCart.splice(existingItemIndex, 1);
-          }
-        } else {
-          // Add new item
-          currentCart.push({
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            quantity: quantity,
-            image: item.image,
-          });
-        }
-
-        // Save cart to localStorage
-        saveCartToStorage();
-
-        // Update cart UI
-        updateCartUI();
-
-        // Update bottom cart bar
-        updateBottomCartBar();
-      }
-
-      function removeCartItem(itemId) {
-        const existingItemIndex = currentCart.findIndex(
-          (cartItem) => cartItem.id == itemId
-        );
-
-        if (existingItemIndex >= 0) {
-          currentCart.splice(existingItemIndex, 1);
-
-          // Save cart to localStorage
-          saveCartToStorage();
-
-          // Update cart UI
-          updateCartUI();
-
-          // Update bottom cart bar
-          updateBottomCartBar();
-        }
-      }
-
-      function updateCartUI() {
-        // This function updates any cart-related UI elements
-        updateBottomCartBar();
-      }
-
-      function updateBottomCartBar() {
-        const totalItems = currentCart.reduce(
-          (total, item) => total + item.quantity,
-          0
-        );
-        const totalAmount = calculateCartTotal();
-
-        if (totalItems > 0) {
-          cartItemsCount.textContent = `${totalItems} món`;
-          cartTotalPrice.textContent = formatCurrency(totalAmount);
-          bottomCartBar.classList.add("visible");
-        } else {
-          bottomCartBar.classList.remove("visible");
-        }
-      }
-
-      function updateAllAddButtons() {
-        // In a real app, this would update the visual state of all add buttons
-        // For simplicity, we're not implementing this in the demo
-      }
-
-      // ============================================
-      // CART OFFCANVAS FUNCTIONS
-      // ============================================
-
+      // === 5. CART & VOUCHER LOGIC ===
       function renderCartOffcanvas() {
-        const offcanvasBody = cartOffcanvas.querySelector(".offcanvas-body");
+        const list = document.getElementById("cartListItems");
+        let subtotal = 0;
 
-        if (currentCart.length === 0) {
-          offcanvasBody.innerHTML = `
-                    <div class="empty-cart">
-                        <i class="fas fa-shopping-cart"></i>
-                        <h3>Giỏ hàng trống</h3>
-                        <p>Hãy thêm món ăn vào giỏ hàng</p>
-                    </div>
-                `;
-          return;
-        }
-
-        // Calculate cart totals
-        const subtotal = calculateCartSubtotal();
-        const discount = calculateDiscount(subtotal);
-        const total = subtotal - discount;
-
-        // Render cart content
-        offcanvasBody.innerHTML = `
-                <!-- Cart Items List -->
-                <div class="cart-items-list" id="cartItemsList">
-                    ${renderCartItems()}
+        if (cart.length === 0) {
+          list.innerHTML =
+            '<div class="text-center p-4 text-muted"><i class="fas fa-shopping-basket fa-3x mb-3"></i><br>Giỏ hàng trống</div>';
+          document.getElementById("cartBar").classList.remove("show");
+        } else {
+          let html = "";
+          cart.forEach((item, idx) => {
+            subtotal += item.price * item.qty;
+            html += `
+              <div class="cart-item">
+                <div class="d-flex align-items-center">
+                  <img src="${
+                    item.image
+                  }" class="cart-item-img" onerror="this.src='${IMG_BACKUP}'">
+                  <div><div class="fw-bold">${
+                    item.name
+                  }</div><div class="text-primary fw-bold">${item.price.toLocaleString()}đ</div></div>
                 </div>
-                
-                <!-- Voucher Section -->
-                <div class="voucher-section">
-                    <h5 class="mb-3">Mã giảm giá</h5>
-                    <div class="voucher-input-group">
-                        <input type="text" class="voucher-input" id="voucherInput" placeholder="Nhập mã giảm giá" value="${
-                          currentVoucher ? currentVoucher.code : ""
-                        }">
-                        <button class="apply-voucher-btn" id="applyVoucherBtn">Áp dụng</button>
-                    </div>
-                    ${
-                      currentVoucher
-                        ? `<div class="mt-2 text-success"><i class="fas fa-check-circle"></i> Đã áp dụng mã: ${currentVoucher.code}</div>`
-                        : ""
-                    }
+                <div class="d-flex align-items-center gap-2">
+                  <div class="qty-mini-control">
+                    <button class="qty-mini-btn" onclick="updateCartItem(${idx}, -1)">-</button>
+                    <span>${item.qty}</span>
+                    <button class="qty-mini-btn" onclick="updateCartItem(${idx}, 1)">+</button>
+                  </div>
+                  <button class="btn btn-sm text-danger" onclick="removeCartItem(${idx})"><i class="fas fa-trash"></i></button>
                 </div>
-                
-                <!-- Cart Summary -->
-                <div class="cart-summary-section">
-                    <div class="summary-row">
-                        <span class="summary-label">Tạm tính</span>
-                        <span class="summary-value">${formatCurrency(
-                          subtotal
-                        )}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span class="summary-label">Giảm giá</span>
-                        <span class="summary-value discount-value">-${formatCurrency(
-                          discount
-                        )}</span>
-                    </div>
-                    <div class="summary-row total-row">
-                        <span class="total-label">Tổng cộng</span>
-                        <span class="total-value">${formatCurrency(
-                          total
-                        )}</span>
-                    </div>
-                    
-                    <button class="checkout-btn" id="checkoutBtn">Đặt đơn • ${formatCurrency(
-                      total
-                    )}</button>
-                </div>
-            `;
-
-        // Set up event listeners for cart offcanvas
-        setupCartOffcanvasListeners();
-      }
-
-      function renderCartItems() {
-        return currentCart
-          .map(
-            (item) => `
-                <div class="cart-item" data-item-id="${item.id}">
-                    <div class="cart-item-image">
-                        <img src="${item.image}" alt="${
-              item.name
-            }" onerror="this.src='https://images.unsplash.com/photo-1559314809-2b99056a8c4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'">
-                    </div>
-                    <div class="cart-item-info">
-                        <div class="cart-item-name">${item.name}</div>
-                        <div class="cart-item-price">${formatCurrency(
-                          item.price
-                        )}</div>
-                    </div>
-                    <div class="cart-item-controls">
-                        <button class="cart-quantity-btn decrease-quantity">-</button>
-                        <span class="cart-quantity-value">${
-                          item.quantity
-                        }</span>
-                        <button class="cart-quantity-btn increase-quantity">+</button>
-                        <button class="remove-item-btn" title="Xóa">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            `
-          )
-          .join("");
-      }
-
-      function setupCartOffcanvasListeners() {
-        // Quantity controls
-        document.querySelectorAll(".decrease-quantity").forEach((btn) => {
-          btn.addEventListener("click", function () {
-            const cartItem = this.closest(".cart-item");
-            const itemId = parseInt(cartItem.dataset.itemId);
-
-            // Find current quantity
-            const item = currentCart.find((ci) => ci.id === itemId);
-            if (item && item.quantity > 1) {
-              updateCartItem(itemId, item.quantity - 1);
-              renderCartOffcanvas(); // Re-render
-            } else if (item && item.quantity === 1) {
-              // Remove item if quantity becomes 0
-              removeCartItem(itemId);
-              renderCartOffcanvas(); // Re-render
-            }
+              </div>`;
           });
-        });
-
-        document.querySelectorAll(".increase-quantity").forEach((btn) => {
-          btn.addEventListener("click", function () {
-            const cartItem = this.closest(".cart-item");
-            const itemId = parseInt(cartItem.dataset.itemId);
-
-            // Find current quantity and increase
-            const item = currentCart.find((ci) => ci.id === itemId);
-            if (item) {
-              updateCartItem(itemId, item.quantity + 1);
-              renderCartOffcanvas(); // Re-render
-            }
-          });
-        });
-
-        // Remove item buttons
-        document.querySelectorAll(".remove-item-btn").forEach((btn) => {
-          btn.addEventListener("click", function () {
-            const cartItem = this.closest(".cart-item");
-            const itemId = parseInt(cartItem.dataset.itemId);
-
-            removeCartItem(itemId);
-            renderCartOffcanvas(); // Re-render
-          });
-        });
-
-        // Voucher application
-        const applyVoucherBtn = document.getElementById("applyVoucherBtn");
-        const voucherInput = document.getElementById("voucherInput");
-
-        if (applyVoucherBtn && voucherInput) {
-          applyVoucherBtn.addEventListener("click", function () {
-            const voucherCode = voucherInput.value.trim().toUpperCase();
-            applyVoucher(voucherCode);
-          });
-
-          voucherInput.addEventListener("keypress", function (e) {
-            if (e.key === "Enter") {
-              const voucherCode = voucherInput.value.trim().toUpperCase();
-              applyVoucher(voucherCode);
-            }
-          });
-        }
-
-        // Checkout button
-        const checkoutBtn = document.getElementById("checkoutBtn");
-        if (checkoutBtn) {
-          checkoutBtn.addEventListener("click", function () {
-            if (currentCart.length === 0) {
-              showToast("warning", "Giỏ hàng của bạn đang trống");
-              return;
-            }
-
-            showToast("success", "Đơn hàng đã được đặt thành công!");
-
-            // Close offcanvas
-            const offcanvas = bootstrap.Offcanvas.getInstance(cartOffcanvas);
-            offcanvas.hide();
-
-            // Clear cart after order
-            currentCart = [];
-            currentVoucher = null;
-            saveCartToStorage();
-            updateCartUI();
-          });
-        }
-      }
-
-      // ============================================
-      // VOUCHER FUNCTIONS
-      // ============================================
-
-      function applyVoucher(voucherCode) {
-        // Check if voucher exists
-        const voucher = AVAILABLE_VOUCHERS.find((v) => v.code === voucherCode);
-
-        if (!voucher) {
-          showToast("error", "Mã giảm giá không hợp lệ");
-          return;
-        }
-
-        // Check minimum order
-        const subtotal = calculateCartSubtotal();
-        if (subtotal < voucher.minOrder) {
-          showToast(
-            "warning",
-            `Đơn hàng tối thiểu ${formatCurrency(
-              voucher.minOrder
-            )} để áp dụng mã này`
+          list.innerHTML = html;
+          document.getElementById("cartBar").classList.add("show");
+          document.getElementById("floatCount").textContent = cart.reduce(
+            (s, i) => s + i.qty,
+            0
           );
-          return;
+          document.getElementById("floatTotal").textContent =
+            subtotal.toLocaleString() + "đ";
         }
 
-        // Apply voucher
-        currentVoucher = voucher;
-        showToast("success", `Đã áp dụng mã giảm giá ${voucher.code}`);
+        // Tính tiền
+        let discount = 0;
+        if (appliedVoucher) {
+          if (appliedVoucher.type === "percent")
+            discount = subtotal * appliedVoucher.val;
+          else discount = appliedVoucher.val;
+        }
+        if (discount > subtotal) discount = subtotal;
 
-        // Re-render cart offcanvas
+        document.getElementById("cartSubtotal").textContent =
+          subtotal.toLocaleString() + "đ";
+        document.getElementById("cartDiscount").textContent =
+          "-" + discount.toLocaleString() + "đ";
+        document.getElementById("cartFinalTotal").textContent =
+          (subtotal - discount).toLocaleString() + "đ";
+      }
+
+      function updateCartItem(idx, change) {
+        cart[idx].qty += change;
+        if (cart[idx].qty <= 0) cart.splice(idx, 1);
+        saveCart();
+      }
+      function removeCartItem(idx) {
+        cart.splice(idx, 1);
+        saveCart();
+      }
+      function saveCart() {
+        localStorage.setItem(CART_KEY, JSON.stringify(cart));
         renderCartOffcanvas();
       }
 
-      function calculateCartSubtotal() {
-        return currentCart.reduce(
-          (total, item) => total + item.price * item.quantity,
-          0
-        );
-      }
+      function applyVoucher() {
+        const code = document
+          .getElementById("voucherCode")
+          .value.trim()
+          .toUpperCase();
+        const msg = document.getElementById("voucherMsg");
 
-      function calculateDiscount(subtotal) {
-        if (!currentVoucher) return 0;
-
-        let discount = 0;
-
-        if (currentVoucher.type === "percentage") {
-          discount = (subtotal * currentVoucher.value) / 100;
-        } else if (currentVoucher.type === "fixed") {
-          discount = currentVoucher.value;
-        }
-
-        // Ensure discount doesn't exceed subtotal
-        return Math.min(discount, subtotal);
-      }
-
-      function calculateCartTotal() {
-        const subtotal = calculateCartSubtotal();
-        const discount = calculateDiscount(subtotal);
-        return subtotal - discount;
-      }
-
-      // ============================================
-      // UTILITY FUNCTIONS
-      // ============================================
-
-      function formatCurrency(amount) {
-        return new Intl.NumberFormat("vi-VN", {
-          style: "currency",
-          currency: "VND",
-          minimumFractionDigits: 0,
-        }).format(amount);
-      }
-
-      function loadCartFromStorage() {
-        const cartKey = `${CART_STORAGE_KEY_PREFIX}${restaurantId}`;
-        const savedCart = localStorage.getItem(cartKey);
-
-        if (savedCart) {
-          try {
-            currentCart = JSON.parse(savedCart);
-            updateCartUI();
-          } catch (e) {
-            console.error("Error parsing cart from localStorage:", e);
-            currentCart = [];
-          }
+        if (VOUCHERS[code]) {
+          const val = VOUCHERS[code];
+          appliedVoucher = { code, val, type: val < 1 ? "percent" : "fixed" };
+          msg.className = "small text-success";
+          msg.textContent = `Đã áp dụng: ${code}`;
+          renderCartOffcanvas();
+        } else {
+          appliedVoucher = null;
+          msg.className = "small text-danger";
+          msg.textContent = "Mã không tồn tại!";
+          renderCartOffcanvas();
         }
       }
 
-      function saveCartToStorage() {
-        const cartKey = `${CART_STORAGE_KEY_PREFIX}${restaurantId}`;
-        localStorage.setItem(cartKey, JSON.stringify(currentCart));
+      function checkout() {
+        if (cart.length === 0) return;
+
+        // CREATE ORDER PAYLOAD (Gửi cho Backend)
+        const orderData = {
+          userId: CURRENT_USER.id,
+          restaurantId: REST_ID,
+          items: cart.map((i) => ({
+            itemId: i.id,
+            qty: i.qty,
+            price: i.price,
+          })),
+          voucher: appliedVoucher ? appliedVoucher.code : null,
+          total: document.getElementById("cartFinalTotal").textContent,
+        };
+
+        console.log("CHECKOUT DATA:", orderData);
+        alert("Đặt hàng thành công! (Xem console để thấy JSON gửi đi)");
+
+        cart = [];
+        appliedVoucher = null;
+        saveCart();
+        bootstrap.Offcanvas.getInstance(
+          document.getElementById("cartOffcanvas")
+        ).hide();
       }
 
-      function showToast(type, message) {
-        // Create toast element
-        const toastId = `toast-${Date.now()}`;
-        const toastHtml = `
-                <div id="${toastId}" class="toast align-items-center text-bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex">
-                        <div class="toast-body">
-                            ${message}
-                        </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                </div>
-            `;
-
-        // Add to container
-        toastContainer.insertAdjacentHTML("beforeend", toastHtml);
-
-        // Initialize and show toast
-        const toastEl = document.getElementById(toastId);
-        const toast = new bootstrap.Toast(toastEl, {
-          autohide: true,
-          delay: 3000,
-        });
-
-        toast.show();
-
-        // Remove after hidden
-        toastEl.addEventListener("hidden.bs.toast", function () {
-          toastEl.remove();
-        });
-      }
-
-      function showError(message) {
-        menuContainer.innerHTML = `
-                <div class="empty-cart">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <h3>Đã xảy ra lỗi</h3>
-                    <p>${message}</p>
-                    <button id="retryBtn" class="btn btn-primary mt-3">Thử lại</button>
-                </div>
-            `;
-
-        document
-          .getElementById("retryBtn")
-          ?.addEventListener("click", function () {
-            menuContainer.innerHTML = `
-                    <div class="loading-container">
-                        <div class="spinner"></div>
-                        <p>Đang tải menu...</p>
-                    </div>
-                `;
-            fetchData();
-          });
-      }
-
-      function initScrollSpy() {
-        // Update active category on scroll
-        window.addEventListener("scroll", function () {
-          if (!menuData || !menuData.menu) return;
-
-          const categories = menuData.menu;
-          const headerOffset = 120;
-
-          // Find which category is currently in view
-          for (let i = categories.length - 1; i >= 0; i--) {
-            const category = categories[i];
-            const categorySection = document.getElementById(
-              `category-${category.category.replace(/\s+/g, "-")}`
-            );
-
-            if (categorySection) {
-              const rect = categorySection.getBoundingClientRect();
-
-              // Check if category is in view
-              if (rect.top <= headerOffset) {
-                setActiveCategory(category.category);
-                break;
-              }
-            }
-          }
-        });
-      }
-
-      function setActiveCategory(categoryName) {
-        // Remove active class from all categories
-        document.querySelectorAll(".category-item").forEach((item) => {
-          item.classList.remove("active");
-        });
-
-        // Add active class to the current category
-        const activeCategory = document.querySelector(
-          `.category-item[data-category="${categoryName}"]`
-        );
-        if (activeCategory) {
-          activeCategory.classList.add("active");
-        }
-      }
-
-      function initParallax() {
-        window.addEventListener("scroll", function () {
-          const scrolled = window.pageYOffset;
-          const parallaxElement = document.querySelector(".parallax-bg");
-          if (parallaxElement) {
-            const rate = scrolled * -0.3;
-            parallaxElement.style.transform = `translate3d(0px, ${rate}px, 0px)`;
-          }
-        });
-      }
+      init();
     </script>
   </body>
 </html>

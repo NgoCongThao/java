@@ -4,931 +4,505 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>S2O - Theo dõi đơn hàng</title>
-    <!-- Bootstrap 5 CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <!-- Bootstrap Icons -->
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css"
     />
-    <!-- Font Google -->
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
+
     <style>
       :root {
-        --primary-color: #e85d04; /* Burnt Orange */
-        --primary-light: #ff9e66;
-        --primary-dark: #c14a04;
-        --light-bg: #f8f9fa;
-        --gray-light: #e9ecef;
-        --gray-medium: #adb5bd;
-        --gray-dark: #495057;
-        --success-color: #2e8b57;
-        --warning-color: #ffc107;
-        --info-color: #0dcaf0;
-        --danger-color: #dc3545;
+        --primary: #e85d04;
+        --success: #2e8b57;
+        --gray: #adb5bd;
+        --bg: #f8f9fa;
       }
-
-      * {
-        font-family: "Inter", sans-serif;
-      }
-
       body {
-        background-color: #ffffff;
-        padding-bottom: 70px; /* Space for bottom nav */
+        font-family: "Inter", sans-serif;
+        background-color: var(--bg);
+        padding-bottom: 80px;
       }
 
-      /* Header */
+      /* HEADER & NOTIF */
       .sticky-header {
         position: sticky;
         top: 0;
         z-index: 1020;
-        background-color: white;
+        background: white;
         padding: 15px 0;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
       }
-
-      .page-title {
-        color: var(--primary-color);
-        font-weight: 700;
-        margin-bottom: 0;
+      .notif-dropdown {
+        width: 300px;
+        max-height: 400px;
+        overflow-y: auto;
+        border: none;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        border-radius: 12px;
+      }
+      .notif-item {
+        padding: 10px 15px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .notif-item:hover {
+        background: #f8f9fa;
+      }
+      .notif-item.unread {
+        background: #fff8f3;
+        border-left: 3px solid var(--primary);
       }
 
-      /* Order Status Badges */
+      /* TABS */
+      .order-tabs {
+        display: flex;
+        background: white;
+        border-bottom: 1px solid #eee;
+        overflow-x: auto;
+      }
+      .order-tab {
+        flex: 1;
+        padding: 15px;
+        border: none;
+        background: none;
+        font-weight: 600;
+        color: #666;
+        border-bottom: 3px solid transparent;
+        white-space: nowrap;
+      }
+      .order-tab.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+      }
+
+      /* ORDER CARD */
+      .order-card {
+        background: white;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        border: 1px solid #eee;
+        overflow: hidden;
+      }
+      .order-header {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .res-img {
+        width: 45px;
+        height: 45px;
+        border-radius: 8px;
+        object-fit: cover;
+        background: #eee;
+      }
       .status-badge {
-        display: inline-block;
-        padding: 6px 12px;
+        padding: 5px 10px;
         border-radius: 20px;
         font-size: 0.75rem;
         font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
       }
 
-      .status-pending {
-        background-color: rgba(255, 193, 7, 0.1);
-        color: #856404;
-      }
-
-      .status-cooking {
-        background-color: rgba(232, 93, 4, 0.1);
-        color: var(--primary-color);
-      }
-
-      .status-delivering {
-        background-color: rgba(13, 202, 240, 0.1);
-        color: #0c5460;
-      }
-
-      .status-completed {
-        background-color: rgba(46, 139, 87, 0.1);
-        color: var(--success-color);
-      }
-
-      .status-cancelled {
-        background-color: rgba(220, 53, 69, 0.1);
-        color: var(--danger-color);
-      }
-
-      /* Order Cards */
-      .order-card {
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        border: 1px solid var(--gray-light);
-        margin-bottom: 20px;
-        transition: all 0.3s ease;
-      }
-
-      .order-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(232, 93, 4, 0.1);
-      }
-
-      .order-header {
-        background-color: var(--light-bg);
-        padding: 15px;
-        border-bottom: 1px solid var(--gray-light);
-      }
-
-      .order-body {
-        padding: 15px;
-      }
-
-      .order-footer {
-        padding: 15px;
-        border-top: 1px solid var(--gray-light);
-        background-color: var(--light-bg);
-      }
-
-      .restaurant-info {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .restaurant-avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 10px;
-        object-fit: cover;
-      }
-
-      .order-items {
-        margin-top: 15px;
-      }
-
-      .order-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 8px 0;
-        border-bottom: 1px dashed var(--gray-light);
-      }
-
-      .order-item:last-child {
-        border-bottom: none;
-      }
-
-      .item-quantity {
-        color: var(--primary-color);
-        font-weight: 600;
-        margin-right: 5px;
-      }
-
-      /* Progress Bar */
-      .progress-container {
-        margin: 20px 0;
-      }
-
-      .progress-steps {
+      /* PROGRESS BAR */
+      .progress-track {
         display: flex;
         justify-content: space-between;
         position: relative;
-        margin-bottom: 10px;
+        margin: 20px 15px;
       }
-
-      .progress-step {
-        text-align: center;
-        flex: 1;
+      .progress-bg {
+        position: absolute;
+        top: 12px;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: #eee;
+        z-index: 1;
+      }
+      .progress-fill {
+        position: absolute;
+        top: 12px;
+        left: 0;
+        height: 3px;
+        background: var(--primary);
+        z-index: 1;
+        transition: 0.3s;
+      }
+      .step {
         position: relative;
         z-index: 2;
+        text-align: center;
+        width: 25%;
       }
-
       .step-icon {
-        width: 30px;
-        height: 30px;
+        width: 28px;
+        height: 28px;
+        background: #eee;
         border-radius: 50%;
-        background-color: var(--gray-light);
-        color: var(--gray-medium);
+        margin: 0 auto 5px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 5px;
-        font-size: 0.9rem;
+        color: #999;
+        border: 2px solid white;
+        font-size: 0.8rem;
       }
-
-      .step-icon.active {
-        background-color: var(--primary-color);
+      .step.active .step-icon {
+        background: var(--primary);
         color: white;
       }
-
-      .step-icon.completed {
-        background-color: var(--success-color);
+      .step.completed .step-icon {
+        background: var(--success);
         color: white;
       }
-
       .step-label {
-        font-size: 0.75rem;
-        color: var(--gray-medium);
+        font-size: 0.65rem;
+        color: #999;
+      }
+      .step.active .step-label {
+        color: var(--primary);
+        font-weight: bold;
       }
 
-      .step-label.active {
-        color: var(--primary-color);
-        font-weight: 600;
-      }
-
-      .progress-line {
-        position: absolute;
-        top: 15px;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background-color: var(--gray-light);
-        z-index: 1;
-      }
-
-      .progress-fill {
-        position: absolute;
-        top: 15px;
-        left: 0;
-        height: 2px;
-        background-color: var(--primary-color);
-        z-index: 1;
-        transition: width 0.3s ease;
-      }
-
-      /* Buttons */
-      .btn-primary {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-      }
-
-      .btn-primary:hover {
-        background-color: var(--primary-dark);
-        border-color: var(--primary-dark);
-      }
-
-      .btn-outline-primary {
-        color: var(--primary-color);
-        border-color: var(--primary-color);
-      }
-
-      .btn-outline-primary:hover {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-      }
-
-      /* Empty State */
+      /* UTILS */
       .empty-state {
         text-align: center;
         padding: 60px 20px;
-        color: var(--gray-medium);
+        display: none;
       }
-
-      .empty-state-icon {
+      .empty-state i {
         font-size: 4rem;
-        color: var(--gray-light);
+        color: #dee2e6;
         margin-bottom: 20px;
       }
 
-      /* Tabs */
-      .order-tabs {
-        display: flex;
-        border-bottom: 2px solid var(--gray-light);
-        margin-bottom: 20px;
-        overflow-x: auto;
-      }
-
-      .order-tab {
-        padding: 12px 20px;
-        background: none;
-        border: none;
-        color: var(--gray-medium);
-        font-weight: 500;
-        white-space: nowrap;
-        position: relative;
-      }
-
-      .order-tab.active {
-        color: var(--primary-color);
-      }
-
-      .order-tab.active::after {
-        content: "";
-        position: absolute;
-        bottom: -2px;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background-color: var(--primary-color);
-      }
-
-      /* Bottom Navigation */
+      /* NAV */
       .bottom-nav {
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
-        background-color: white;
-        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
-        z-index: 1030;
+        background: white;
         padding: 10px 0;
+        border-top: 1px solid #eee;
+        z-index: 1030;
       }
-
-      .nav-item {
+      .nav-link-custom {
         text-align: center;
-        color: var(--gray-medium);
+        color: #999;
         text-decoration: none;
         flex: 1;
-        padding: 8px 0;
-        transition: color 0.2s ease;
-      }
-
-      .nav-item.active,
-      .nav-item:hover {
-        color: var(--primary-color);
-      }
-
-      .nav-icon {
-        font-size: 1.4rem;
         display: block;
-        margin-bottom: 3px;
       }
-
-      .nav-text {
-        font-size: 0.75rem;
+      .nav-link-custom.active {
+        color: var(--primary);
+      }
+      .nav-link-custom i {
+        font-size: 1.4rem;
+      }
+      .nav-link-custom span {
+        font-size: 0.7rem;
+        display: block;
         font-weight: 500;
-      }
-
-      /* Responsive adjustments */
-      @media (min-width: 768px) {
-        .order-tabs {
-          justify-content: center;
-        }
       }
     </style>
   </head>
   <body>
-    <!-- Header -->
     <header class="sticky-header">
-      <div class="container">
-        <div class="d-flex align-items-center justify-content-between">
-          <div>
-            <h1 class="page-title h4 mb-0">Theo dõi đơn hàng</h1>
-            <p class="text-muted mb-0 small">
-              Kiểm tra trạng thái đơn hàng của bạn
-            </p>
-          </div>
-          <div class="position-relative">
-            <i
-              class="bi bi-bell"
-              style="font-size: 1.2rem; color: var(--gray-medium)"
-            ></i>
+      <div class="container d-flex justify-content-between align-items-center">
+        <h1 class="h5 mb-0 fw-bold">Đơn hàng</h1>
+
+        <div class="dropdown">
+          <div
+            class="position-relative cursor-pointer"
+            data-bs-toggle="dropdown"
+          >
+            <i class="bi bi-bell fs-4"></i>
             <span
-              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-              style="font-size: 0.6rem"
-            >
-              2
-            </span>
+              id="notifBadge"
+              class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle d-none"
+            ></span>
           </div>
+          <ul
+            class="dropdown-menu dropdown-menu-end notif-dropdown"
+            id="notifList"
+          >
+            <li class="text-center p-3 text-muted small">
+              Không có thông báo mới
+            </li>
+          </ul>
         </div>
       </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="container">
-      <!-- Order Tabs -->
-      <div class="order-tabs">
-        <button class="order-tab active" data-status="all">Tất cả</button>
-        <button class="order-tab" data-status="active">Đang xử lý</button>
-        <button class="order-tab" data-status="completed">Hoàn thành</button>
-        <button class="order-tab" data-status="cancelled">Đã hủy</button>
-      </div>
+    <div class="order-tabs">
+      <button class="order-tab active" onclick="App.filter('ALL', this)">
+        Tất cả
+      </button>
+      <button class="order-tab" onclick="App.filter('ACTIVE', this)">
+        Đang xử lý
+      </button>
+      <button class="order-tab" onclick="App.filter('COMPLETED', this)">
+        Lịch sử
+      </button>
+    </div>
 
-      <!-- Active Orders -->
-      <div id="activeOrders">
-        <h5 class="mb-3" style="color: var(--gray-dark)">
-          Đơn hàng đang xử lý
-        </h5>
-
-        <!-- Order 1 - Delivering -->
-        <div class="order-card" data-status="active">
-          <div class="order-header">
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="restaurant-info">
-                <img
-                  src="https://images.unsplash.com/photo-1563245372-f21724e3856d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
-                  alt="Cơm Gà Hà Nội"
-                  class="restaurant-avatar"
-                />
-                <div>
-                  <h6 class="mb-0">Cơm Gà Hà Nội</h6>
-                  <small class="text-muted">Mã đơn: #S2O-2024-001</small>
-                </div>
-              </div>
-              <span class="status-badge status-delivering">Đang giao</span>
-            </div>
-          </div>
-
-          <div class="order-body">
-            <!-- Progress Bar -->
-            <div class="progress-container">
-              <div class="progress-steps">
-                <div class="progress-step">
-                  <div class="step-icon completed">
-                    <i class="bi bi-check"></i>
-                  </div>
-                  <div class="step-label">Đã đặt</div>
-                </div>
-                <div class="progress-step">
-                  <div class="step-icon completed">
-                    <i class="bi bi-check"></i>
-                  </div>
-                  <div class="step-label">Đã xác nhận</div>
-                </div>
-                <div class="progress-step">
-                  <div class="step-icon completed">
-                    <i class="bi bi-check"></i>
-                  </div>
-                  <div class="step-label">Đang nấu</div>
-                </div>
-                <div class="progress-step">
-                  <div class="step-icon active">
-                    <i class="bi bi-bicycle"></i>
-                  </div>
-                  <div class="step-label active">Đang giao</div>
-                </div>
-                <div class="progress-step">
-                  <div class="step-icon">
-                    <i class="bi bi-house-door"></i>
-                  </div>
-                  <div class="step-label">Hoàn thành</div>
-                </div>
-                <div class="progress-line"></div>
-                <div class="progress-fill" style="width: 75%"></div>
-              </div>
-            </div>
-
-            <!-- Order Items -->
-            <div class="order-items">
-              <div class="order-item">
-                <div>
-                  <span class="item-quantity">1x</span>
-                  Cơm gà sốt tiêu đen
-                </div>
-                <div>85,000 ₫</div>
-              </div>
-              <div class="order-item">
-                <div>
-                  <span class="item-quantity">2x</span>
-                  Canh rau củ
-                </div>
-                <div>30,000 ₫</div>
-              </div>
-              <div class="order-item">
-                <div>
-                  <span class="item-quantity">1x</span>
-                  Trà đào
-                </div>
-                <div>25,000 ₫</div>
-              </div>
-            </div>
-
-            <!-- Order Summary -->
-            <div class="mt-3 pt-3 border-top">
-              <div class="d-flex justify-content-between">
-                <span class="text-muted">Tạm tính:</span>
-                <span>140,000 ₫</span>
-              </div>
-              <div class="d-flex justify-content-between">
-                <span class="text-muted">Phí vận chuyển:</span>
-                <span>15,000 ₫</span>
-              </div>
-              <div class="d-flex justify-content-between mt-2">
-                <strong>Tổng cộng:</strong>
-                <strong style="color: var(--primary-color)">155,000 ₫</strong>
-              </div>
-            </div>
-          </div>
-
-          <div class="order-footer">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <small class="text-muted">Dự kiến giao hàng:</small>
-                <div class="fw-bold">14:30 - Hôm nay</div>
-              </div>
-              <button class="btn btn-outline-primary btn-sm">
-                <i class="bi bi-telephone me-1"></i>Liên hệ
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Order 2 - Cooking -->
-        <div class="order-card" data-status="active">
-          <div class="order-header">
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="restaurant-info">
-                <img
-                  src="https://images.unsplash.com/photo-1591814468924-caf88d1232e1?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
-                  alt="Phở Bò Sài Gòn"
-                  class="restaurant-avatar"
-                />
-                <div>
-                  <h6 class="mb-0">Phở Bò Sài Gòn</h6>
-                  <small class="text-muted">Mã đơn: #S2O-2024-002</small>
-                </div>
-              </div>
-              <span class="status-badge status-cooking">Đang nấu</span>
-            </div>
-          </div>
-
-          <div class="order-body">
-            <!-- Progress Bar -->
-            <div class="progress-container">
-              <div class="progress-steps">
-                <div class="progress-step">
-                  <div class="step-icon completed">
-                    <i class="bi bi-check"></i>
-                  </div>
-                  <div class="step-label">Đã đặt</div>
-                </div>
-                <div class="progress-step">
-                  <div class="step-icon completed">
-                    <i class="bi bi-check"></i>
-                  </div>
-                  <div class="step-label">Đã xác nhận</div>
-                </div>
-                <div class="progress-step">
-                  <div class="step-icon active">
-                    <i class="bi bi-fire"></i>
-                  </div>
-                  <div class="step-label active">Đang nấu</div>
-                </div>
-                <div class="progress-step">
-                  <div class="step-icon">
-                    <i class="bi bi-bicycle"></i>
-                  </div>
-                  <div class="step-label">Đang giao</div>
-                </div>
-                <div class="progress-step">
-                  <div class="step-icon">
-                    <i class="bi bi-house-door"></i>
-                  </div>
-                  <div class="step-label">Hoàn thành</div>
-                </div>
-                <div class="progress-line"></div>
-                <div class="progress-fill" style="width: 50%"></div>
-              </div>
-            </div>
-
-            <!-- Order Items -->
-            <div class="order-items">
-              <div class="order-item">
-                <div>
-                  <span class="item-quantity">2x</span>
-                  Phở bò tái chín
-                </div>
-                <div>120,000 ₫</div>
-              </div>
-              <div class="order-item">
-                <div>
-                  <span class="item-quantity">1x</span>
-                  Quẩy giòn
-                </div>
-                <div>15,000 ₫</div>
-              </div>
-            </div>
-
-            <!-- Order Summary -->
-            <div class="mt-3 pt-3 border-top">
-              <div class="d-flex justify-content-between">
-                <span class="text-muted">Tạm tính:</span>
-                <span>135,000 ₫</span>
-              </div>
-              <div class="d-flex justify-content-between">
-                <span class="text-muted">Phí vận chuyển:</span>
-                <span>12,000 ₫</span>
-              </div>
-              <div class="d-flex justify-content-between mt-2">
-                <strong>Tổng cộng:</strong>
-                <strong style="color: var(--primary-color)">147,000 ₫</strong>
-              </div>
-            </div>
-          </div>
-
-          <div class="order-footer">
-            <div class="d-flex justify-content-between align-items-center">
-              <div>
-                <small class="text-muted">Dự kiến giao hàng:</small>
-                <div class="fw-bold">15:15 - Hôm nay</div>
-              </div>
-              <button class="btn btn-outline-danger btn-sm">
-                <i class="bi bi-x-circle me-1"></i>Hủy đơn
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Completed Orders -->
-      <div id="completedOrders" class="mt-5">
-        <h5 class="mb-3" style="color: var(--gray-dark)">
-          Đơn hàng đã hoàn thành
-        </h5>
-
-        <!-- Order 3 - Completed -->
-        <div class="order-card" data-status="completed">
-          <div class="order-header">
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="restaurant-info">
-                <img
-                  src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
-                  alt="Highlands Coffee"
-                  class="restaurant-avatar"
-                />
-                <div>
-                  <h6 class="mb-0">Highlands Coffee</h6>
-                  <small class="text-muted">Mã đơn: #S2O-2023-156</small>
-                </div>
-              </div>
-              <span class="status-badge status-completed">Hoàn thành</span>
-            </div>
-          </div>
-
-          <div class="order-body">
-            <!-- Order Items -->
-            <div class="order-items">
-              <div class="order-item">
-                <div>
-                  <span class="item-quantity">1x</span>
-                  Cà phê sữa đá
-                </div>
-                <div>35,000 ₫</div>
-              </div>
-              <div class="order-item">
-                <div>
-                  <span class="item-quantity">2x</span>
-                  Bánh mì que phô mai
-                </div>
-                <div>40,000 ₫</div>
-              </div>
-            </div>
-
-            <!-- Order Summary -->
-            <div class="mt-3 pt-3 border-top">
-              <div class="d-flex justify-content-between">
-                <span class="text-muted">Tạm tính:</span>
-                <span>75,000 ₫</span>
-              </div>
-              <div class="d-flex justify-content-between">
-                <span class="text-muted">Phí vận chuyển:</span>
-                <span>10,000 ₫</span>
-              </div>
-              <div class="d-flex justify-content-between mt-2">
-                <strong>Tổng cộng:</strong>
-                <strong>85,000 ₫</strong>
-              </div>
-            </div>
-          </div>
-
-          <div class="order-footer">
-            <div class="d-flex justify-content-between">
-              <div>
-                <small class="text-muted">Đã giao:</small>
-                <div class="fw-bold">10/12/2023 - 09:30</div>
-              </div>
-              <div>
-                <button class="btn btn-primary btn-sm me-2">
-                  <i class="bi bi-arrow-repeat me-1"></i>Đặt lại
-                </button>
-                <button class="btn btn-outline-primary btn-sm">Đánh giá</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Order 4 - Completed -->
-        <div class="order-card" data-status="completed">
-          <div class="order-header">
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="restaurant-info">
-                <img
-                  src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
-                  alt="Pizza Hut"
-                  class="restaurant-avatar"
-                />
-                <div>
-                  <h6 class="mb-0">Pizza Hut</h6>
-                  <small class="text-muted">Mã đơn: #S2O-2023-142</small>
-                </div>
-              </div>
-              <span class="status-badge status-completed">Hoàn thành</span>
-            </div>
-          </div>
-
-          <div class="order-body">
-            <!-- Order Items -->
-            <div class="order-items">
-              <div class="order-item">
-                <div>
-                  <span class="item-quantity">1x</span>
-                  Pizza hải sản size L
-                </div>
-                <div>229,000 ₫</div>
-              </div>
-              <div class="order-item">
-                <div>
-                  <span class="item-quantity">1x</span>
-                  Cánh gà sốt BBQ (6 miếng)
-                </div>
-                <div>89,000 ₫</div>
-              </div>
-              <div class="order-item">
-                <div>
-                  <span class="item-quantity">2x</span>
-                  Coca Cola
-                </div>
-                <div>40,000 ₫</div>
-              </div>
-            </div>
-
-            <!-- Order Summary -->
-            <div class="mt-3 pt-3 border-top">
-              <div class="d-flex justify-content-between">
-                <span class="text-muted">Tạm tính:</span>
-                <span>358,000 ₫</span>
-              </div>
-              <div class="d-flex justify-content-between">
-                <span class="text-muted">Phí vận chuyển:</span>
-                <span>20,000 ₫</span>
-              </div>
-              <div class="d-flex justify-content-between">
-                <span class="text-muted">Khuyến mãi:</span>
-                <span class="text-success">-30,000 ₫</span>
-              </div>
-              <div class="d-flex justify-content-between mt-2">
-                <strong>Tổng cộng:</strong>
-                <strong>348,000 ₫</strong>
-              </div>
-            </div>
-          </div>
-
-          <div class="order-footer">
-            <div class="d-flex justify-content-between">
-              <div>
-                <small class="text-muted">Đã giao:</small>
-                <div class="fw-bold">05/12/2023 - 18:45</div>
-              </div>
-              <button class="btn btn-primary btn-sm">
-                <i class="bi bi-arrow-repeat me-1"></i>Đặt lại
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Empty State -->
-      <div id="emptyState" class="empty-state" style="display: none">
-        <i class="bi bi-receipt empty-state-icon"></i>
-        <h4 class="mb-3">Chưa có đơn hàng</h4>
-        <p class="text-muted mb-4">Bạn chưa có đơn hàng nào trong mục này</p>
-        <a href="restaurant-list.html" class="btn btn-primary">
-          <i class="bi bi-shop me-2"></i>Đặt món ngay
-        </a>
+    <main class="container mt-3" id="ordersContainer">
+      <div class="text-center py-5 text-muted">
+        <div
+          class="spinner-border spinner-border-sm text-warning"
+          role="status"
+        ></div>
+        <div class="mt-2 small">Đang kết nối đến máy chủ...</div>
       </div>
     </main>
 
-    <!-- Bottom Navigation -->
+    <template id="emptyStateTpl">
+      <div class="empty-state d-block">
+        <i class="bi bi-clipboard2-x"></i>
+        <h5 class="text-muted">Bạn chưa có đơn hàng nào</h5>
+        <a
+          href="restaurant-list.html"
+          class="btn btn-warning text-white rounded-pill mt-3 px-4"
+          >Đặt món ngay</a
+        >
+      </div>
+    </template>
+
     <nav class="bottom-nav">
-      <div class="container">
-        <div class="d-flex justify-content-around">
-          <a href="restaurant-list.html" class="nav-item">
-            <i class="bi bi-house-door nav-icon"></i>
-            <span class="nav-text">Trang chủ</span>
-          </a>
-          <a href="tracking.html" class="nav-item active">
-            <i class="bi bi-receipt nav-icon"></i>
-            <span class="nav-text">Đơn hàng</span>
-          </a>
-          <a href="restaurant-list.html" class="nav-item">
-            <i class="bi bi-heart nav-icon"></i>
-            <span class="nav-text">Yêu thích</span>
-          </a>
-          <a href="profile.html" class="nav-item">
-            <i class="bi bi-person nav-icon"></i>
-            <span class="nav-text">Tài khoản</span>
-          </a>
-        </div>
+      <div class="d-flex justify-content-around">
+        <a href="restaurant-list.html" class="nav-link-custom"
+          ><i class="bi bi-house"></i><span>Trang chủ</span></a
+        >
+        <a href="tracking.html" class="nav-link-custom active"
+          ><i class="bi bi-receipt"></i><span>Đơn hàng</span></a
+        >
+        <a href="profile.html" class="nav-link-custom"
+          ><i class="bi bi-person"></i><span>Tài khoản</span></a
+        >
       </div>
     </nav>
 
-    <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-      // DOM Elements
-      const orderTabs = document.querySelectorAll(".order-tab");
-      const orderCards = document.querySelectorAll(".order-card");
-      const emptyState = document.getElementById("emptyState");
-      const activeOrdersSection = document.getElementById("activeOrders");
-      const completedOrdersSection = document.getElementById("completedOrders");
-
-      // Current filter state
-      let currentFilter = {
-        status: "all",
+      // ===============================================
+      // 1. CONFIGURATION (Backend Config)
+      // ===============================================
+      const API_CONFIG = {
+        BASE_URL: "http://localhost:8080/api/v1", // URL Backend Spring Boot của bạn
+        ORDERS_ENDPOINT: "/orders/my-orders", // API lấy đơn hàng
+        NOTIF_ENDPOINT: "/notifications", // API lấy thông báo
       };
 
-      // Function to filter orders
-      function filterOrders() {
-        let hasActiveOrders = false;
-        let hasCompletedOrders = false;
+      const STATUS_MAP = {
+        PENDING: { label: "Chờ xác nhận", color: "#ffc107", step: 1 },
+        COOKING: { label: "Đang nấu", color: "#e85d04", step: 2 },
+        DELIVERING: { label: "Đang giao", color: "#0dcaf0", step: 3 },
+        COMPLETED: { label: "Hoàn thành", color: "#198754", step: 4 },
+        CANCELLED: { label: "Đã hủy", color: "#dc3545", step: 0 },
+      };
 
-        orderCards.forEach((card) => {
-          const cardStatus = card.getAttribute("data-status");
+      const IMG_BACKUP = "../img/anhbackup.jpg";
 
-          if (
-            currentFilter.status === "all" ||
-            currentFilter.status === cardStatus
-          ) {
-            card.style.display = "block";
-            if (cardStatus === "active") hasActiveOrders = true;
-            if (cardStatus === "completed") hasCompletedOrders = true;
-          } else {
-            card.style.display = "none";
+      // ===============================================
+      // 2. API SERVICE (Kết nối thật)
+      // ===============================================
+      const ApiService = {
+        async get(endpoint) {
+          try {
+            // Lấy token đăng nhập (nếu có)
+            const token = localStorage.getItem("s2o_token");
+
+            const res = await fetch(`${API_CONFIG.BASE_URL}${endpoint}`, {
+              headers: {
+                Authorization: token ? `Bearer ${token}` : "",
+                "Content-Type": "application/json",
+              },
+            });
+
+            if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+            return await res.json();
+          } catch (error) {
+            console.error("API Call Failed:", error);
+            return []; // Trả về mảng rỗng nếu lỗi kết nối (để hiện Empty State)
           }
-        });
+        },
+      };
 
-        // Show/hide sections based on content
-        if (
-          currentFilter.status === "all" ||
-          currentFilter.status === "active"
-        ) {
-          activeOrdersSection.style.display = hasActiveOrders
-            ? "block"
-            : "none";
-        } else {
-          activeOrdersSection.style.display = "none";
-        }
+      // ===============================================
+      // 3. APP LOGIC
+      // ===============================================
+      const App = {
+        allOrders: [],
 
-        if (
-          currentFilter.status === "all" ||
-          currentFilter.status === "completed"
-        ) {
-          completedOrdersSection.style.display = hasCompletedOrders
-            ? "block"
-            : "none";
-        } else {
-          completedOrdersSection.style.display = "none";
-        }
+        async init() {
+          // Gọi song song 2 API lấy Đơn hàng và Thông báo
+          const [orders, notifs] = await Promise.all([
+            ApiService.get(API_CONFIG.ORDERS_ENDPOINT),
+            ApiService.get(API_CONFIG.NOTIF_ENDPOINT),
+          ]);
 
-        // Show empty state if no orders match filter
-        const visibleCards = Array.from(orderCards).filter(
-          (card) => card.style.display === "block" || !card.style.display
-        );
+          this.allOrders = orders;
+          this.renderOrders(this.allOrders);
+          this.renderNotifications(notifs);
+        },
 
-        if (visibleCards.length === 0) {
-          emptyState.style.display = "block";
-        } else {
-          emptyState.style.display = "none";
-        }
-      }
+        // --- Render Đơn Hàng ---
+        renderOrders(orders) {
+          const container = document.getElementById("ordersContainer");
 
-      // Event Listeners
-      function setupEventListeners() {
-        // Order tabs events
-        orderTabs.forEach((tab) => {
-          tab.addEventListener("click", function () {
-            // Remove active class from all tabs
-            orderTabs.forEach((t) => t.classList.remove("active"));
+          // Nếu không có đơn nào (Mảng rỗng) -> Hiện Empty State
+          if (!orders || orders.length === 0) {
+            container.innerHTML =
+              document.getElementById("emptyStateTpl").innerHTML;
+            return;
+          }
 
-            // Add active class to clicked tab
-            this.classList.add("active");
+          // Nếu có đơn -> Render ra HTML
+          let html = "";
+          orders.forEach((order) => {
+            const statusCfg = STATUS_MAP[order.status] || STATUS_MAP["PENDING"];
+            const isDone = ["COMPLETED", "CANCELLED"].includes(order.status);
 
-            // Update current filter
-            currentFilter.status = this.getAttribute("data-status");
+            // Xử lý danh sách món ăn
+            const itemsHtml = order.items
+              .map(
+                (i) =>
+                  `<div><b class="text-primary">${i.qty}x</b> ${i.name}</div>`
+              )
+              .join("");
 
-            // Filter orders
-            filterOrders();
-          });
-        });
-
-        // Bottom nav items events
-        const navItems = document.querySelectorAll(".nav-item");
-        navItems.forEach((item) => {
-          item.addEventListener("click", function (e) {
-            // Remove active class from all nav items
-            navItems.forEach((nav) => nav.classList.remove("active"));
-
-            // Add active class to clicked item
-            this.classList.add("active");
-          });
-        });
-
-        // Re-order button events
-        const reorderButtons = document.querySelectorAll(".btn-primary");
-        reorderButtons.forEach((button) => {
-          button.addEventListener("click", function () {
-            if (this.textContent.includes("Đặt lại")) {
-              alert("Tính năng đặt lại đơn hàng đang được phát triển!");
+            // Thanh tiến trình (Progress Bar) - Chỉ hiện nếu đơn đang chạy
+            let progressHtml = "";
+            if (!isDone) {
+              const pct = ((statusCfg.step - 1) / 3) * 100;
+              progressHtml = `
+                <div class="progress-track">
+                  <div class="progress-bg"></div>
+                  <div class="progress-fill" style="width: ${pct}%"></div>
+                  ${this.renderSteps(statusCfg.step)}
+                </div>
+              `;
             }
+
+            html += `
+              <div class="order-card">
+                <div class="order-header">
+                  <div class="d-flex align-items-center gap-2">
+                    <img src="${
+                      order.img || IMG_BACKUP
+                    }" class="res-img" onerror="this.src='${IMG_BACKUP}'">
+                    <div>
+                      <div class="fw-bold">${order.restaurant}</div>
+                      <div class="small text-muted">#${order.id} • ${new Date(
+              order.date
+            ).toLocaleTimeString()}</div>
+                    </div>
+                  </div>
+                  <span class="status-badge" style="background:${
+                    statusCfg.color
+                  }20; color:${statusCfg.color}">${statusCfg.label}</span>
+                </div>
+                
+                <div class="p-3">
+                  ${progressHtml}
+                  <div class="small mt-2 text-secondary">${itemsHtml}</div>
+                </div>
+
+                <div class="p-3 border-top d-flex justify-content-between align-items-center bg-light">
+                  <div class="fw-bold text-primary">${order.total.toLocaleString()}đ</div>
+                  <div>
+                    ${
+                      order.status === "COMPLETED"
+                        ? '<button class="btn btn-sm btn-outline-primary rounded-pill">Đánh giá</button>'
+                        : '<button class="btn btn-sm btn-outline-dark rounded-pill">Chi tiết</button>'
+                    }
+                  </div>
+                </div>
+              </div>
+            `;
           });
-        });
+          container.innerHTML = html;
+        },
 
-        // Cancel order button events
-        const cancelButtons = document.querySelectorAll(".btn-outline-danger");
-        cancelButtons.forEach((button) => {
-          button.addEventListener("click", function () {
-            if (confirm("Bạn có chắc chắn muốn hủy đơn hàng này?")) {
-              alert("Đơn hàng đã được hủy thành công!");
-            }
-          });
-        });
-      }
+        renderSteps(current) {
+          const steps = ["Đã đặt", "Đang nấu", "Đang giao", "Đến nơi"];
+          const icons = ["bi-clipboard", "bi-fire", "bi-bicycle", "bi-house"];
+          return steps
+            .map((label, idx) => {
+              const stepNum = idx + 1;
+              let cls = "";
+              if (stepNum < current) cls = "completed";
+              else if (stepNum === current) cls = "active";
 
-      // Initialize the page
-      function init() {
-        filterOrders();
-        setupEventListeners();
-      }
+              return `<div class="step ${cls}"><div class="step-icon"><i class="bi ${icons[idx]}"></i></div><div class="step-label">${label}</div></div>`;
+            })
+            .join("");
+        },
 
-      // Run initialization when DOM is loaded
-      document.addEventListener("DOMContentLoaded", init);
+        // --- Render Thông báo ---
+        renderNotifications(notifs) {
+          const listEl = document.getElementById("notifList");
+          const badge = document.getElementById("notifBadge");
+
+          if (!notifs || notifs.length === 0) {
+            listEl.innerHTML =
+              '<li class="text-center p-3 small text-muted">Không có thông báo mới</li>';
+            badge.classList.add("d-none");
+            return;
+          }
+
+          // Có thông báo -> Hiện chấm đỏ
+          badge.classList.remove("d-none");
+
+          listEl.innerHTML = notifs
+            .map(
+              (n) => `
+            <li class="notif-item ${n.read ? "" : "unread"}">
+              <div class="fw-bold small mb-1">${n.title}</div>
+              <div class="small text-secondary mb-1">${n.msg}</div>
+              <div class="text-muted" style="font-size: 0.65rem">${n.time}</div>
+            </li>
+          `
+            )
+            .join("");
+        },
+
+        // --- Filter Tabs ---
+        filter(type, btn) {
+          document
+            .querySelectorAll(".order-tab")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+
+          if (type === "ALL") {
+            this.renderOrders(this.allOrders);
+          } else if (type === "ACTIVE") {
+            const active = this.allOrders.filter((o) =>
+              ["PENDING", "COOKING", "DELIVERING"].includes(o.status)
+            );
+            this.renderOrders(active);
+          } else {
+            const history = this.allOrders.filter((o) =>
+              ["COMPLETED", "CANCELLED"].includes(o.status)
+            );
+            this.renderOrders(history);
+          }
+        },
+      };
+
+      // Start App
+      document.addEventListener("DOMContentLoaded", () => App.init());
     </script>
   </body>
 </html>
