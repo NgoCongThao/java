@@ -1,17 +1,34 @@
 import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import AdminLayout from './layouts/AdminLayout';
+import GuestLayout from './layouts/GuestLayout';
+
+// Tạo vài component rỗng để test router (Sau này các bạn Dev sẽ vào đây viết code thật)
+const GuestHome = () => <h1>Trang chủ Khách hàng (Dev 1 làm ở đây)</h1>;
+const AdminDashboard = () => <h1>Thống kê Doanh thu (Dev 5 làm ở đây)</h1>;
+const StaffOrder = () => <h1>Danh sách Đơn hàng (Dev 3 làm ở đây)</h1>;
 
 function App() {
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Dự án S2O - Smart Restaurant</h1>
-      <p>Môi trường Frontend đã sẵn sàng!</p>
-      <ul>
-        <li>Dev 1 làm việc tại: /src/pages/guest</li>
-        <li>Dev 3 làm việc tại: /src/pages/staff</li>
-        <li>Dev 5 làm việc tại: /src/pages/admin</li>
-        <li>Dev 7 làm việc tại: /src/pages/kitchen</li>
-      </ul>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        {/* KHU VỰC KHÁCH HÀNG (Dùng GuestLayout) */}
+        <Route path="/" element={<GuestLayout />}>
+          <Route index element={<GuestHome />} />
+          <Route path="menu" element={<h1>Trang Menu</h1>} />
+        </Route>
+
+        {/* KHU VỰC QUẢN TRỊ & NHÂN VIÊN (Dùng AdminLayout) */}
+        <Route path="/" element={<AdminLayout />}>
+           {/* Admin */}
+          <Route path="admin/dashboard" element={<AdminDashboard />} />
+          
+           {/* Staff */}
+          <Route path="staff/orders" element={<StaffOrder />} />
+        </Route>
+
+      </Routes>
+    </BrowserRouter>
   );
 }
 

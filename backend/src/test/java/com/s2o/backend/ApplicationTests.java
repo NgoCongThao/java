@@ -1,4 +1,4 @@
-package com.s2o.backend;
+package com.s2o.api;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
