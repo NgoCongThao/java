@@ -15,7 +15,7 @@ public class Product {
     private Double price;
     private String image;
     private String description;
-    private Boolean isAvailable = true;
+    private Boolean Available = true;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

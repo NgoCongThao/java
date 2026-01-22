@@ -14,5 +14,6 @@ public class Restaurant {
     private String name;
     private String address;
     private String phone;
-    private Boolean isActive = true;
+    private boolean active = true;
+
 }
