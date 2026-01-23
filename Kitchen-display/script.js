@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // === SỬA ĐƯỜNG DẪN Ở ĐÂY ===
     // '../data.json' nghĩa là tìm file ở thư mục cha bên ngoài
     // Nếu file đang ở chung thư mục, hãy sửa thành 'data.json'
-    fetch('../data.json') 
+    fetch('data.json') 
         .then(response => {
             if (!response.ok) {
                 throw new Error("Không tìm thấy file data.json! Kiểm tra lại vị trí file.");
