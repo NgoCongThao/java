@@ -4,17 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>S2O - Đăng nhập & Đăng ký</title>
-    <!-- Bootstrap 5 CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
-    <!-- Font Awesome -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-    <!-- Google Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
@@ -52,7 +49,6 @@
         color: var(--dark-color);
       }
 
-      /* Container chính */
       .auth-main-container {
         width: 100%;
         max-width: 1100px;
@@ -62,7 +58,6 @@
         align-items: stretch;
       }
 
-      /* Phần hình ảnh/banner bên trái (chỉ hiển thị trên desktop) */
       .auth-left-panel {
         flex: 1;
         display: none;
@@ -159,7 +154,6 @@
         font-size: 0.85rem;
       }
 
-      /* Phần form bên phải */
       .auth-right-panel {
         flex: 1;
         max-width: 420px;
@@ -300,7 +294,6 @@
         font-size: 0.9rem;
       }
 
-      /* Password requirements */
       .password-requirements {
         background-color: #f8f9fa;
         border-radius: 8px;
@@ -568,7 +561,6 @@
         color: #721c24;
       }
 
-      /* Responsive Design */
       @media (max-width: 767px) {
         body {
           padding: 15px;
@@ -630,25 +622,6 @@
         }
       }
 
-      /* Touch-friendly optimizations */
-      .btn-auth,
-      .btn-social,
-      .btn-guest,
-      .auth-tab,
-      .form-check-label,
-      .password-toggle {
-        -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
-      }
-
-      .form-control,
-      .btn-auth,
-      .btn-social,
-      .btn-guest {
-        min-height: 44px;
-      }
-
-      /* Loading state */
       .btn-loading {
         position: relative;
         color: transparent !important;
@@ -837,7 +810,7 @@
                 >
                   Không muốn đăng nhập?
                 </p>
-                <a href="landing.html" class="btn-guest">
+                <a href="restaurant-list.html" class="btn-guest">
                   <i class="fas fa-qrcode"></i>
                   Tiếp tục với tư cách Khách
                 </a>
@@ -857,6 +830,18 @@
               </div>
 
               <form id="signupForm">
+                <!-- Full Name Input -->
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="signup-fullname"
+                    placeholder="Họ và tên"
+                    required
+                  />
+                  <label for="signup-fullname">Họ và tên</label>
+                </div>
+
                 <!-- Phone Input -->
                 <div class="form-floating">
                   <input
@@ -984,7 +969,7 @@
                 >
                   Chỉ muốn dùng thử?
                 </p>
-                <a href="landing.html" class="btn-guest">
+                <a href="restaurant-list.html" class="btn-guest">
                   <i class="fas fa-qrcode"></i>
                   Tiếp tục với tư cách Khách
                 </a>
@@ -1007,6 +992,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+      const API_BASE_URL = "http://localhost:8080/api/auth";
+
       // Hàm lấy tham số từ URL
       function getUrlParameter(name) {
         name = name.replace(/[\[\]]/g, "\\$&");
@@ -1027,7 +1014,6 @@
           special: /[!@#$%^&*]/.test(password),
         };
 
-        // Tính điểm mật khẩu
         let score = 0;
         Object.values(requirements).forEach((req) => {
           if (req) score++;
@@ -1049,43 +1035,37 @@
         const loginError = document.getElementById("login-error");
         const signupSuccess = document.getElementById("signup-success");
         const switchText = document.getElementById("switch-text");
-        const switchToSignup = document.getElementById("switch-to-signup");
         const passwordToggles = document.querySelectorAll(".password-toggle");
         const passwordInput = document.getElementById("signup-password");
         const confirmPasswordInput = document.getElementById("signup-confirm");
 
         // Tab Switching
         function switchTab(tab) {
-          // Update tabs
           loginTab.classList.toggle("active", tab === "login");
           signupTab.classList.toggle("active", tab === "signup");
 
-          // Update forms
           loginForm.classList.toggle("active", tab === "login");
           signupForm.classList.toggle("active", tab === "signup");
 
-          // Update footer text
           if (tab === "login") {
             switchText.innerHTML =
               'Chưa có tài khoản? <a href="#" id="switch-to-signup">Đăng ký ngay</a>';
+            document.getElementById("switch-to-signup").onclick = (e) => {
+              e.preventDefault();
+              switchTab("signup");
+            };
           } else {
             switchText.innerHTML =
               'Đã có tài khoản? <a href="#" id="switch-to-login">Đăng nhập ngay</a>';
+            document.getElementById("switch-to-login").onclick = (e) => {
+              e.preventDefault();
+              switchTab("login");
+            };
           }
 
-          // Re-attach event listeners for new links
-          document
-            .getElementById("switch-to-signup")
-            ?.addEventListener("click", () => switchTab("signup"));
-          document
-            .getElementById("switch-to-login")
-            ?.addEventListener("click", () => switchTab("login"));
-
-          // Hide alerts
           loginError.style.display = "none";
           signupSuccess.style.display = "none";
 
-          // Focus vào trường đầu tiên của form
           setTimeout(() => {
             if (tab === "login") {
               document.getElementById("login-phone")?.focus();
@@ -1104,16 +1084,12 @@
         }
 
         // Tab click events
-        loginTab.addEventListener("click", () => switchTab("login"));
-        signupTab.addEventListener("click", () => switchTab("signup"));
-        switchToSignup.addEventListener("click", (e) => {
-          e.preventDefault();
-          switchTab("signup");
-        });
+        loginTab.onclick = () => switchTab("login");
+        signupTab.onclick = () => switchTab("signup");
 
         // Password toggle functionality
         passwordToggles.forEach((toggle) => {
-          toggle.addEventListener("click", function () {
+          toggle.onclick = function () {
             const targetId = this.getAttribute("data-target");
             const targetInput = document.getElementById(targetId);
             const icon = this.querySelector("i");
@@ -1127,7 +1103,7 @@
               icon.classList.remove("fa-eye-slash");
               icon.classList.add("fa-eye");
             }
-          });
+          };
         });
 
         // Password strength checker for signup
@@ -1195,30 +1171,34 @@
           });
         }
 
-        // Form validation and submission
-        const loginFormEl = document.getElementById("loginForm");
-        const signupFormEl = document.getElementById("signupForm");
-
         // Phone number validation
         function validatePhone(phone) {
           const phoneRegex = /^[0-9]{10,11}$/;
           return phoneRegex.test(phone);
         }
 
-        // Login form submission
-        loginFormEl.addEventListener("submit", function (e) {
-          e.preventDefault();
+        // Helper function to show error
+        function showError(element, message) {
+          const errorText = element.querySelector("span");
+          errorText.textContent = message;
+          element.style.display = "block";
 
+          setTimeout(() => {
+            element.style.display = "none";
+          }, 5000);
+        }
+
+        // --- XỬ LÝ ĐĂNG NHẬP CHUẨN ---
+        document.getElementById("loginForm").onsubmit = async function (e) {
+          e.preventDefault();
+          
           const phone = document.getElementById("login-phone").value;
           const password = document.getElementById("login-password").value;
-          const submitBtn = document.getElementById("login-submit");
-
+          const btn = document.getElementById("login-submit");
+          
           // Validation
           if (!validatePhone(phone)) {
-            showError(
-              loginError,
-              "Vui lòng nhập số điện thoại hợp lệ (10-11 số)"
-            );
+            showError(loginError, "Vui lòng nhập số điện thoại hợp lệ (10-11 số)");
             return;
           }
 
@@ -1227,76 +1207,135 @@
             return;
           }
 
-          // Simulate login process
-          simulateSubmit(submitBtn, 1500).then(() => {
-            // In real app, this would be an API call
-            console.log("Login attempt:", { phone, password });
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+          btn.disabled = true;
+          loginError.style.display = "none";
 
-            // For demo, show error (simulating failed login)
-            showError(loginError, "Số điện thoại hoặc mật khẩu không đúng");
-          });
-        });
+          const data = {
+            username: phone,  // Sử dụng số điện thoại làm username
+            password: password
+          };
 
-        // Signup form submission
-        signupFormEl.addEventListener("submit", function (e) {
-          e.preventDefault();
-
-          const phone = document.getElementById("signup-phone").value;
-          const password = document.getElementById("signup-password").value;
-          const confirmPassword =
-            document.getElementById("signup-confirm").value;
-          const agreeTerms = document.getElementById("agree-terms").checked;
-          const submitBtn = document.getElementById("signup-submit");
-
-          // Validation
-          if (!validatePhone(phone)) {
-            alert("Vui lòng nhập số điện thoại hợp lệ (10-11 số)");
-            return;
-          }
-
-          const passwordValidation = validateStrongPassword(password);
-          if (!passwordValidation.isValid) {
-            alert(
-              "Mật khẩu không đủ mạnh. Vui lòng kiểm tra các yêu cầu bên dưới."
-            );
-            return;
-          }
-
-          if (password !== confirmPassword) {
-            alert("Mật khẩu xác nhận không khớp");
-            return;
-          }
-
-          if (!agreeTerms) {
-            alert("Bạn cần đồng ý với điều khoản dịch vụ");
-            return;
-          }
-
-          // Simulate signup process
-          simulateSubmit(submitBtn, 1500).then(() => {
-            // In real app, this would be an API call
-            console.log("Signup attempt:", { phone, password });
-
-            // Show success message
-            signupSuccess.style.display = "block";
-
-            // Clear form
-            signupFormEl.reset();
-
-            // Reset password requirements
-            document.querySelectorAll(".requirement-item").forEach((item) => {
-              item.classList.remove("valid");
-              item.classList.add("invalid");
+          try {
+            const response = await fetch(`${API_BASE_URL}/login`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
             });
-            document.getElementById("strength-bar").style.width = "0%";
 
-            // Switch to login after 3 seconds
-            setTimeout(() => {
-              switchTab("login");
-              signupSuccess.style.display = "none";
-            }, 3000);
-          });
-        });
+            if (!response.ok) {
+              const errorText = await response.text();
+              throw new Error(errorText || "Sai số điện thoại hoặc mật khẩu");
+            }
+
+            const result = await response.json();
+            
+            // 1. Lưu Token
+            if (result.token) {
+                localStorage.setItem("token", result.token);
+            }
+            
+            // 2. Lưu User
+            const userToSave = result.user ? result.user : result;
+            if(!userToSave.fullName) {
+              userToSave.fullName = userToSave.fullName || userToSave.username || "Người dùng";
+            }
+            localStorage.setItem("user", JSON.stringify(userToSave));
+
+            // 3. Chuyển trang
+            window.location.href = "restaurant-list.html";
+
+          } catch (err) {
+            console.error("Login error:", err);
+            showError(loginError, err.message || "Đăng nhập thất bại");
+          } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+          }
+        };
+
+        // --- XỬ LÝ ĐĂNG KÝ ---
+        document.getElementById("signupForm").onsubmit = async function(e) {
+            e.preventDefault();
+            
+            const fullName = document.getElementById("signup-fullname").value;
+            const phone = document.getElementById("signup-phone").value;
+            const pass = document.getElementById("signup-password").value;
+            const confirm = document.getElementById("signup-confirm").value;
+            const agreeTerms = document.getElementById("agree-terms").checked;
+            
+            // Validation
+            if (!fullName.trim()) {
+              alert("Vui lòng nhập họ và tên");
+              return;
+            }
+
+            if (!validatePhone(phone)) {
+              alert("Vui lòng nhập số điện thoại hợp lệ (10-11 số)");
+              return;
+            }
+
+            const passwordValidation = validateStrongPassword(pass);
+            if (!passwordValidation.isValid) {
+              alert("Mật khẩu không đủ mạnh. Vui lòng kiểm tra các yêu cầu bên dưới.");
+              return;
+            }
+
+            if (pass !== confirm) {
+              alert("Mật khẩu xác nhận không khớp");
+              return;
+            }
+
+            if (!agreeTerms) {
+              alert("Bạn cần đồng ý với điều khoản dịch vụ");
+              return;
+            }
+
+            const btn = document.getElementById("signup-submit");
+            const oldText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang đăng ký...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/register`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        fullName: fullName,
+                        username: phone,  // Số điện thoại làm username
+                        password: pass,
+                        phone: phone
+                    })
+                });
+
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    throw new Error(errorText || "Đăng ký thất bại");
+                }
+
+                const result = await res.json();
+                
+                document.getElementById("signup-success").style.display = "block";
+                document.getElementById("signupForm").reset();
+                
+                // Reset password requirements
+                document.querySelectorAll(".requirement-item").forEach((item) => {
+                  item.classList.remove("valid");
+                  item.classList.add("invalid");
+                });
+                document.getElementById("strength-bar").style.width = "0%";
+                
+                setTimeout(() => switchTab("login"), 2000);
+
+            } catch (err) {
+                console.error("Signup error:", err);
+                alert("Lỗi đăng ký: " + err.message);
+            } finally {
+                btn.innerHTML = oldText;
+                btn.disabled = false;
+            }
+        };
 
         // Social login buttons
         document.querySelectorAll(".btn-social").forEach((btn) => {
@@ -1306,45 +1345,6 @@
               : "Facebook";
             alert(`Đăng nhập bằng ${provider} - Tính năng đang phát triển`);
           });
-        });
-
-        // Helper functions
-        function showError(element, message) {
-          const errorText = element.querySelector("span");
-          errorText.textContent = message;
-          element.style.display = "block";
-
-          // Auto hide after 5 seconds
-          setTimeout(() => {
-            element.style.display = "none";
-          }, 5000);
-        }
-
-        function simulateSubmit(button, duration) {
-          return new Promise((resolve) => {
-            const originalText = button.innerHTML;
-            button.classList.add("btn-loading");
-            button.disabled = true;
-
-            setTimeout(() => {
-              button.classList.remove("btn-loading");
-              button.innerHTML = originalText;
-              button.disabled = false;
-              resolve();
-            }, duration);
-          });
-        }
-
-        // Auto-focus first input on tab switch
-        loginTab.addEventListener("click", () => {
-          setTimeout(() => document.getElementById("login-phone").focus(), 300);
-        });
-
-        signupTab.addEventListener("click", () => {
-          setTimeout(
-            () => document.getElementById("signup-phone").focus(),
-            300
-          );
         });
 
         // Format phone number input
@@ -1357,59 +1357,6 @@
             e.target.value = value;
           });
         });
-      });
-      // --- ĐOẠN CODE MỚI ĐỂ GỌI JAVA ---
-
-      loginFormEl.addEventListener("submit", function (e) {
-        e.preventDefault(); // Chặn việc load lại trang
-
-        const phone = document.getElementById("login-phone").value;
-        const password = document.getElementById("login-password").value;
-        const submitBtn = document.getElementById("login-submit");
-
-        // 1. Hiệu ứng đang tải
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML =
-          '<i class="fas fa-spinner fa-spin"></i> Đang kết nối...';
-        submitBtn.disabled = true;
-
-        // 2. GỌI XUỐNG SERVER JAVA (QUAN TRỌNG)
-        fetch("http://localhost:8080/api/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          // Đóng gói dữ liệu thành JSON để gửi đi
-          body: JSON.stringify({
-            phone: phone,
-            password: password,
-          }),
-        })
-          .then((response) => {
-            // Server trả lời
-            if (response.ok) {
-              return response.json(); // Nếu OK thì đọc tin nhắn
-            } else {
-              throw new Error("Lỗi kết nối hoặc sai mật khẩu");
-            }
-          })
-          .then((data) => {
-            // 3. KẾT QUẢ THÀNH CÔNG
-            console.log("Server Java trả lời:", data);
-            alert(
-              "ĐÃ KẾT NỐI THÀNH CÔNG VỚI JAVA!\nXem Console của VS Code để thấy SĐT."
-            );
-          })
-          .catch((error) => {
-            // 4. CÓ LỖI
-            console.error("Lỗi:", error);
-            alert("Lỗi: " + error.message + "\n(Bạn đã bật Server Java chưa?)");
-          })
-          .finally(() => {
-            // Trả lại nút bấm như cũ
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-          });
       });
     </script>
   </body>
