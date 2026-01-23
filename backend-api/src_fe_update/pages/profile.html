@@ -55,16 +55,18 @@
         width: 100px;
         height: 100px;
         margin: 0 auto 15px;
-      }
-      .profile-avatar {
-        width: 100%;
-        height: 100%;
+        /* Tạo avatar chữ cái */
+        background-color: white;
+        color: var(--primary);
         border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: bold;
         border: 4px solid rgba(255, 255, 255, 0.3);
-        object-fit: cover;
-        background: #ddd;
       }
-
+      
       .user-name {
         font-size: 1.5rem;
         font-weight: 700;
@@ -183,28 +185,6 @@
         gap: 10px;
       }
 
-      /* SKELETON LOADING */
-      .skeleton {
-        background: linear-gradient(
-          90deg,
-          #f0f0f0 25%,
-          #e0e0e0 50%,
-          #f0f0f0 75%
-        );
-        background-size: 200% 100%;
-        animation: loading 1.5s infinite;
-        color: transparent !important;
-        border-radius: 4px;
-      }
-      @keyframes loading {
-        0% {
-          background-position: 200% 0;
-        }
-        100% {
-          background-position: -200% 0;
-        }
-      }
-
       /* NAV */
       .bottom-nav {
         position: fixed;
@@ -238,31 +218,23 @@
   </head>
   <body>
     <div class="profile-header">
-      <div class="avatar-wrapper">
-        <img
-          id="userAvatar"
-          src=""
-          class="profile-avatar d-none"
-          onerror="this.src='../img/anhbackup.jpg'"
-        />
-        <div id="avatarSkeleton" class="profile-avatar skeleton"></div>
-      </div>
-      <div id="userName" class="user-name skeleton w-50 mx-auto"></div>
-      <div id="userEmail" class="user-email skeleton w-40 mx-auto"></div>
-      <div id="userRank" class="rank-badge skeleton mx-auto"></div>
+      <div class="avatar-wrapper" id="avatarText">U</div>
+      <div id="userName" class="user-name">Đang tải...</div>
+      <div id="userEmail" class="user-email">...</div>
+      <div class="rank-badge"><i class="bi bi-award-fill text-warning"></i> Thành viên</div>
     </div>
 
     <div class="stats-box">
       <div class="stat-item">
-        <span id="statOrders" class="stat-num skeleton w-50 mx-auto"></span>
+        <span class="stat-num">0</span>
         <span class="stat-label">Đơn hàng</span>
       </div>
       <div class="stat-item">
-        <span id="statPoints" class="stat-num skeleton w-50 mx-auto"></span>
+        <span class="stat-num">0</span>
         <span class="stat-label">Điểm</span>
       </div>
       <div class="stat-item">
-        <span id="statVouchers" class="stat-num skeleton w-50 mx-auto"></span>
+        <span class="stat-num">0</span>
         <span class="stat-label">Voucher</span>
       </div>
     </div>
@@ -307,7 +279,7 @@
       ></a>
     </div>
 
-    <button class="logout-btn" onclick="Auth.logout()">
+    <button class="logout-btn" onclick="logout()">
       <i class="bi bi-box-arrow-right"></i> Đăng xuất
     </button>
 
@@ -329,120 +301,47 @@
 
     <script>
       // ============================================
-      // 1. CONFIGURATION (Backend)
+      // LOGIC HIỂN THỊ PROFILE (ĐÃ FIX CHUẨN)
       // ============================================
-      const API_CONFIG = {
-        BASE_URL: "http://localhost:8080/api/v1",
-        PROFILE_ENDPOINT: "/users/me",
-      };
+      document.addEventListener("DOMContentLoaded", function () {
+        // 1. Kiểm tra Token (Key là "token" cho khớp với authcus.html)
+        const token = localStorage.getItem("token");
+        if (!token) {
+          // Chưa đăng nhập -> Đẩy về trang Login
+          window.location.href = "authcus.html";
+          return;
+        }
 
-      const IMG_BACKUP = "../img/anhbackup.jpg";
+        // 2. Lấy dữ liệu User từ LocalStorage (Nơi authcus.html đã lưu)
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          
+          // 3. Hiển thị lên giao diện
+          const name = user.fullName || user.username || "Khách hàng";
+          const phone = user.phone || user.username || "Chưa cập nhật SĐT";
 
-      // ============================================
-      // 2. AUTH SERVICE
-      // ============================================
-      const Auth = {
-        getToken() {
-          return localStorage.getItem("s2o_token");
-        },
-
-        logout() {
-          if (confirm("Đăng xuất khỏi tài khoản?")) {
-            localStorage.removeItem("s2o_token");
-            window.location.href = "authcus.html";
-          }
-        },
-
-        // API Call
-        async fetchProfile() {
-          const token = this.getToken();
-          if (!token) return null; // No token -> null
-
-          try {
-            // CALL API THẬT
-            /* const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.PROFILE_ENDPOINT}`, {
-              headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if(!res.ok) throw new Error(res.status);
-            return await res.json();
-            */
-
-            // MOCK DATA (Xóa đoạn này khi có backend)
-            return new Promise((resolve) =>
-              setTimeout(
-                () =>
-                  resolve({
-                    name: "Nguyễn Văn A",
-                    email: "nguyenvana@gmail.com",
-                    avatar: "",
-                    rank: "Gold Member",
-                    stats: { orders: 12, points: 350, vouchers: 2 },
-                  }),
-                1500
-              )
-            );
-          } catch (error) {
-            console.error("Auth Error:", error);
-            if (error.message === "401") this.logout(); // Token hết hạn -> Logout
-            return null;
-          }
-        },
-      };
+          document.getElementById("userName").textContent = name;
+          document.getElementById("userEmail").textContent = phone;
+          
+          // Avatar lấy chữ cái đầu
+          document.getElementById("avatarText").textContent = name.charAt(0).toUpperCase();
+        }
+      });
 
       // ============================================
-      // 3. UI CONTROLLER
+      // HÀM ĐĂNG XUẤT
       // ============================================
-      const UI = {
-        async init() {
-          // 1. Check Login
-          if (!Auth.getToken()) {
-            window.location.href = "authcus.html";
-            return;
-          }
-
-          // 2. Load Data
-          const user = await Auth.fetchProfile();
-
-          if (user) {
-            this.renderData(user);
-          } else {
-            alert("Phiên đăng nhập hết hạn!");
-            Auth.logout();
-          }
-        },
-
-        renderData(user) {
-          // Ẩn Skeleton, Hiện Data
-          this.removeSkeleton("userName", user.name);
-          this.removeSkeleton("userEmail", user.email);
-
-          // Rank
-          const rankEl = document.getElementById("userRank");
-          rankEl.classList.remove("skeleton");
-          rankEl.innerHTML = `<i class="bi bi-award-fill text-warning"></i> ${user.rank}`;
-
-          // Stats
-          this.removeSkeleton("statOrders", user.stats.orders);
-          this.removeSkeleton("statPoints", user.stats.points);
-          this.removeSkeleton("statVouchers", user.stats.vouchers);
-
-          // Avatar
-          const imgEl = document.getElementById("userAvatar");
-          const skelEl = document.getElementById("avatarSkeleton");
-          imgEl.src = user.avatar || IMG_BACKUP;
-          imgEl.classList.remove("d-none");
-          skelEl.style.display = "none";
-        },
-
-        removeSkeleton(id, text) {
-          const el = document.getElementById(id);
-          el.classList.remove("skeleton", "w-50", "w-40", "mx-auto");
-          el.textContent = text;
-        },
-      };
-
-      // Start
-      document.addEventListener("DOMContentLoaded", () => UI.init());
+      function logout() {
+        if (confirm("Bạn có chắc muốn đăng xuất?")) {
+          // Xóa đúng key "token" và "user"
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          
+          // Chuyển về trang đăng nhập
+          window.location.href = "authcus.html";
+        }
+      }
     </script>
   </body>
 </html>
