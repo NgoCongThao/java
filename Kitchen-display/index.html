@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Bếp - KDS</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="logo">Kitchen</div>
+        <div class="clock" id="system-clock">00:00:00</div>
+        <button class="btn-test" onclick="openOrderModal()">+ Tạo đơn mới</button>
+    </header>
+
+    <main class="order-grid" id="order-container">
+        </main>
+
+    <div id="order-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Chọn món cho đơn mới</h3>
+                <span class="close-btn" onclick="closeOrderModal()">&times;</span>
+            </div>
+            
+            <div class="modal-body">
+                <div class="input-group">
+                    <label>Nhập tên Bàn / Nguồn đơn:</label>
+                    <input type="text" id="table-input" placeholder="Ví dụ: Bàn 5, Mang về, Grab...">
+                </div>
+                <div id="menu-list" class="menu-grid"></div>
+            </div>
+
+            <div class="modal-footer">
+                <div class="total-info">Đã chọn: <span id="total-count">0</span> món</div>
+                <button class="btn-cancel" onclick="closeOrderModal()">Hủy</button>
+                <button class="btn-confirm" onclick="confirmOrder()">Lên đơn ngay</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
