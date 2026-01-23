@@ -414,18 +414,22 @@
         }));
       };
 
-      // 3. LOGIC DỮ LIỆU
-      const loadData = async () => {
-        try {
-          // LƯU Ý QUAN TRỌNG: Đường dẫn này trỏ ra thư mục data ngang hàng với thư mục pages
-          const res = await fetch("../data/restaurants.json");
-          if (!res.ok) throw new Error("File path error");
-          state.restaurants = await res.json();
-        } catch (err) {
-          console.error(err);
-          alert("Lỗi tải dữ liệu! Hãy kiểm tra file src/data/restaurants.json");
-        }
-      };
+// 3. LOGIC DỮ LIỆU
+      const loadData = async () => {
+        try {
+          // --- SỬA ĐỔI: Gọi API từ Java Backend (Cổng 8080) ---
+          const res = await fetch("http://localhost:8080/api/guest/restaurants");
+          
+          if (!res.ok) throw new Error("Lỗi kết nối API Backend");
+          state.restaurants = await res.json();
+          
+          console.log("Dữ liệu tải về từ Java:", state.restaurants); // Dòng này để debug xem API trả về gì
+
+        } catch (err) {
+          console.error(err);
+          alert("Không thể kết nối đến Server! Hãy kiểm tra xem file WebApplication.java đã chạy chưa?");
+        }
+      };
 
       // 4. LOGIC RENDER
       const render = () => {
