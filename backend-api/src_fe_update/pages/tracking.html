@@ -278,6 +278,16 @@
       </div>
     </template>
 
+    <!-- THÊM TEMPLATE TỪ FILE MỚI -->
+    <template id="loginRequiredTpl">
+        <div class="text-center py-5">
+            <i class="bi bi-shield-lock display-1 text-muted"></i>
+            <h5 class="mt-3">Vui lòng đăng nhập</h5>
+            <p class="text-muted mb-4">Bạn cần đăng nhập để xem lịch sử đơn hàng</p>
+            <a href="authcus.html" class="btn btn-warning text-white px-4 rounded-pill">Đăng nhập ngay</a>
+        </div>
+    </template>
+
     <nav class="bottom-nav">
       <div class="d-flex justify-content-around">
         <a href="restaurant-list.html" class="nav-link-custom"
@@ -299,9 +309,11 @@
       // 1. CONFIGURATION (Backend Config)
       // ===============================================
       const API_CONFIG = {
-        BASE_URL: "http://localhost:8080/api/v1", // URL Backend Spring Boot của bạn
-        ORDERS_ENDPOINT: "/orders/my-orders", // API lấy đơn hàng
-        NOTIF_ENDPOINT: "/notifications", // API lấy thông báo
+        // DÙNG API TỪ FILE MỚI
+        BASE_URL: "http://localhost:8080/api",
+        // API lấy đơn hàng của user (id lấy từ localStorage)
+        ORDERS_ENDPOINT: (id) => `/orders/my-orders/${id}`,
+        NOTIF_ENDPOINT: "/notifications", // GIỮ NGUYÊN
       };
 
       const STATUS_MAP = {
@@ -320,8 +332,8 @@
       const ApiService = {
         async get(endpoint) {
           try {
-            // Lấy token đăng nhập (nếu có)
-            const token = localStorage.getItem("s2o_token");
+            // SỬA TOKEN TỪ FILE MỚI
+            const token = localStorage.getItem("token"); // "token" thay vì "s2o_token"
 
             const res = await fetch(`${API_CONFIG.BASE_URL}${endpoint}`, {
               headers: {
@@ -346,15 +358,42 @@
         allOrders: [],
 
         async init() {
-          // Gọi song song 2 API lấy Đơn hàng và Thông báo
-          const [orders, notifs] = await Promise.all([
-            ApiService.get(API_CONFIG.ORDERS_ENDPOINT),
-            ApiService.get(API_CONFIG.NOTIF_ENDPOINT),
-          ]);
+          // ===== THÊM KIỂM TRA ĐĂNG NHẬP TỪ FILE MỚI =====
+          const container = document.getElementById("ordersContainer");
+          const token = localStorage.getItem("token");
+          const userStr = localStorage.getItem("user");
 
-          this.allOrders = orders;
-          this.renderOrders(this.allOrders);
-          this.renderNotifications(notifs);
+          if (!token || !userStr) {
+            // Chưa đăng nhập -> Hiện giao diện yêu cầu Login
+            container.innerHTML = document.getElementById("loginRequiredTpl").innerHTML;
+            document.querySelector(".order-tabs").style.display = "none";
+            return;
+          }
+
+          // LẤY ID USER TỪ LOCALSTORAGE (FILE MỚI)
+          const user = JSON.parse(userStr);
+          const userId = user.id || 1; // Fallback nếu user object thiếu id
+
+          try {
+            // ===== DÙNG API TỪ FILE MỚI =====
+            const orders = await ApiService.get(API_CONFIG.ORDERS_ENDPOINT(userId));
+            
+            // GIỮ NGUYÊN API THÔNG BÁO TỪ FILE CŨ
+            let notifs = [];
+            try {
+              notifs = await ApiService.get(API_CONFIG.NOTIF_ENDPOINT);
+            } catch (notifError) {
+              console.log("Không tải được thông báo:", notifError);
+            }
+
+            this.allOrders = orders;
+            this.renderOrders(this.allOrders);
+            this.renderNotifications(notifs);
+
+          } catch (err) {
+            console.error("Lỗi tải đơn hàng:", err);
+            container.innerHTML = `<div class="text-center py-5 text-danger">Không tải được đơn hàng.</div>`;
+          }
         },
 
         // --- Render Đơn Hàng ---
@@ -374,11 +413,11 @@
             const statusCfg = STATUS_MAP[order.status] || STATUS_MAP["PENDING"];
             const isDone = ["COMPLETED", "CANCELLED"].includes(order.status);
 
-            // Xử lý danh sách món ăn
+            // Xử lý danh sách món ăn - HỖ TRỢ CẢ 2 CẤU TRÚC
             const itemsHtml = order.items
               .map(
                 (i) =>
-                  `<div><b class="text-primary">${i.qty}x</b> ${i.name}</div>`
+                  `<div><b class="text-primary">${i.quantity || i.qty}x</b> ${i.itemName || i.name}</div>`
               )
               .join("");
 
@@ -395,6 +434,14 @@
               `;
             }
 
+            // Tạo ngày tháng - HỖ TRỢ CẢ 2 CẤU TRÚC
+            let dateInfo = "";
+            if (order.date) {
+              dateInfo = ` • ${new Date(order.date).toLocaleTimeString()}`;
+            } else if (order.createdAt) {
+              dateInfo = ` • ${new Date(order.createdAt).toLocaleTimeString()}`;
+            }
+
             html += `
               <div class="order-card">
                 <div class="order-header">
@@ -403,10 +450,8 @@
                       order.img || IMG_BACKUP
                     }" class="res-img" onerror="this.src='${IMG_BACKUP}'">
                     <div>
-                      <div class="fw-bold">${order.restaurant}</div>
-                      <div class="small text-muted">#${order.id} • ${new Date(
-              order.date
-            ).toLocaleTimeString()}</div>
+                      <div class="fw-bold">${order.restaurantName || order.restaurant || "Nhà hàng S2O"}</div>
+                      <div class="small text-muted">#${order.id}${dateInfo}</div>
                     </div>
                   </div>
                   <span class="status-badge" style="background:${
@@ -420,7 +465,7 @@
                 </div>
 
                 <div class="p-3 border-top d-flex justify-content-between align-items-center bg-light">
-                  <div class="fw-bold text-primary">${order.total.toLocaleString()}đ</div>
+                  <div class="fw-bold text-primary">${(order.totalPrice || order.total || 0).toLocaleString()}đ</div>
                   <div>
                     ${
                       order.status === "COMPLETED"

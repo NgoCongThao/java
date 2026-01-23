@@ -551,14 +551,16 @@
         renderCartOffcanvas();
 
         try {
-          // Load Info
-          const rRes = await fetch("../data/restaurants.json");
-          const restaurants = await rRes.json();
+          // === THÊM API CALL TỪ FILE MỚI (START) ===
+          // Lấy thông tin nhà hàng từ API
+          const resRest = await fetch(`http://localhost:8080/api/guest/restaurants`);
+          const restaurants = await resRest.json();
           const info = restaurants.find((r) => r.id == REST_ID);
+
           if (info) {
             document.getElementById("resName").textContent = info.name;
             document.getElementById("resAddr").textContent = info.address;
-            document.getElementById("resTime").textContent = info.time;
+            document.getElementById("resTime").textContent = info.time || "Đang cập nhật";
             document.getElementById("resRating").textContent = info.rating;
             const bg = new Image();
             bg.src = info.image;
@@ -572,19 +574,35 @@
               ).style.backgroundImage = `url('${IMG_BACKUP}')`);
           }
 
-          // Load Menu
-          const mRes = await fetch("../data/menus.json");
-          const menus = await mRes.json();
-          const shopMenu = menus.find((m) => m.restaurantId == REST_ID);
+          // Lấy Menu từ API
+          const resMenu = await fetch(`http://localhost:8080/api/guest/menu/restaurant/${REST_ID}`);
+          const flatItems = await resMenu.json();
 
-          if (shopMenu) renderMenu(shopMenu.menu);
-          else
+          if (flatItems && flatItems.length > 0) {
+            // Nhóm món theo category (giống file MỚI)
+            const groupedMenu = groupItemsByCategory(flatItems);
+            renderMenu(groupedMenu);
+          } else {
             document.getElementById("menuContainer").innerHTML =
-              '<div class="text-center mt-5">Chưa có thực đơn</div>';
+              '<div class="text-center mt-5 text-muted"><i class="fas fa-utensils fa-3x mb-3"></i><br>Chưa có món ăn nào</div>';
+          }
+          // === THÊM API CALL TỪ FILE MỚI (END) ===
+
         } catch (e) {
-          console.error(e);
-          alert("Lỗi tải dữ liệu!");
+          console.error("Lỗi API:", e);
+          document.getElementById("menuContainer").innerHTML = `<div class="alert alert-danger text-center">Không kết nối được Server!</div>`;
         }
+      }
+
+      // Hàm nhóm món theo category từ file MỚI
+      function groupItemsByCategory(items) {
+        const groups = {};
+        items.forEach(item => {
+            const catName = item.category || "Món Khác";
+            if (!groups[catName]) groups[catName] = [];
+            groups[catName].push(item);
+        });
+        return Object.keys(groups).map(key => ({ category: key, items: groups[key] }));
       }
 
       // === 2. RENDER MENU ===
@@ -616,7 +634,7 @@
                 item
               )})'>
                 <img src="${
-                  item.image
+                  item.imageUrl || item.image || IMG_BACKUP
                 }" class="item-img" onerror="this.onerror=null; this.src='${IMG_BACKUP}'">
                 <div class="item-info">
                   <div><div class="item-name">${
@@ -645,7 +663,8 @@
           item.price.toLocaleString() + "đ";
         document.getElementById("modalDesc").textContent =
           item.description || "Món ngon mỗi ngày.";
-        document.getElementById("modalImg").src = item.image;
+        const imgSrc = item.imageUrl || item.image || IMG_BACKUP;
+        document.getElementById("modalImg").src = imgSrc;
         document.getElementById("modalImg").onerror = function () {
           this.src = IMG_BACKUP;
         };
@@ -655,7 +674,6 @@
           item.price.toLocaleString() + "đ";
 
         // GIẢ LẬP GỌI API LẤY REVIEW (GET /api/reviews?itemId=...)
-        // Thực tế bạn sẽ fetch API ở đây
         loadFakeReviews();
 
         new bootstrap.Modal(document.getElementById("itemModal")).show();
@@ -815,7 +833,7 @@
               <div class="cart-item">
                 <div class="d-flex align-items-center">
                   <img src="${
-                    item.image
+                    item.imageUrl || item.image || IMG_BACKUP
                   }" class="cart-item-img" onerror="this.src='${IMG_BACKUP}'">
                   <div><div class="fw-bold">${
                     item.name
@@ -893,31 +911,84 @@
         }
       }
 
-      function checkout() {
+      async function checkout() {
         if (cart.length === 0) return;
 
-        // CREATE ORDER PAYLOAD (Gửi cho Backend)
-        const orderData = {
-          userId: CURRENT_USER.id,
-          restaurantId: REST_ID,
-          items: cart.map((i) => ({
-            itemId: i.id,
-            qty: i.qty,
-            price: i.price,
-          })),
-          voucher: appliedVoucher ? appliedVoucher.code : null,
-          total: document.getElementById("cartFinalTotal").textContent,
+        // === THÊM API CHECKOUT TỪ FILE MỚI (START) ===
+        // 1. KIỂM TRA ĐĂNG NHẬP
+        const token = localStorage.getItem("token");
+        const userStr = localStorage.getItem("user");
+
+        if (!token || !userStr) {
+            // Lưu lại trang hiện tại để login xong quay lại
+            localStorage.setItem("redirect_after_login", window.location.href);
+            
+            if(confirm("Bạn cần đăng nhập để đặt hàng. Chuyển đến trang đăng nhập?")) {
+                window.location.href = "authcus.html";
+            }
+            return;
+        }
+
+        // 2. CHUẨN BỊ DỮ LIỆU
+        const user = JSON.parse(userStr);
+        const btn = document.querySelector('#cartOffcanvas button[onclick="checkout()"]');
+        const oldText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang xử lý...';
+        btn.disabled = true;
+
+        // Lấy tổng tiền dạng số (xóa 'đ' và dấu chấm)
+        const rawTotal = document.getElementById("cartFinalTotal").textContent;
+        const totalAmount = parseFloat(rawTotal.replace(/\./g, '').replace('đ', ''));
+
+        const orderPayload = {
+            userId: user.id || 0,
+            restaurantName: document.getElementById("resName").textContent,
+            total: totalAmount,
+            address: "Tại bàn (Quét QR)",
+            items: cart.map(i => ({
+                name: i.name,
+                qty: i.qty,
+                price: i.price
+            }))
         };
 
-        console.log("CHECKOUT DATA:", orderData);
-        alert("Đặt hàng thành công! (Xem console để thấy JSON gửi đi)");
+        // 3. GỌI API ĐẶT HÀNG
+        try {
+            const res = await fetch(`http://localhost:8080/api/orders/create`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(orderPayload)
+            });
 
-        cart = [];
-        appliedVoucher = null;
-        saveCart();
-        bootstrap.Offcanvas.getInstance(
-          document.getElementById("cartOffcanvas")
-        ).hide();
+            if (res.ok) {
+                alert("🎉 Đặt hàng thành công! Vui lòng chờ xác nhận.");
+                cart = [];
+                saveCart();
+                bootstrap.Offcanvas.getInstance(
+                    document.getElementById("cartOffcanvas")
+                ).hide();
+                window.location.href = "tracking.html";
+            } else {
+                const txt = await res.text();
+                if (res.status === 401 || res.status === 403) {
+                    alert("Phiên đăng nhập hết hạn.");
+                    localStorage.removeItem("token");
+                    window.location.href = "authcus.html";
+                } else {
+                    alert("Lỗi đặt hàng: " + txt);
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Lỗi kết nối Server!");
+        } finally {
+            btn.innerHTML = oldText;
+            btn.disabled = false;
+        }
+        // === THÊM API CHECKOUT TỪ FILE MỚI (END) ===
       }
 
       init();
