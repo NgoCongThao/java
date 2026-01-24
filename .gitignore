@@ -43,3 +43,12 @@ node_modules/
 /frontend/build/
 /frontend/dist/
 .env
+
+# Python
+venv/
+__pycache__/
+.env
+
+# Node
+node_modules/
+.env.local
