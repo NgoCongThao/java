@@ -120,10 +120,14 @@ app.get('/api/bookings', authenticateToken, (req, res) => {
 
 app.post('/api/bookings', authenticateToken, (req, res) => {
     const { customer_name, phone, date, time, num_guests } = req.body;
-    db.query('INSERT INTO bookings (customer_name, phone, date, time, num_guests) VALUES (?, ?, ?, ?, ?)', [customer_name, phone, date, time, num_guests], (err, result) => {
-        if (err) return res.status(500).json({ message: 'Database error' });
-        res.json({ id: result.insertId, customer_name, phone, date, time, num_guests });
-    });
+    db.query(
+        'INSERT INTO bookings (customer_name, phone, booking_date, booking_time, num_guests) VALUES (?, ?, ?, ?, ?)',
+        [customer_name, phone, date, time, num_guests],
+        (err, result) => {
+            if (err) return res.status(500).json({ message: 'Database error' });
+            res.json({ id: result.insertId, customer_name, phone, date, time, num_guests });
+        }
+    );
 });
 
 app.put('/api/bookings/:id', authenticateToken, (req, res) => {
@@ -146,10 +150,19 @@ app.delete('/api/bookings/:id', authenticateToken, (req, res) => {
 // API Revenue
 app.get('/api/revenue', authenticateToken, (req, res) => {
     const { start_date, end_date } = req.query;
-    let query = 'SELECT SUM(total_amount) as total FROM orders WHERE date BETWEEN ? AND ?';
+
+    const query = `
+        SELECT SUM(total_amount) AS total
+        FROM orders
+        WHERE order_date BETWEEN ? AND ?
+    `;
+
     db.query(query, [start_date, end_date], (err, results) => {
-        if (err) return res.status(500).json({ message: 'Database error' });
-        res.json({ total: results[0].total || 0 });
+        if (err) {
+            console.error('❌ Revenue SQL error:', err);
+            return res.status(500).json(err);
+        }
+        res.json({ total: results[0]?.total || 0 });
     });
 });
 
