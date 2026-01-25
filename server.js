@@ -120,14 +120,10 @@ app.get('/api/bookings', authenticateToken, (req, res) => {
 
 app.post('/api/bookings', authenticateToken, (req, res) => {
     const { customer_name, phone, date, time, num_guests } = req.body;
-    db.query(
-        'INSERT INTO bookings (customer_name, phone, booking_date, booking_time, num_guests) VALUES (?, ?, ?, ?, ?)',
-        [customer_name, phone, date, time, num_guests],
-        (err, result) => {
-            if (err) return res.status(500).json({ message: 'Database error' });
-            res.json({ id: result.insertId, customer_name, phone, date, time, num_guests });
-        }
-    );
+    db.query('INSERT INTO bookings (customer_name, phone, date, time, num_guests) VALUES (?, ?, ?, ?, ?)', [customer_name, phone, date, time, num_guests], (err, result) => {
+        if (err) return res.status(500).json({ message: 'Database error' });
+        res.json({ id: result.insertId, customer_name, phone, date, time, num_guests });
+    });
 });
 
 app.put('/api/bookings/:id', authenticateToken, (req, res) => {
