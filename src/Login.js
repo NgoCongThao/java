@@ -7,15 +7,23 @@ function Login() {
 
   const submit = async (e) => {
     e.preventDefault();
+
     try {
-      const res = await axiosClient.post("/api/login", {
+      const res = await axiosClient.post("/api/admin/login", {
         username,
         password,
       });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("role", res.data.role);
+
+      // backend trả token dạng text
+      const token = res.data;
+
+      localStorage.setItem("token", token);
+
+      console.log("LOGIN OK - TOKEN:", token);
+
       window.location.href = "/";
-    } catch (error) {
+    } catch (err) {
+      console.error("LOGIN ERROR:", err);
       alert("Đăng nhập thất bại");
     }
   };

@@ -1,51 +1,56 @@
 package com.admin.backend.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 
-@Component
 public class JwtUtil {
 
+    // 🔐 KEY phải >= 256 bit
     private static final String SECRET_KEY =
-            "your_secret_key_very_long_at_least_32_chars";
+            "mysecretkeymysecretkeymysecretkey12";
 
-    private static final SecretKey KEY =
-            Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+    private Key getSignKey() {
+        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    }
 
-    // ✅ KHỚP VỚI AuthController
+    // ✅ TẠO TOKEN
     public String generateToken(Integer userId, Long tenantId, String role) {
         return Jwts.builder()
-                .setSubject(String.valueOf(userId)) // subject thường là id
+                .setSubject(String.valueOf(userId))   // userId
                 .claim("tenantId", tenantId)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // 1 ngày
-                .signWith(KEY, SignatureAlgorithm.HS256)
+                .setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000)) // 1 ngày
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public Claims extractClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(KEY)
+    // ✅ Kiểm tra token hợp lệ
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                .setSigningKey(getSignKey())
+                .build()
+                .parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // ✅ Lấy userId từ token
+    public String getUserId(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSignKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-    }
 
-    public Integer extractUserId(String token) {
-        return Integer.valueOf(extractClaims(token).getSubject());
-    }
-
-    public Long extractTenantId(String token) {
-        return extractClaims(token).get("tenantId", Long.class);
-    }
-
-    public String extractRole(String token) {
-        return extractClaims(token).get("role", String.class);
+        return claims.getSubject();
     }
 }

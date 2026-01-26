@@ -1,5 +1,6 @@
 package com.admin.backend.controller;
 
+import com.admin.backend.dto.LoginRequest;
 import com.admin.backend.entity.User;
 import com.admin.backend.repository.UserRepository;
 import com.admin.backend.security.JwtUtil;
@@ -18,12 +19,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody User req) {
+    public String login(@RequestBody LoginRequest req) {
 
         User user = userRepo.findByUsername(req.getUsername())
                 .orElseThrow(() -> new RuntimeException("Sai tài khoản"));
 
-        // ✅ SO SÁNH CHUỖI THƯỜNG
+        // nếu DB đang lưu password THƯỜNG
         if (!user.getPassword().equals(req.getPassword())) {
             throw new RuntimeException("Sai mật khẩu");
         }

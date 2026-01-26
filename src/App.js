@@ -13,9 +13,9 @@ function AppContent() {
   const location = useLocation();
   const isLoggedIn = localStorage.getItem("token");
 
-  if (!isLoggedIn && location.pathname !== "/login") {
-    return <Navigate to="/login" />;
-  }
+ // if (!isLoggedIn && location.pathname !== "/login") {
+   // return <Navigate to="/login" />;
+  //}
 
   return (
     <div className="app">
@@ -35,7 +35,7 @@ function AppContent() {
       <div className="main-content">
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route element={<ProtectedRoute role="manager" />}>
+          <Route element={<ProtectedRoute/>}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/menu" element={<MenuManager />} />
             <Route path="/staff" element={<StaffManager />} />
