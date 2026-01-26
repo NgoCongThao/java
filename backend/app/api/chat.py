@@ -8,9 +8,11 @@ class ChatRequest(BaseModel):
     question: str
 
 @router.post("/chat")
-async def chat(request: ChatRequest):
+async def chat_endpoint(request: ChatRequest):
     try:
+        # Gọi hàm xử lý AI
         result = get_answer(request.question)
         return result
     except Exception as e:
+        print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
