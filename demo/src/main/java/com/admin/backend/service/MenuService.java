@@ -2,7 +2,6 @@ package com.admin.backend.service;
 
 import com.admin.backend.entity.Menu;
 import com.admin.backend.repository.MenuRepository;
-import com.admin.backend.util.TenantContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,13 +15,12 @@ public class MenuService {
         this.menuRepository = menuRepository;
     }
 
-    public List<Menu> getAll() {
-        Long tenantId = TenantContext.getTenantId();
+    public List<Menu> getMenus(Long tenantId) {
         return menuRepository.findByTenantId(tenantId);
     }
 
-    public Menu create(Menu menu) {
-        menu.setTenantId(TenantContext.getTenantId());
+    public Menu create(Menu menu, Long tenantId) {
+        menu.setTenantId(tenantId);
         return menuRepository.save(menu);
     }
 }

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Login Test</title>
+</head>
+<body>
+  <h2>Login Test</h2>
+
+  <input id="username" value="admin"><br><br>
+  <input id="password" type="password" value="admin123"><br><br>
+
+  <button onclick="login()">Login</button>
+  <pre id="result"></pre>
+
+  <script>
+    function login() {
+      fetch("http://localhost:8080/api/admin/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username: document.getElementById("username").value,
+          password: document.getElementById("password").value
+        })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Login failed");
+        return res.text(); // backend trả token dạng text
+      })
+      .then(token => {
+        document.getElementById("result").innerText = token;
+        localStorage.setItem("token", token);
+      })
+      .catch(err => {
+        document.getElementById("result").innerText = "Sai tài khoản hoặc mật khẩu";
+      });
+    }
+  </script>
+</body>
+</html>
