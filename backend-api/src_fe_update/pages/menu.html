@@ -533,12 +533,20 @@
             <span>Tổng thanh toán</span
             ><span id="cartFinalTotal" class="text-primary">0đ</span>
           </div>
-          <button
-            class="btn btn-primary w-100 py-3 rounded-pill fw-bold fs-5 mt-3"
-            onclick="checkout()"
-          >
-            ĐẶT ĐƠN
-          </button>
+          <div class="d-grid gap-2 mt-3">
+            <button
+              class="btn btn-primary py-3 rounded-pill fw-bold"
+              onclick="checkout()"
+            >
+              <i class="fas fa-motorcycle"></i> GIAO NGAY / ĂN NGAY
+            </button>
+            <button
+              class="btn btn-outline-primary py-2 rounded-pill fw-bold"
+              onclick="openBookingWithCart()"
+            >
+              <i class="fas fa-calendar-alt"></i> ĐẶT BÀN KÈM MÓN NÀY
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -672,20 +680,27 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-      // === CẤU HÌNH & TRẠNG THÁI ===
-      const REST_ID = new URLSearchParams(window.location.search).get("id");
+      // === 1. CẤU HÌNH & LẤY THAM SỐ URL ===
+      const urlParams = new URLSearchParams(window.location.search);
+      const REST_ID = urlParams.get("id");
+
+      // Lấy số bàn từ URL (Ví dụ: menu.html?id=1&table=5)
+      // Nếu không có thì mặc định là 0
+      const TABLE_NUM = urlParams.get("table")
+        ? parseInt(urlParams.get("table"))
+        : 0;
+
       const CART_KEY = `s2o_cart_${REST_ID}`;
       const IMG_BACKUP = "../img/anhbackup.jpg";
       const VOUCHERS = { SAVE10: 0.1, FREESHIP: 15000 };
 
-      // Lấy User thật từ LocalStorage (đã lưu lúc đăng nhập)
+      // === 2. LẤY USER TỪ LOCALSTORAGE ===
       let CURRENT_USER = null;
       const userStr = localStorage.getItem("user");
 
       if (userStr) {
         try {
           const u = JSON.parse(userStr);
-          // Tạo Avatar từ tên (VD: Minh Tuấn -> T)
           let avatarChar = "U";
           let fullName = u.fullName || u.username || "User";
 
@@ -703,24 +718,31 @@
           };
         } catch (e) {
           console.error("Lỗi parse user:", e);
-          localStorage.removeItem("user"); // Xóa nếu lỗi
+          localStorage.removeItem("user");
         }
       }
 
+      // === 3. KHỞI TẠO BIẾN TOÀN CỤC ===
       let cart = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
       let currentItem = null;
       let modalQty = 1;
-      let userRating = 5; // Số sao user đang chọn
+      let userRating = 5;
       let appliedVoucher = null;
 
-      // === 1. KHỞI TẠO ===
+      // === 4. HÀM INIT (CHẠY KHI LOAD TRANG) ===
       async function init() {
         if (!REST_ID) return alert("Lỗi: Thiếu ID nhà hàng");
+
+        // Hiển thị số bàn lên tiêu đề nếu có
+        if (TABLE_NUM > 0) {
+          document.title = `Bàn ${TABLE_NUM} - Gọi món`;
+          // Bạn có thể thêm code hiển thị số bàn lên giao diện ở đây nếu muốn
+        }
+
         renderCartOffcanvas();
 
         try {
-          // === THÊM API CALL TỪ FILE MỚI (START) ===
-          // Lấy thông tin nhà hàng từ API
+          // A. Lấy thông tin nhà hàng
           const resRest = await fetch(
             `http://localhost:8080/api/guest/restaurants`,
           );
@@ -733,6 +755,7 @@
             document.getElementById("resTime").textContent =
               info.time || "Đang cập nhật";
             document.getElementById("resRating").textContent = info.rating;
+
             const bg = new Image();
             bg.src = info.image;
             bg.onload = () =>
@@ -743,21 +766,19 @@
                 `url('${IMG_BACKUP}')`);
           }
 
-          // Lấy Menu từ API
+          // B. Lấy Menu
           const resMenu = await fetch(
             `http://localhost:8080/api/guest/menu/restaurant/${REST_ID}`,
           );
           const flatItems = await resMenu.json();
 
           if (flatItems && flatItems.length > 0) {
-            // Nhóm món theo category (giống file MỚI)
             const groupedMenu = groupItemsByCategory(flatItems);
             renderMenu(groupedMenu);
           } else {
             document.getElementById("menuContainer").innerHTML =
               '<div class="text-center mt-5 text-muted"><i class="fas fa-utensils fa-3x mb-3"></i><br>Chưa có món ăn nào</div>';
           }
-          // === THÊM API CALL TỪ FILE MỚI (END) ===
         } catch (e) {
           console.error("Lỗi API:", e);
           document.getElementById("menuContainer").innerHTML =
@@ -765,7 +786,6 @@
         }
       }
 
-      // Hàm nhóm món theo category từ file MỚI
       function groupItemsByCategory(items) {
         const groups = {};
         items.forEach((item) => {
@@ -779,7 +799,7 @@
         }));
       }
 
-      // === 2. RENDER MENU ===
+      // === 5. RENDER MENU UI ===
       function renderMenu(categories) {
         const nav = document.getElementById("catNav");
         const container = document.getElementById("menuContainer");
@@ -804,18 +824,10 @@
           let html = `<div id="cat-${idx}"><div class="cat-title">${cat.category}</div>`;
           cat.items.forEach((item) => {
             html += `
-              <div class="item-card" onclick='openModal(${JSON.stringify(
-                item,
-              )})'>
-                <img src="${
-                  item.imageUrl || item.image || IMG_BACKUP
-                }" class="item-img" onerror="this.onerror=null; this.src='${IMG_BACKUP}'">
+              <div class="item-card" onclick='openModal(${JSON.stringify(item)})'>
+                <img src="${item.imageUrl || item.image || IMG_BACKUP}" class="item-img" onerror="this.src='${IMG_BACKUP}'">
                 <div class="item-info">
-                  <div><div class="item-name">${
-                    item.name
-                  }</div><div class="small text-muted">${
-                    item.description || ""
-                  }</div></div>
+                  <div><div class="item-name">${item.name}</div><div class="small text-muted">${item.description || ""}</div></div>
                   <div class="item-price mt-2">${item.price.toLocaleString()}đ</div>
                 </div>
                 <div class="align-self-end text-primary"><i class="fas fa-plus-circle fa-2x"></i></div>
@@ -826,11 +838,11 @@
         });
       }
 
-      // === 3. MODAL LOGIC ===
+      // === 6. LOGIC MODAL CHI TIẾT MÓN ===
       function openModal(item) {
         currentItem = item;
         modalQty = 1;
-        setRating(5); // Reset rating về 5 sao
+        setRating(5);
 
         document.getElementById("modalName").textContent = item.name;
         document.getElementById("modalPrice").textContent =
@@ -847,9 +859,7 @@
         document.getElementById("modalBtnPrice").textContent =
           item.price.toLocaleString() + "đ";
 
-        // GIẢ LẬP GỌI API LẤY REVIEW (GET /api/reviews?itemId=...)
         loadFakeReviews();
-
         new bootstrap.Modal(document.getElementById("itemModal")).show();
       }
 
@@ -875,78 +885,57 @@
         ).show();
       }
 
-      // === 4. REVIEW SYSTEM (BACKEND READY) ===
-
-      // Hàm hiển thị sao đánh giá (Click Event)
+      // === 7. LOGIC ĐÁNH GIÁ (REVIEW) ===
       function setRating(n) {
         userRating = n;
         const stars = document.querySelectorAll("#starSelect i");
-        const text = document.getElementById("ratingText");
         const labels = ["Tệ", "Kém", "Bình thường", "Tốt", "Tuyệt vời"];
-
+        document.getElementById("ratingText").textContent =
+          `${n}.0 ${labels[n - 1]}`;
         stars.forEach((star, index) => {
           if (index < n) star.classList.add("active");
           else star.classList.remove("active");
         });
-        text.textContent = `${n}.0 ${labels[n - 1]}`;
       }
 
-      // Hàm lấy đánh giá từ Server thật
       async function loadFakeReviews() {
         const list = document.getElementById("reviewsList");
         list.innerHTML =
           '<div class="text-center text-muted py-3"><div class="spinner-border spinner-border-sm"></div> Đang tải...</div>';
-
         try {
-          // Gọi API Backend
           const res = await fetch(
             `http://localhost:8080/api/reviews/${currentItem.id}`,
           );
-
           if (!res.ok) throw new Error("Lỗi tải review");
-
           const reviews = await res.json();
 
           if (!reviews || reviews.length === 0) {
             list.innerHTML =
-              '<div class="text-center text-muted py-3">Chưa có đánh giá nào. Hãy là người đầu tiên!</div>';
+              '<div class="text-center text-muted py-3">Chưa có đánh giá nào.</div>';
           } else {
-            renderReviewsList(reviews);
+            let html = "";
+            reviews.forEach((r) => {
+              html += `
+                <div class="review-card">
+                  <div class="d-flex justify-content-between mb-1">
+                    <div class="d-flex align-items-center">
+                      <div class="review-avatar">${r.avatar}</div>
+                      <div><div class="fw-bold font-sm">${r.user}</div><div class="star-display">${"★".repeat(r.rate)}${"☆".repeat(5 - r.rate)}</div></div>
+                    </div>
+                    <div class="small text-muted">${r.date}</div>
+                  </div>
+                  <p class="mb-0 small text-muted ps-5">${r.comment}</p>
+                </div>`;
+            });
+            list.innerHTML = html;
           }
         } catch (err) {
-          console.error(err);
           list.innerHTML =
             '<div class="text-center text-danger py-3">Không thể tải đánh giá.</div>';
         }
       }
 
-      function renderReviewsList(reviews) {
-        let html = "";
-        reviews.forEach((r) => {
-          html += `
-            <div class="review-card">
-              <div class="d-flex justify-content-between mb-1">
-                <div class="d-flex align-items-center">
-                  <div class="review-avatar">${r.avatar}</div>
-                  <div>
-                    <div class="fw-bold font-sm">${r.user}</div>
-                    <div class="star-display">${"★".repeat(r.rate)}${"☆".repeat(
-                      5 - r.rate,
-                    )}</div>
-                  </div>
-                </div>
-                <div class="small text-muted">${r.date}</div>
-              </div>
-              <p class="mb-0 small text-muted ps-5">${r.comment}</p>
-            </div>
-          `;
-        });
-        document.getElementById("reviewsList").innerHTML = html;
-      }
-
-      // Hàm Gửi Đánh Giá (POST API thật)
       async function submitReview() {
-        // 1. Kiểm tra đăng nhập
         if (!CURRENT_USER) {
           if (
             confirm("Bạn cần đăng nhập để đánh giá. Đi tới trang đăng nhập?")
@@ -956,56 +945,44 @@
           }
           return;
         }
-
-        // 2. Validate nội dung
         const text = document.getElementById("reviewInput").value;
-        if (!text.trim()) return alert("Vui lòng nhập nội dung đánh giá!");
+        if (!text.trim()) return alert("Vui lòng nhập nội dung!");
 
-        // 3. Hiệu ứng loading nút bấm
-        const btn = document.querySelector("#review-tab button.btn-primary"); // Nút gửi
+        const btn = document.querySelector("#review-tab button.btn-primary");
         if (btn) {
-          var oldText = btn.innerHTML;
-          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+          btn.innerHTML = "Sending...";
           btn.disabled = true;
         }
-
-        // 4. Chuẩn bị dữ liệu gửi đi (DTO)
-        const payload = {
-          userId: CURRENT_USER.id,
-          itemId: currentItem.id,
-          rating: userRating,
-          comment: text,
-        };
 
         try {
           const res = await fetch(`http://localhost:8080/api/reviews/add`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: CURRENT_USER.id,
+              itemId: currentItem.id,
+              rating: userRating,
+              comment: text,
+            }),
           });
-
           if (res.ok) {
-            alert("Cảm ơn bạn đã đánh giá!");
-            document.getElementById("reviewInput").value = ""; // Xóa ô nhập
-            loadFakeReviews(); // Tải lại danh sách để hiện comment mới ngay lập tức
+            alert("Đã gửi đánh giá!");
+            document.getElementById("reviewInput").value = "";
+            loadFakeReviews();
           } else {
-            const errText = await res.text();
-            alert("Lỗi: " + errText);
+            alert("Lỗi: " + (await res.text()));
           }
         } catch (err) {
-          console.error(err);
-          alert("Lỗi kết nối server!");
+          alert("Lỗi server!");
         } finally {
-          // Khôi phục nút bấm
           if (btn) {
             btn.innerHTML = "Gửi đánh giá";
             btn.disabled = false;
           }
         }
       }
-      // === 5. CART & VOUCHER LOGIC ===
+
+      // === 8. LOGIC GIỎ HÀNG & THANH TOÁN (QUAN TRỌNG) ===
       function renderCartOffcanvas() {
         const list = document.getElementById("cartListItems");
         let subtotal = 0;
@@ -1021,12 +998,8 @@
             html += `
               <div class="cart-item">
                 <div class="d-flex align-items-center">
-                  <img src="${
-                    item.imageUrl || item.image || IMG_BACKUP
-                  }" class="cart-item-img" onerror="this.src='${IMG_BACKUP}'">
-                  <div><div class="fw-bold">${
-                    item.name
-                  }</div><div class="text-primary fw-bold">${item.price.toLocaleString()}đ</div></div>
+                  <img src="${item.imageUrl || item.image || IMG_BACKUP}" class="cart-item-img" onerror="this.src='${IMG_BACKUP}'">
+                  <div><div class="fw-bold">${item.name}</div><div class="text-primary fw-bold">${item.price.toLocaleString()}đ</div></div>
                 </div>
                 <div class="d-flex align-items-center gap-2">
                   <div class="qty-mini-control">
@@ -1048,12 +1021,12 @@
             subtotal.toLocaleString() + "đ";
         }
 
-        // Tính tiền
         let discount = 0;
         if (appliedVoucher) {
-          if (appliedVoucher.type === "percent")
-            discount = subtotal * appliedVoucher.val;
-          else discount = appliedVoucher.val;
+          discount =
+            appliedVoucher.type === "percent"
+              ? subtotal * appliedVoucher.val
+              : appliedVoucher.val;
         }
         if (discount > subtotal) discount = subtotal;
 
@@ -1078,49 +1051,40 @@
         localStorage.setItem(CART_KEY, JSON.stringify(cart));
         renderCartOffcanvas();
       }
-
       function applyVoucher() {
         const code = document
           .getElementById("voucherCode")
           .value.trim()
           .toUpperCase();
-        const msg = document.getElementById("voucherMsg");
-
         if (VOUCHERS[code]) {
           const val = VOUCHERS[code];
           appliedVoucher = { code, val, type: val < 1 ? "percent" : "fixed" };
-          msg.className = "small text-success";
-          msg.textContent = `Đã áp dụng: ${code}`;
-          renderCartOffcanvas();
+          document.getElementById("voucherMsg").textContent =
+            `Đã áp dụng: ${code}`;
+          document.getElementById("voucherMsg").className =
+            "small text-success";
         } else {
           appliedVoucher = null;
-          msg.className = "small text-danger";
-          msg.textContent = "Mã không tồn tại!";
-          renderCartOffcanvas();
+          document.getElementById("voucherMsg").textContent = "Mã không hợp lệ";
+          document.getElementById("voucherMsg").className = "small text-danger";
         }
+        renderCartOffcanvas();
       }
 
+      // --- HÀM CHECKOUT ĐÃ SỬA LỖI ---
       async function checkout() {
         if (cart.length === 0) return;
 
-        // 1. KIỂM TRA ĐĂNG NHẬP
+        // A. Kiểm tra đăng nhập
         const token = localStorage.getItem("token");
-        const userStr = localStorage.getItem("user");
-
-        if (!token || !userStr) {
+        if (!token || !CURRENT_USER) {
           localStorage.setItem("redirect_after_login", window.location.href);
-          if (
-            confirm(
-              "Bạn cần đăng nhập để đặt hàng. Chuyển đến trang đăng nhập?",
-            )
-          ) {
+          if (confirm("Bạn cần đăng nhập để đặt hàng. Đi tới trang đăng nhập?"))
             window.location.href = "authcus.html";
-          }
           return;
         }
 
-        // 2. HIỆU ỨNG LOADING
-        const user = JSON.parse(userStr);
+        // B. Hiệu ứng Loading
         const btn = document.querySelector(
           '#cartOffcanvas button[onclick="checkout()"]',
         );
@@ -1130,17 +1094,15 @@
         btn.disabled = true;
 
         try {
-          // --- SỬA LỖI Ở ĐÂY ---
-
-          // Lấy ghi chú (Nếu không tìm thấy ô nhập thì để rỗng)
+          // C. Lấy dữ liệu an toàn
           const noteInput = document.getElementById("orderNote");
           const noteText = noteInput ? noteInput.value : "";
 
-          // Lấy số bàn (Nếu không có ô chọn bàn thì mặc định là 0)
+          // Ưu tiên bàn từ URL, nếu không có thì tìm input, không có nữa thì là 0
           const tableInput = document.getElementById("tableSelect");
-          const tableNum = tableInput ? parseInt(tableInput.value) : 0;
+          const manualTable = tableInput ? parseInt(tableInput.value) : 0;
+          const finalTable = TABLE_NUM > 0 ? TABLE_NUM : manualTable;
 
-          // Lấy tổng tiền
           const rawTotal =
             document.getElementById("cartFinalTotal").textContent;
           const totalAmount = parseFloat(
@@ -1148,12 +1110,12 @@
           );
 
           const orderPayload = {
-            userId: user.id || 0,
+            userId: CURRENT_USER.id,
             restaurantName: document.getElementById("resName").textContent,
             total: totalAmount,
-            tableNumber: tableNum, // Đã fix lỗi null
-            note: noteText, // Đã fix lỗi undefined
-            address: "Tại bàn (Quét QR)",
+            tableNumber: finalTable,
+            note: noteText,
+            address: TABLE_NUM > 0 ? `Bàn ${TABLE_NUM} (Quét QR)` : "Tại bàn",
             items: cart.map((i) => ({
               name: i.name,
               qty: i.qty,
@@ -1161,7 +1123,7 @@
             })),
           };
 
-          // 3. GỌI API
+          // D. Gọi API
           const res = await fetch(`http://localhost:8080/api/orders/create`, {
             method: "POST",
             headers: {
@@ -1191,90 +1153,81 @@
           }
         } catch (err) {
           console.error(err);
-          alert("Lỗi hệ thống: " + err.message); // Hiện rõ lỗi nếu có
+          alert("Lỗi hệ thống: " + err.message);
         } finally {
-          // TẮT LOADING (Luôn chạy dù có lỗi hay không)
           btn.innerHTML = oldText;
           btn.disabled = false;
         }
       }
-      // --- LOGIC ĐẶT BÀN MỚI ---
+
+      // === 9. LOGIC ĐẶT BÀN (BOOKING) ===
       function openBookingModal() {
-        // 1. Kiểm tra đăng nhập
         if (!CURRENT_USER) {
-          if (
-            confirm("Bạn cần đăng nhập để đặt bàn. Đi tới trang đăng nhập?")
-          ) {
+          if (confirm("Đăng nhập để đặt bàn?")) {
             localStorage.setItem("redirect_after_login", window.location.href);
             window.location.href = "authcus.html";
           }
           return;
         }
-
-        // 2. Điền sẵn thông tin (Auto-fill)
-        document.getElementById("bookName").value = CURRENT_USER.name || "";
-        // Nếu API user có trả về phone thì điền vào đây, tạm thời để trống
-
-        // Mặc định ngày là hôm nay
+        document.getElementById("bookName").value = CURRENT_USER.name;
         const today = new Date().toISOString().split("T")[0];
         document.getElementById("bookDate").value = today;
-        document.getElementById("bookDate").min = today; // Không cho chọn quá khứ
-
+        document.getElementById("bookDate").min = today;
         new bootstrap.Modal(document.getElementById("bookingModal")).show();
       }
 
-      // Xử lý khi bấm nút Xác nhận
       document.getElementById("bookingForm").onsubmit = async function (e) {
         e.preventDefault();
-
         const btn = this.querySelector("button[type=submit]");
         const oldText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Xử lý...';
         btn.disabled = true;
-
-        // Lấy dữ liệu từ form
-        const payload = {
-          restaurantId: REST_ID,
-          userId: CURRENT_USER.id,
-          customerName: document.getElementById("bookName").value,
-          phone: document.getElementById("bookPhone").value,
-          date: document.getElementById("bookDate").value,
-          time: document.getElementById("bookTime").value + ":00", // Thêm giây cho đúng chuẩn LocalTime
-          guests: parseInt(document.getElementById("bookGuestsRange").value),
-          note: document.getElementById("bookNote").value,
-        };
 
         try {
           const res = await fetch("http://localhost:8080/api/bookings/create", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              // "Authorization": `Bearer ${localStorage.getItem("token")}` // Bỏ comment nếu backend bắt buộc token
-            },
-            body: JSON.stringify(payload),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              restaurantId: REST_ID,
+              userId: CURRENT_USER.id,
+              customerName: document.getElementById("bookName").value,
+              phone: document.getElementById("bookPhone").value,
+              date: document.getElementById("bookDate").value,
+              time: document.getElementById("bookTime").value + ":00",
+              guests: parseInt(
+                document.getElementById("bookGuestsRange").value,
+              ),
+              note: document.getElementById("bookNote").value,
+              // --- THÊM DÒNG NÀY ---
+              tableNumber: TABLE_NUM > 0 ? TABLE_NUM : null,
+              // ---------------------
+            }),
           });
 
           if (res.ok) {
-            // Hiển thị thông báo đẹp (hoặc alert)
-            alert("🎉 Đặt bàn thành công! Nhà hàng sẽ sớm liên hệ xác nhận.");
-
-            // Đóng modal và reset form
+            alert("🎉 Đặt bàn thành công!");
             bootstrap.Modal.getInstance(
               document.getElementById("bookingModal"),
             ).hide();
             this.reset();
           } else {
-            const txt = await res.text();
-            alert("Lỗi: " + txt);
+            alert("Lỗi: " + (await res.text()));
           }
         } catch (err) {
-          console.error(err);
-          alert("Lỗi kết nối Server! Vui lòng thử lại sau.");
+          alert("Lỗi kết nối!");
         } finally {
           btn.innerHTML = oldText;
           btn.disabled = false;
         }
       };
+
+      // Chạy khởi tạo
+      // Hàm mở form đặt bàn nhưng có kèm món
+      function openBookingWithCart() {
+        if (cart.length === 0) return alert("Giỏ hàng trống!");
+        openBookingModal();
+        // Lưu ý: Backend cần xử lý việc lưu cart kèm booking
+      }
       init();
     </script>
   </body>

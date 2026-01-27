@@ -10,7 +10,9 @@ import com.s2o.backend_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import com.s2o.backend_api.entity.BookingItem;
+import java.util.ArrayList;
+import java.util.List;
 import java.time.LocalTime;
 
 @RestController
@@ -88,10 +90,31 @@ public class BookingController {
             booking.setBookingTime(request.getTime());
             booking.setGuestCount(request.getGuests());
             booking.setNote(request.getNote());
+            // Nếu khách quét QR tại bàn và đặt, lưu luôn số bàn
+            if (request.getTableNumber() != null && request.getTableNumber() > 0) {
+                booking.setTableNumber(request.getTableNumber());
+                // Nếu đã có bàn cụ thể, có thể set trạng thái là CONFIRMED luôn (tùy logic quán)
+                // booking.setStatus("CONFIRMED"); 
+            }
             booking.setStatus("PENDING");
 
+            // --- LOGIC LƯU MÓN ĂN KÈM THEO (MỚI) ---
+            if (request.getItems() != null && !request.getItems().isEmpty()) {
+                List<BookingItem> bookingItems = new ArrayList<>();
+                for (BookingRequest.BookingItemRequest itemReq : request.getItems()) {
+                    BookingItem item = new BookingItem();
+                    item.setItemName(itemReq.getName());
+                    item.setQuantity(itemReq.getQty());
+                    item.setPrice(itemReq.getPrice());
+                    item.setBooking(booking); // Gán item này thuộc về booking đang tạo
+                    bookingItems.add(item);
+                }
+                booking.setItems(bookingItems); // Hibernate sẽ tự động lưu item nhờ CascadeType.ALL
+            }
+            // ---------------------------------------
+
             bookingRepository.save(booking);
-            System.out.println("--- ĐẶT BÀN THÀNH CÔNG ---");
+            System.out.println("--- ĐẶT BÀN KÈM MÓN THÀNH CÔNG ---");
 
             return ResponseEntity.ok("Đặt bàn thành công! Mã đơn: " + booking.getId());
 
@@ -99,5 +122,24 @@ public class BookingController {
             e.printStackTrace(); // In lỗi ra màn hình đen
             return ResponseEntity.internalServerError().body("Lỗi hệ thống: " + e.getMessage());
         }
+    }
+    // API: Nhân viên xếp bàn cho khách (Check-in)
+    @PutMapping("/{id}/assign-table")
+    public ResponseEntity<?> assignTable(@PathVariable Long id, @RequestParam Integer tableNumber) {
+        return bookingRepository.findById(id)
+                .map(booking -> {
+                    booking.setTableNumber(tableNumber);
+                    booking.setStatus("CONFIRMED"); // Đổi trạng thái thành đã đến/xác nhận
+                    bookingRepository.save(booking);
+                    return ResponseEntity.ok("Đã xếp bàn số " + tableNumber + " cho khách " + booking.getCustomerName());
+                })
+                .orElse(ResponseEntity.badRequest().body("Booking không tồn tại"));
+    }
+    // API: Lấy lịch sử đặt bàn của khách hàng
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getUserBookings(@PathVariable Long userId) {
+        // Cần đảm bảo BookingRepository đã có hàm này:
+        // List<Booking> findByUserIdOrderByCreatedAtDesc(Long userId);
+        return ResponseEntity.ok(bookingRepository.findByUserIdOrderByCreatedAtDesc(userId));
     }
 }

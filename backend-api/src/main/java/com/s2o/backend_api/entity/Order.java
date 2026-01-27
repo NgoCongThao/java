@@ -24,6 +24,9 @@ public class Order {
 
     private String status;
     private String address;
+
+    @Column(name = "table_number")
+    private Integer tableNumber; // Bàn số mấy đặt món
     
     // --- THÊM DÒNG NÀY ---
     @Column(columnDefinition = "NVARCHAR(MAX)")

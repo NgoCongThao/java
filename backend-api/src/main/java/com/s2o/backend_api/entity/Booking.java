@@ -42,6 +42,9 @@ public class Booking {
     @Column(name = "guest_count")
     private Integer guestCount;
 
+    @Column(name = "table_number")
+    private Integer tableNumber; // Bàn được xếp (có thể null nếu chưa xếp)
+
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String note;
 
@@ -50,4 +53,7 @@ public class Booking {
     @Column(name = "created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
+// --- THÊM ĐOẠN NÀY ---
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    private java.util.List<BookingItem> items;
 }

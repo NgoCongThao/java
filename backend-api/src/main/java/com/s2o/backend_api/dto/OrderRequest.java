@@ -8,6 +8,7 @@ public class OrderRequest {
     private Long userId;
     private String restaurantName;
     private String note; // <--- Thêm dòng này
+    private Integer tableNumber; // <--- Thêm dòng này
     private Double total;
     private String address;
     private List<ItemRequest> items;

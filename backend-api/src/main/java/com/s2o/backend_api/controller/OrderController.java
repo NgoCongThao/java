@@ -28,6 +28,7 @@ public class OrderController {
         order.setTotalPrice(req.getTotal());
         order.setAddress(req.getAddress());
         order.setStatus("PENDING"); // Mới đặt thì chờ xác nhận
+        order.setTableNumber(req.getTableNumber()); // Lưu số bàn
         
         // --- DÒNG NÀY SẼ HẾT ĐỎ ---
         order.setNote(req.getNote());

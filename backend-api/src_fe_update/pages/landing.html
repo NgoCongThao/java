@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
@@ -931,7 +931,9 @@
             giới để mang đến trải nghiệm gọi món thông minh cho hàng triệu khách
             hàng.
           </p>
-          <a href="#" class="btn btn-primary">Trở thành đối tác</a>
+          <a href="./restaurant-list.html" class="btn btn-primary"
+            >Trở thành đối tác</a
+          >
         </div>
       </div>
     </section>
@@ -1286,7 +1288,7 @@
       // Restaurant Slider
       document.addEventListener("DOMContentLoaded", function () {
         const sliderWrapper = document.querySelector(
-          ".restaurant-slider-wrapper"
+          ".restaurant-slider-wrapper",
         );
         const slides = document.querySelectorAll(".restaurant-slide");
         const prevBtn = document.querySelector(".slider-btn.prev");
@@ -1315,7 +1317,7 @@
           prevBtn.classList.toggle("disabled", currentIndex === 0);
           nextBtn.classList.toggle(
             "disabled",
-            currentIndex >= slides.length - slidesToShow
+            currentIndex >= slides.length - slidesToShow,
           );
         }
 
