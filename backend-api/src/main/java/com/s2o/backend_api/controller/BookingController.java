@@ -11,9 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.s2o.backend_api.entity.BookingItem;
-import java.util.ArrayList;
-import java.util.List;
+
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -22,11 +23,14 @@ public class BookingController {
 
     @Autowired
     private BookingRepository bookingRepository;
+    
     @Autowired
     private UserRepository userRepository;
+    
     @Autowired
     private RestaurantRepository restaurantRepository;
 
+    // API tạo booking
     @PostMapping("/create")
     public ResponseEntity<?> createBooking(@RequestBody BookingRequest request) {
         try {
@@ -39,8 +43,11 @@ public class BookingController {
             User user = userRepository.findById(request.getUserId())
                     .orElse(null);
             if (user == null) {
-                System.out.println("Lỗi: User không tồn tại (Do ID cũ?)");
-                return ResponseEntity.badRequest().body("Tài khoản không hợp lệ. Vui lòng đăng xuất và đăng nhập lại.");
+                System.out.println("Lỗi: User không tồn tại");
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Tài khoản không hợp lệ. Vui lòng đăng xuất và đăng nhập lại."
+                ));
             }
 
             // 2. Kiểm tra Nhà hàng
@@ -48,16 +55,16 @@ public class BookingController {
                     .orElse(null);
             if (restaurant == null) {
                 System.out.println("Lỗi: Nhà hàng không tồn tại");
-                return ResponseEntity.badRequest().body("Nhà hàng không tồn tại.");
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Nhà hàng không tồn tại."
+                ));
             }
 
             // 3. Logic kiểm tra bàn trống
             LocalTime startCheck = request.getTime().minusHours(2);
             LocalTime endCheck = request.getTime().plusHours(2);
 
-            // FIX LỖI TIME: Nếu qua đêm (Ví dụ 23h + 2h = 1h sáng), logic BETWEEN sẽ lỗi
-            // Tạm thời để đơn giản: Nếu start > end (qua đêm), ta bỏ qua check hoặc check kiểu khác.
-            // Ở đây ta chỉ check nếu trong cùng 1 ngày
             long currentBookings = 0;
             if (startCheck.isBefore(endCheck)) {
                 currentBookings = bookingRepository.countBookedTables(
@@ -67,7 +74,6 @@ public class BookingController {
                         endCheck
                 );
             } else {
-                // Trường hợp qua đêm (ít gặp ở quán ăn thường), tạm tính là 0 để không lỗi SQL
                 System.out.println("Cảnh báo: Đặt bàn qua đêm, tạm bỏ qua check trùng.");
             }
 
@@ -77,7 +83,10 @@ public class BookingController {
 
             if (currentBookings >= maxCapacity) {
                 return ResponseEntity.badRequest()
-                        .body("Nhà hàng đã hết bàn vào khung giờ " + request.getTime() + ". Vui lòng chọn giờ khác!");
+                        .body(Map.of(
+                            "success", false,
+                            "message", "Nhà hàng đã hết bàn vào khung giờ " + request.getTime() + ". Vui lòng chọn giờ khác!"
+                        ));
             }
 
             // 4. Lưu Booking
@@ -90,15 +99,13 @@ public class BookingController {
             booking.setBookingTime(request.getTime());
             booking.setGuestCount(request.getGuests());
             booking.setNote(request.getNote());
-            // Nếu khách quét QR tại bàn và đặt, lưu luôn số bàn
+            
             if (request.getTableNumber() != null && request.getTableNumber() > 0) {
                 booking.setTableNumber(request.getTableNumber());
-                // Nếu đã có bàn cụ thể, có thể set trạng thái là CONFIRMED luôn (tùy logic quán)
-                // booking.setStatus("CONFIRMED"); 
             }
             booking.setStatus("PENDING");
 
-            // --- LOGIC LƯU MÓN ĂN KÈM THEO (MỚI) ---
+            // --- LOGIC LƯU MÓN ĂN KÈM THEO ---
             if (request.getItems() != null && !request.getItems().isEmpty()) {
                 List<BookingItem> bookingItems = new ArrayList<>();
                 for (BookingRequest.BookingItemRequest itemReq : request.getItems()) {
@@ -106,40 +113,115 @@ public class BookingController {
                     item.setItemName(itemReq.getName());
                     item.setQuantity(itemReq.getQty());
                     item.setPrice(itemReq.getPrice());
-                    item.setBooking(booking); // Gán item này thuộc về booking đang tạo
+                    item.setBooking(booking);
                     bookingItems.add(item);
                 }
-                booking.setItems(bookingItems); // Hibernate sẽ tự động lưu item nhờ CascadeType.ALL
+                booking.setItems(bookingItems);
             }
-            // ---------------------------------------
 
             bookingRepository.save(booking);
             System.out.println("--- ĐẶT BÀN KÈM MÓN THÀNH CÔNG ---");
 
-            return ResponseEntity.ok("Đặt bàn thành công! Mã đơn: " + booking.getId());
+            // TRẢ VỀ JSON OBJECT THAY VÌ CHUỖI
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Đặt bàn thành công",
+                "id", booking.getId(),
+                "booking", booking
+            ));
 
         } catch (Exception e) {
-            e.printStackTrace(); // In lỗi ra màn hình đen
-            return ResponseEntity.internalServerError().body("Lỗi hệ thống: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(Map.of(
+                "success", false,
+                "message", "Lỗi hệ thống: " + e.getMessage()
+            ));
         }
     }
+
     // API: Nhân viên xếp bàn cho khách (Check-in)
     @PutMapping("/{id}/assign-table")
     public ResponseEntity<?> assignTable(@PathVariable Long id, @RequestParam Integer tableNumber) {
         return bookingRepository.findById(id)
                 .map(booking -> {
                     booking.setTableNumber(tableNumber);
-                    booking.setStatus("CONFIRMED"); // Đổi trạng thái thành đã đến/xác nhận
+                    booking.setStatus("CONFIRMED");
                     bookingRepository.save(booking);
-                    return ResponseEntity.ok("Đã xếp bàn số " + tableNumber + " cho khách " + booking.getCustomerName());
+                    return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "Đã xếp bàn số " + tableNumber + " cho khách " + booking.getCustomerName()
+                    ));
                 })
-                .orElse(ResponseEntity.badRequest().body("Booking không tồn tại"));
+                .orElse(ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Booking không tồn tại"
+                )));
     }
+
     // API: Lấy lịch sử đặt bàn của khách hàng
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getUserBookings(@PathVariable Long userId) {
-        // Cần đảm bảo BookingRepository đã có hàm này:
-        // List<Booking> findByUserIdOrderByCreatedAtDesc(Long userId);
         return ResponseEntity.ok(bookingRepository.findByUserIdOrderByCreatedAtDesc(userId));
+    }
+
+    // THÊM API MỚI: Lấy trạng thái bàn theo ngày giờ
+    @GetMapping("/table-status")
+    public ResponseEntity<?> getTableStatus(
+            @RequestParam Long restaurantId,
+            @RequestParam String date,
+            @RequestParam String time) {
+        
+        try {
+            // 1. Kiểm tra nhà hàng
+            Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                    .orElseThrow(() -> new RuntimeException("Nhà hàng không tồn tại"));
+            
+            // 2. Lấy tổng số bàn
+            Integer totalTables = restaurant.getTotalTables();
+            if (totalTables == null || totalTables <= 0) {
+                totalTables = 10; // Mặc định nếu chưa cấu hình
+            }
+            
+            // 3. Parse thời gian
+            LocalTime bookingTime = LocalTime.parse(time);
+            LocalTime startCheck = bookingTime.minusHours(2);
+            LocalTime endCheck = bookingTime.plusHours(2);
+            
+            // 4. Lấy danh sách bàn đã đặt
+            List<Integer> bookedTableNumbers;
+            if (startCheck.isBefore(endCheck)) {
+                bookedTableNumbers = bookingRepository.findBookedTableNumbers(
+                        restaurantId,
+                        LocalDate.parse(date),
+                        startCheck,
+                        endCheck
+                );
+            } else {
+                // Trường hợp qua đêm, không lấy danh sách bàn đã đặt
+                bookedTableNumbers = new ArrayList<>();
+            }
+            
+            // 5. Tạo Set để kiểm tra nhanh
+            Set<Integer> bookedSet = new HashSet<>(bookedTableNumbers);
+            
+            // 6. Tạo danh sách trạng thái tất cả các bàn
+            List<Map<String, Object>> tableStatusList = new ArrayList<>();
+            for (int i = 1; i <= totalTables; i++) {
+                Map<String, Object> tableStatus = new HashMap<>();
+                tableStatus.put("number", i);
+                tableStatus.put("status", bookedSet.contains(i) ? "booked" : "available");
+                tableStatusList.add(tableStatus);
+            }
+            
+            return ResponseEntity.ok(tableStatusList);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError()
+                    .body(Map.of(
+                        "success", false,
+                        "message", "Lỗi khi lấy trạng thái bàn: " + e.getMessage()
+                    ));
+        }
     }
 }

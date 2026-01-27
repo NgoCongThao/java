@@ -117,7 +117,7 @@
         border-color: var(--primary);
       }
 
-      /* MENU ITEMS */
+      /* MENU ITEMS - ĐÃ SỬA: Để nút cộng thẳng hàng dưới cùng */
       .menu-section {
         max-width: 800px;
         margin: 0 auto;
@@ -141,6 +141,8 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
         cursor: pointer;
         transition: 0.2s;
+        align-items: flex-start;
+        min-height: 130px;
       }
       .item-img {
         width: 110px;
@@ -155,6 +157,7 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        min-height: 110px;
       }
       .item-name {
         font-weight: 700;
@@ -165,6 +168,13 @@
         color: var(--primary);
         font-weight: 700;
         font-size: 1.1rem;
+        margin-top: auto;
+      }
+      .item-add-btn {
+        display: flex;
+        align-items: flex-end;
+        color: var(--primary);
+        padding-bottom: 5px;
       }
 
       /* MODAL & REVIEWS */
@@ -315,6 +325,75 @@
         background: none;
         font-size: 1.5rem;
         color: var(--primary);
+      }
+
+      /* BOOKING MODAL TABLE GRID - ĐÃ SỬA: Chỉ 3 màu */
+      .table-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        margin-top: 15px;
+      }
+      .table-item {
+        aspect-ratio: 1;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 3px solid transparent;
+        font-size: 0.9rem;
+      }
+      .table-item:hover {
+        transform: scale(1.05);
+      }
+      .table-item.available {
+        background-color: #28a745;
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+      }
+      .table-item.booked {
+        background-color: #dc3545;
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+      .table-item.selected {
+        background-color: var(--primary);
+        border-color: #ffba08;
+        box-shadow: 0 0 0 4px rgba(232, 93, 4, 0.3);
+      }
+      .table-status-legend {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.8rem;
+      }
+      .legend-color {
+        width: 15px;
+        height: 15px;
+        border-radius: 4px;
+      }
+      .cart-summary-alert {
+        background: #e7f5ff;
+        border-left: 4px solid #0d6efd;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+      }
+      .table-loading {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 20px;
+        color: var(--gray);
       }
     </style>
   </head>
@@ -550,8 +629,10 @@
         </div>
       </div>
     </div>
+
+    <!-- BOOKING MODAL ĐÃ SỬA: Sử dụng API thực tế -->
     <div class="modal fade" id="bookingModal" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 rounded-4">
           <div class="modal-header border-0 pb-0">
             <h5 class="modal-title fw-bold">Đặt bàn trước</h5>
@@ -562,8 +643,17 @@
             ></button>
           </div>
           <div class="modal-body pt-2">
+            <!-- Thông báo giỏ hàng -->
+            <div id="cartSummaryAlert" class="cart-summary-alert d-none">
+              <i class="fas fa-shopping-basket me-2"></i>
+              <strong
+                >Bạn đang đặt bàn kèm <span id="cartItemCount">0</span> món
+                ăn</strong
+              >
+            </div>
+
             <p class="text-muted small mb-4">
-              Vui lòng điền thông tin để giữ chỗ.
+              Vui lòng điền thông tin và chọn bàn để giữ chỗ.
             </p>
 
             <form id="bookingForm">
@@ -613,6 +703,7 @@
                     id="bookDate"
                     class="form-control bg-light border-0"
                     required
+                    onchange="loadTableStatus()"
                   />
                 </div>
                 <div class="col-6">
@@ -624,6 +715,7 @@
                     id="bookTime"
                     class="form-control bg-light border-0"
                     required
+                    onchange="loadTableStatus()"
                   />
                 </div>
               </div>
@@ -654,6 +746,52 @@
                 </div>
               </div>
 
+              <!-- PHẦN CHỌN BÀN - SỬ DỤNG API THỰC TẾ -->
+              <div class="mb-4">
+                <label
+                  class="form-label small fw-bold text-secondary d-flex justify-content-between"
+                >
+                  <span>Chọn bàn</span>
+                  <span id="selectedTableInfo" class="text-primary fw-bold"
+                    >Chưa chọn bàn</span
+                  >
+                </label>
+
+                <div class="bg-light p-3 rounded">
+                  <div class="table-grid" id="tableGrid">
+                    <!-- Bàn sẽ được render bằng JavaScript từ API thực tế -->
+                    <div class="table-loading">
+                      <div class="spinner-border spinner-border-sm"></div>
+                      <div class="mt-2">Đang tải danh sách bàn...</div>
+                    </div>
+                  </div>
+
+                  <div class="table-status-legend mt-3">
+                    <div class="legend-item">
+                      <div
+                        class="legend-color"
+                        style="background-color: #28a745"
+                      ></div>
+                      <span>Bàn trống</span>
+                    </div>
+                    <div class="legend-item">
+                      <div
+                        class="legend-color"
+                        style="background-color: #dc3545"
+                      ></div>
+                      <span>Đã đặt</span>
+                    </div>
+                    <div class="legend-item">
+                      <div
+                        class="legend-color"
+                        style="background-color: var(--primary)"
+                      ></div>
+                      <span>Đang chọn</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div class="mb-4">
                 <label class="form-label small fw-bold text-secondary"
                   >Ghi chú (Tùy chọn)</label
@@ -662,7 +800,7 @@
                   id="bookNote"
                   class="form-control bg-light border-0"
                   rows="2"
-                  placeholder="VD: Cần ghế trẻ em, phòng lạnh..."
+                  placeholder="VD: Cần ghế trẻ em, phòng lạnh, yêu cầu đặc biệt..."
                 ></textarea>
               </div>
 
@@ -670,22 +808,20 @@
                 type="submit"
                 class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-sm"
               >
-                Xác nhận đặt bàn
+                <i class="fas fa-calendar-check me-2"></i> Xác nhận đặt bàn
               </button>
             </form>
           </div>
         </div>
       </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
       // === 1. CẤU HÌNH & LẤY THAM SỐ URL ===
       const urlParams = new URLSearchParams(window.location.search);
       const REST_ID = urlParams.get("id");
-
-      // Lấy số bàn từ URL (Ví dụ: menu.html?id=1&table=5)
-      // Nếu không có thì mặc định là 0
       const TABLE_NUM = urlParams.get("table")
         ? parseInt(urlParams.get("table"))
         : 0;
@@ -694,7 +830,11 @@
       const IMG_BACKUP = "../img/anhbackup.jpg";
       const VOUCHERS = { SAVE10: 0.1, FREESHIP: 15000 };
 
-      // === 2. LẤY USER TỪ LOCALSTORAGE ===
+      // === 2. BIẾN MỚI CHO BOOKING ===
+      let selectedTable = null;
+      let bookingWithCart = false;
+
+      // === 3. LẤY USER TỪ LOCALSTORAGE ===
       let CURRENT_USER = null;
       const userStr = localStorage.getItem("user");
 
@@ -722,22 +862,16 @@
         }
       }
 
-      // === 3. KHỞI TẠO BIẾN TOÀN CỤC ===
+      // === 4. KHỞI TẠO BIẾN TOÀN CỤC ===
       let cart = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
       let currentItem = null;
       let modalQty = 1;
       let userRating = 5;
       let appliedVoucher = null;
 
-      // === 4. HÀM INIT (CHẠY KHI LOAD TRANG) ===
+      // === 5. HÀM INIT (CHẠY KHI LOAD TRANG) ===
       async function init() {
         if (!REST_ID) return alert("Lỗi: Thiếu ID nhà hàng");
-
-        // Hiển thị số bàn lên tiêu đề nếu có
-        if (TABLE_NUM > 0) {
-          document.title = `Bàn ${TABLE_NUM} - Gọi món`;
-          // Bạn có thể thêm code hiển thị số bàn lên giao diện ở đây nếu muốn
-        }
 
         renderCartOffcanvas();
 
@@ -799,7 +933,7 @@
         }));
       }
 
-      // === 5. RENDER MENU UI ===
+      // === 6. RENDER MENU UI (ĐÃ SỬA: Nút cộng thẳng hàng) ===
       function renderMenu(categories) {
         const nav = document.getElementById("catNav");
         const container = document.getElementById("menuContainer");
@@ -828,9 +962,11 @@
                 <img src="${item.imageUrl || item.image || IMG_BACKUP}" class="item-img" onerror="this.src='${IMG_BACKUP}'">
                 <div class="item-info">
                   <div><div class="item-name">${item.name}</div><div class="small text-muted">${item.description || ""}</div></div>
-                  <div class="item-price mt-2">${item.price.toLocaleString()}đ</div>
+                  <div class="item-price">${item.price.toLocaleString()}đ</div>
                 </div>
-                <div class="align-self-end text-primary"><i class="fas fa-plus-circle fa-2x"></i></div>
+                <div class="item-add-btn">
+                  <i class="fas fa-plus-circle fa-2x"></i>
+                </div>
               </div>`;
           });
           html += `</div>`;
@@ -838,7 +974,7 @@
         });
       }
 
-      // === 6. LOGIC MODAL CHI TIẾT MÓN ===
+      // === 7. LOGIC MODAL CHI TIẾT MÓN ===
       function openModal(item) {
         currentItem = item;
         modalQty = 1;
@@ -885,7 +1021,7 @@
         ).show();
       }
 
-      // === 7. LOGIC ĐÁNH GIÁ (REVIEW) ===
+      // === 8. LOGIC ĐÁNH GIÁ (REVIEW) ===
       function setRating(n) {
         userRating = n;
         const stars = document.querySelectorAll("#starSelect i");
@@ -982,7 +1118,7 @@
         }
       }
 
-      // === 8. LOGIC GIỎ HÀNG & THANH TOÁN (QUAN TRỌNG) ===
+      // === 9. LOGIC GIỎ HÀNG & THANH TOÁN ===
       function renderCartOffcanvas() {
         const list = document.getElementById("cartListItems");
         let subtotal = 0;
@@ -1071,11 +1207,9 @@
         renderCartOffcanvas();
       }
 
-      // --- HÀM CHECKOUT ĐÃ SỬA LỖI ---
       async function checkout() {
         if (cart.length === 0) return;
 
-        // A. Kiểm tra đăng nhập
         const token = localStorage.getItem("token");
         if (!token || !CURRENT_USER) {
           localStorage.setItem("redirect_after_login", window.location.href);
@@ -1084,7 +1218,6 @@
           return;
         }
 
-        // B. Hiệu ứng Loading
         const btn = document.querySelector(
           '#cartOffcanvas button[onclick="checkout()"]',
         );
@@ -1094,14 +1227,8 @@
         btn.disabled = true;
 
         try {
-          // C. Lấy dữ liệu an toàn
           const noteInput = document.getElementById("orderNote");
           const noteText = noteInput ? noteInput.value : "";
-
-          // Ưu tiên bàn từ URL, nếu không có thì tìm input, không có nữa thì là 0
-          const tableInput = document.getElementById("tableSelect");
-          const manualTable = tableInput ? parseInt(tableInput.value) : 0;
-          const finalTable = TABLE_NUM > 0 ? TABLE_NUM : manualTable;
 
           const rawTotal =
             document.getElementById("cartFinalTotal").textContent;
@@ -1113,7 +1240,7 @@
             userId: CURRENT_USER.id,
             restaurantName: document.getElementById("resName").textContent,
             total: totalAmount,
-            tableNumber: finalTable,
+            tableNumber: TABLE_NUM,
             note: noteText,
             address: TABLE_NUM > 0 ? `Bàn ${TABLE_NUM} (Quét QR)` : "Tại bàn",
             items: cart.map((i) => ({
@@ -1123,7 +1250,6 @@
             })),
           };
 
-          // D. Gọi API
           const res = await fetch(`http://localhost:8080/api/orders/create`, {
             method: "POST",
             headers: {
@@ -1160,8 +1286,8 @@
         }
       }
 
-      // === 9. LOGIC ĐẶT BÀN (BOOKING) ===
-      function openBookingModal() {
+      // === 10. LOGIC BOOKING NÂNG CẤP (SỬ DỤNG API THỰC TẾ) ===
+      function openBookingModal(withCart = false) {
         if (!CURRENT_USER) {
           if (confirm("Đăng nhập để đặt bàn?")) {
             localStorage.setItem("redirect_after_login", window.location.href);
@@ -1169,65 +1295,232 @@
           }
           return;
         }
-        document.getElementById("bookName").value = CURRENT_USER.name;
+
+        bookingWithCart = withCart;
+
+        // Hiển thị thông báo giỏ hàng
+        const cartSummaryAlert = document.getElementById("cartSummaryAlert");
+        if (cart.length > 0) {
+          const totalItems = cart.reduce((total, item) => total + item.qty, 0);
+          document.getElementById("cartItemCount").textContent = totalItems;
+          cartSummaryAlert.classList.remove("d-none");
+        } else {
+          cartSummaryAlert.classList.add("d-none");
+        }
+
+        // Điền thông tin mặc định
+        document.getElementById("bookName").value = CURRENT_USER.name || "";
         const today = new Date().toISOString().split("T")[0];
         document.getElementById("bookDate").value = today;
         document.getElementById("bookDate").min = today;
+
+        // Đặt giờ mặc định là 1 tiếng sau
+        const now = new Date();
+        const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+        const timeString =
+          oneHourLater.getHours().toString().padStart(2, "0") +
+          ":" +
+          oneHourLater.getMinutes().toString().padStart(2, "0");
+        document.getElementById("bookTime").value = timeString;
+
+        // Reset chọn bàn
+        selectedTable = null;
+        document.getElementById("selectedTableInfo").textContent =
+          "Chưa chọn bàn";
+
+        // Tải trạng thái bàn từ API thực tế
+        loadTableStatus();
+
         new bootstrap.Modal(document.getElementById("bookingModal")).show();
       }
 
+      // Hàm tải trạng thái bàn từ API thực tế
+      async function loadTableStatus() {
+        const date = document.getElementById("bookDate").value;
+        const time = document.getElementById("bookTime").value;
+
+        if (!date || !time) {
+          renderTables([]);
+          return;
+        }
+
+        const tableGrid = document.getElementById("tableGrid");
+        tableGrid.innerHTML = `
+          <div class="table-loading">
+            <div class="spinner-border spinner-border-sm"></div>
+            <div class="mt-2">Đang tải trạng thái bàn...</div>
+          </div>
+        `;
+
+        try {
+          // Gọi API thực tế từ Backend
+          const res = await fetch(
+            `http://localhost:8080/api/bookings/table-status?restaurantId=${REST_ID}&date=${date}&time=${time}`,
+          );
+
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+          }
+
+          const tables = await res.json();
+          renderTables(tables);
+        } catch (error) {
+          console.error("Lỗi tải trạng thái bàn:", error);
+          tableGrid.innerHTML = `
+            <div class="table-loading text-danger">
+              <i class="fas fa-exclamation-triangle"></i>
+              <div class="mt-2">Không thể tải trạng thái bàn</div>
+              <small class="text-muted">${error.message}</small>
+            </div>
+          `;
+        }
+      }
+
+      // Hàm render lưới bàn từ dữ liệu API thực tế
+      function renderTables(tables) {
+        const tableGrid = document.getElementById("tableGrid");
+
+        if (!tables || tables.length === 0) {
+          tableGrid.innerHTML = `
+            <div class="table-loading">
+              <i class="fas fa-table fa-2x mb-2"></i>
+              <div>Không có dữ liệu bàn</div>
+            </div>
+          `;
+          return;
+        }
+
+        let html = "";
+        tables.forEach((table) => {
+          let className = "table-item";
+
+          if (table.status === "booked") {
+            className += " booked";
+          } else {
+            className += " available";
+          }
+
+          if (selectedTable === table.number) {
+            className += " selected";
+          }
+
+          html += `
+            <div class="${className}" 
+                 onclick="${table.status === "available" ? `selectTable(${table.number})` : ""}"
+                 title="Bàn ${table.number}">
+              ${table.number}
+            </div>
+          `;
+        });
+
+        tableGrid.innerHTML = html;
+      }
+
+      // Hàm chọn bàn
+      function selectTable(tableNumber) {
+        selectedTable = tableNumber;
+        document.getElementById("selectedTableInfo").textContent =
+          `Đã chọn: Bàn ${tableNumber}`;
+        renderTables(tables); // Lưu ý: cần có biến tables toàn cục, hoặc gọi lại API
+        // Tạm thời reload lại UI bằng cách gọi lại loadTableStatus
+        loadTableStatus();
+      }
+
+      /// Xử lý submit form đặt bàn
       document.getElementById("bookingForm").onsubmit = async function (e) {
         e.preventDefault();
+
+        // Kiểm tra chọn bàn
+        if (!selectedTable) {
+          alert("Vui lòng chọn bàn trước khi đặt!");
+          return;
+        }
+
         const btn = this.querySelector("button[type=submit]");
         const oldText = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Xử lý...';
         btn.disabled = true;
 
         try {
+          // Tạo payload đặt bàn
+          const bookingPayload = {
+            restaurantId: REST_ID,
+            userId: CURRENT_USER.id,
+            customerName: document.getElementById("bookName").value,
+            phone: document.getElementById("bookPhone").value,
+            date: document.getElementById("bookDate").value,
+            time: document.getElementById("bookTime").value + ":00",
+            guests: parseInt(document.getElementById("bookGuestsRange").value),
+            note: document.getElementById("bookNote").value,
+            tableNumber: selectedTable,
+            // Nếu có giỏ hàng và đặt bàn kèm món, thêm items
+            items:
+              bookingWithCart && cart.length > 0
+                ? cart.map((i) => ({
+                    name: i.name,
+                    qty: i.qty,
+                    price: i.price,
+                  }))
+                : [],
+          };
+
+          const token = localStorage.getItem("token");
+          const headers = {
+            "Content-Type": "application/json",
+          };
+
+          if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+          }
+
           const res = await fetch("http://localhost:8080/api/bookings/create", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              restaurantId: REST_ID,
-              userId: CURRENT_USER.id,
-              customerName: document.getElementById("bookName").value,
-              phone: document.getElementById("bookPhone").value,
-              date: document.getElementById("bookDate").value,
-              time: document.getElementById("bookTime").value + ":00",
-              guests: parseInt(
-                document.getElementById("bookGuestsRange").value,
-              ),
-              note: document.getElementById("bookNote").value,
-              // --- THÊM DÒNG NÀY ---
-              tableNumber: TABLE_NUM > 0 ? TABLE_NUM : null,
-              // ---------------------
-            }),
+            headers: headers,
+            body: JSON.stringify(bookingPayload),
           });
 
-          if (res.ok) {
-            alert("🎉 Đặt bàn thành công!");
+          const result = await res.json();
+
+          if (res.ok && result.success) {
+            alert("🎉 " + result.message + " Mã đơn: #" + result.id);
+
+            // Nếu đặt bàn kèm món, xóa giỏ hàng
+            if (bookingWithCart && cart.length > 0) {
+              cart = [];
+              saveCart();
+            }
+
             bootstrap.Modal.getInstance(
               document.getElementById("bookingModal"),
             ).hide();
             this.reset();
+
+            // Chuyển sang trang tracking
+            setTimeout(() => {
+              window.location.href = "tracking.html";
+            }, 1500);
           } else {
-            alert("Lỗi: " + (await res.text()));
+            alert("Lỗi: " + (result.message || "Đặt bàn thất bại"));
           }
         } catch (err) {
-          alert("Lỗi kết nối!");
+          console.error("Lỗi đặt bàn:", err);
+          alert("Lỗi kết nối: " + err.message);
         } finally {
           btn.innerHTML = oldText;
           btn.disabled = false;
         }
       };
 
-      // Chạy khởi tạo
-      // Hàm mở form đặt bàn nhưng có kèm món
+      // Mở modal đặt bàn kèm món
       function openBookingWithCart() {
-        if (cart.length === 0) return alert("Giỏ hàng trống!");
-        openBookingModal();
-        // Lưu ý: Backend cần xử lý việc lưu cart kèm booking
+        if (cart.length === 0) {
+          alert("Giỏ hàng trống! Hãy thêm món ăn trước khi đặt bàn.");
+          return;
+        }
+        openBookingModal(true);
       }
+
+      // Chạy khởi tạo
       init();
     </script>
   </body>
