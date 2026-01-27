@@ -12,26 +12,26 @@ function StaffManager() {
   const [editing, setEditing] = useState(null);
 
   const load = () => {
-    axiosClient.get("/api/staff").then((res) => setStaff(res.data));
+    axiosClient.get("/api/admin/staff").then((res) => setStaff(res.data));
   };
 
   useEffect(load, []);
 
   const create = async () => {
-    await axiosClient.post("/api/staff", form);
+    await axiosClient.post("/api/admin/staff", form);
     setForm({ username: "", password: "", full_name: "", role: "chef" });
     load();
   };
 
   const update = async () => {
-    await axiosClient.put(`/api/staff/${editing.id}`, form);
+    await axiosClient.put(`/api/admin/staff/${editing.id}`, form);
     setEditing(null);
     setForm({ username: "", password: "", full_name: "", role: "chef" });
     load();
   };
 
   const remove = async (id) => {
-    await axiosClient.delete(`/api/staff/${id}`);
+    await axiosClient.delete(`/api/admin/staff/${id}`);
     load();
   };
 

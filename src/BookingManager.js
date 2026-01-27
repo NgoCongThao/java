@@ -13,26 +13,26 @@ function BookingManager() {
   const [editing, setEditing] = useState(null);
 
   const load = () => {
-    axiosClient.get("/api/bookings").then((res) => setBookings(res.data));
+    axiosClient.get("/api/admin/bookings").then((res) => setBookings(res.data));
   };
 
   useEffect(load, []);
 
   const create = async () => {
-    await axiosClient.post("/api/bookings", form);
+    await axiosClient.post("/api/admin/bookings", form);
     setForm({ customer_name: "", phone: "", date: "", time: "", num_guests: "" });
     load();
   };
 
   const update = async () => {
-    await axiosClient.put(`/api/bookings/${editing.id}`, form);
+    await axiosClient.put(`/api/admin/bookings/${editing.id}`, form);
     setEditing(null);
     setForm({ customer_name: "", phone: "", date: "", time: "", num_guests: "" });
     load();
   };
 
   const remove = async (id) => {
-    await axiosClient.delete(`/api/bookings/${id}`);
+    await axiosClient.delete(`/api/admin/bookings/${id}`);
     load();
   };
 
