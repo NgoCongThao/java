@@ -3,12 +3,14 @@ package com.admin.backend.controller;
 import com.admin.backend.entity.Menu;
 import com.admin.backend.service.MenuService;
 import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/menu")
+//@PreAuthorize("hasRole('MANAGER')")
 public class MenuController {
 
     private final MenuService menuService;
