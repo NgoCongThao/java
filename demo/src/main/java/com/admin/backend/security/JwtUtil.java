@@ -25,7 +25,9 @@ public class JwtUtil {
                 .claim("tenantId", tenantId)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000)) // 1 ngày
+                .setExpiration(
+                        new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000)
+                ) // 1 ngày
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -34,13 +36,19 @@ public class JwtUtil {
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                .setSigningKey(getSignKey())
-                .build()
-                .parseClaimsJws(token);
+                    .setSigningKey(getSignKey())
+                    .build()
+                    .parseClaimsJws(token);
             return true;
         } catch (Exception e) {
             return false;
         }
+    }
+
+    // ✅ LẤY tenantId
+    public Long getTenantId(String token) {
+        Claims claims = getAllClaimsFromToken(token);
+        return ((Number) claims.get("tenantId")).longValue();
     }
 
     // ✅ Lấy userId từ token
@@ -52,5 +60,14 @@ public class JwtUtil {
                 .getBody();
 
         return claims.getSubject();
+    }
+
+    // ================== ✅ CHỈ THÊM PHẦN NÀY ==================
+    private Claims getAllClaimsFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSignKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

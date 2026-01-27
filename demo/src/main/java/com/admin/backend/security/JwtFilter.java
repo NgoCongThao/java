@@ -34,19 +34,29 @@ public class JwtFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
 
             if (jwtUtil.validateToken(token)) {
+
                 String userId = jwtUtil.getUserId(token);
-UsernamePasswordAuthenticationToken authentication =
-        new UsernamePasswordAuthenticationToken(
-                userId,
-                null,
-                List.of(new SimpleGrantedAuthority("ROLE_MANAGER"))
-        );
+                Long tenantId = jwtUtil.getTenantId(token); // ⭐ LẤY tenantId
 
-authentication.setDetails(
-        new WebAuthenticationDetailsSource().buildDetails(request)
-);
+                // ⭐⭐ GÁN tenantId VÀO REQUEST (THIẾU DÒNG NÀY LÀ HỎNG)
+                request.setAttribute("tenantId", tenantId);
 
-SecurityContextHolder.getContext().setAuthentication(authentication);
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                userId,
+                                null,
+                                List.of(new SimpleGrantedAuthority("ROLE_MANAGER"))
+                        );
+
+                authentication.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
+                );
+
+                SecurityContextHolder
+                        .getContext()
+                        .setAuthentication(authentication);
+
+                System.out.println("✅ tenantId trong JwtFilter = " + tenantId);
             }
         }
 

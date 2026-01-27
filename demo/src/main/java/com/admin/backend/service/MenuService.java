@@ -16,11 +16,42 @@ public class MenuService {
     }
 
     public List<Menu> getMenus(Long tenantId) {
+        System.out.println(" tenantId trong service = " + tenantId);
         return menuRepository.findByTenantId(tenantId);
     }
 
     public Menu create(Menu menu, Long tenantId) {
         menu.setTenantId(tenantId);
         return menuRepository.save(menu);
+    }
+
+    public Menu update(Integer id, Menu newData, Long tenantId) {
+        Menu menu = menuRepository
+            .findById(id)
+            .orElseThrow(() -> new RuntimeException("Menu not found"));
+
+        if (!menu.getTenantId().equals(tenantId)) {
+            throw new RuntimeException("Access denied");
+        }
+
+        menu.setName(newData.getName());
+        menu.setDescription(newData.getDescription());
+        menu.setPrice(newData.getPrice());
+        menu.setCategory(newData.getCategory());
+        menu.setAvailable(newData.getAvailable());
+
+        return menuRepository.save(menu);
+    }
+
+    public void delete(Integer id, Long tenantId) {
+        Menu menu = menuRepository
+            .findById(id)
+            .orElseThrow(() -> new RuntimeException("Menu not found"));
+
+        if (!menu.getTenantId().equals(tenantId)) {
+            throw new RuntimeException("Access denied");
+        }
+
+        menuRepository.delete(menu);
     }
 }

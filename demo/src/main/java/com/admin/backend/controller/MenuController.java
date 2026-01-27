@@ -17,15 +17,37 @@ public class MenuController {
         this.menuService = menuService;
     }
 
-    @GetMapping
-    public List<Menu> getMenus(HttpServletRequest req) {
-        Long tenantId = (Long) req.getAttribute("tenantId");
-        return menuService.getMenus(tenantId);
-    }
+   @GetMapping
+public List<Menu> getMenus(HttpServletRequest req) {
+    Long tenantId = (Long) req.getAttribute("tenantId");
+    System.out.println("🔥 tenantId trong Controller = " + tenantId);
+System.out.println("🔥 tenantId class = " + (tenantId != null ? tenantId.getClass() : "null"));
+    return menuService.getMenus(tenantId);
+}
 
-    @PostMapping
-    public Menu create(@RequestBody Menu menu, HttpServletRequest req) {
-        Long tenantId = (Long) req.getAttribute("tenantId");
-        return menuService.create(menu, tenantId);
-    }
+   @PostMapping
+public Menu create(@RequestBody Menu menu, HttpServletRequest req) {
+    Long tenantId = (Long) req.getAttribute("tenantId");
+    return menuService.create(menu, tenantId); // ✅ ĐÚNG
+}
+
+@PutMapping("/{id}")
+public Menu update(
+        @PathVariable Integer id,
+        @RequestBody Menu menu,
+        HttpServletRequest req
+) {
+    Long tenantId = (Long) req.getAttribute("tenantId");
+    return menuService.update(id, menu, tenantId);
+}
+
+@DeleteMapping("/{id}")
+public void delete(
+        @PathVariable Integer id,
+        HttpServletRequest req
+) {
+    Long tenantId = (Long) req.getAttribute("tenantId");
+    menuService.delete(id, tenantId);
+}
+
 }
