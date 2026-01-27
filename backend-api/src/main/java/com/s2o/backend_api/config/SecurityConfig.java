@@ -26,29 +26,36 @@ public class SecurityConfig {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .cors(cors -> cors.configure(http))
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                // Danh sách được phép truy cập không cần Token
-                .requestMatchers(
-                    "/api/auth/**", 
-                    "/api/guest/**", // <--- QUAN TRỌNG: Mới thêm dòng này
-                    "/landing.html", 
-                    "/authcus.html", 
-                    "/img/**", "/css/**", "/js/**"
-                ).permitAll()
-                
-                // Các request còn lại bắt buộc phải có Token
-                .anyRequest().authenticated() 
-            )
-            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+    // ... các import và phần đầu file giữ nguyên ...
 
-        return http.build();
-    }
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .cors(cors -> cors.configure(http))
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth
+            // Danh sách được phép truy cập không cần Token
+            .requestMatchers(
+                "/api/auth/**", 
+                "/api/guest/**", 
+                "/api/reviews/**", 
+                "/api/bookings/**",
+                "/api/bookings/create", // <--- THÊM DÒNG NÀY
+                "/landing.html", 
+                "/authcus.html", 
+                "/img/**", "/css/**", "/js/**"
+            ).permitAll()
+            
+            // Các request còn lại bắt buộc phải có Token
+            .anyRequest().authenticated() 
+        )
+        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+    return http.build();
+}
+
+// ... phần còn lại của file giữ nguyên ...
 
     @Bean
     public AuthenticationProvider authenticationProvider() {

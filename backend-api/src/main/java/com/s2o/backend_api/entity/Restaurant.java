@@ -41,4 +41,6 @@ public class Restaurant {
     private String time;
     
     private String phone;
+    @Column(name = "total_tables")
+private Integer totalTables;
 }
