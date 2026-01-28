@@ -5,10 +5,16 @@ import Dashboard from "./Dashboard";
 import MenuManager from "./MenuManager";
 import StaffManager from "./StaffManager";
 import BookingManager from "./BookingManager";
-import RevenueReport from "./DoanhThu";
+import RevenueReport from "./RevenueReport";
 import ProtectedRoute from "./ProtectedRoute";
 import "./App.css";
-
+console.log("1. Login:", Login);
+console.log("2. Dashboard:", Dashboard);
+console.log("3. MenuManager:", MenuManager);
+console.log("4. StaffManager:", StaffManager);
+console.log("5. BookingManager:", BookingManager);
+console.log("6. RevenueReport:", RevenueReport);
+console.log("7. ProtectedRoute:", ProtectedRoute);
 function AppContent() {
   const location = useLocation();
   const isLoggedIn = localStorage.getItem("token");

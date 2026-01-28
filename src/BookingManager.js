@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "./api/axiosClient";
-// Nếu bạn đã chép CSS vào App.css thì bỏ dòng dưới, nếu chưa thì giữ nguyên
-// import "./BookingManager.css"; 
 
 function BookingManager() {
   const [bookings, setBookings] = useState([]);
@@ -41,10 +39,9 @@ function BookingManager() {
     }
   };
 
-  // 3. CẬP NHẬT THÔNG TIN (PUT) -> Hàm mới thêm
+  // 3. CẬP NHẬT THÔNG TIN (PUT)
   const saveUpdate = async () => {
     try {
-      // Gọi API PUT vào ID đang sửa
       await axiosClient.put(`/api/admin/bookings/${editing.id}`, form);
       alert("Cập nhật thông tin thành công!");
       resetForm();
@@ -54,12 +51,12 @@ function BookingManager() {
     }
   };
 
-  // 4. XÓA BOOKING (DELETE) -> Hàm mới thêm
+  // 4. XÓA BOOKING (DELETE)
   const remove = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa đơn đặt bàn này không?")) {
       try {
         await axiosClient.delete(`/api/admin/bookings/${id}`);
-        load(); // Tải lại danh sách sau khi xóa
+        load();
       } catch (error) {
         alert("Lỗi xóa: " + (error.response?.data || error.message));
       }
@@ -76,6 +73,40 @@ function BookingManager() {
     }
   };
 
+  // --- HÀM THANH TOÁN (MỚI THÊM) ---
+  const handlePayment = async (booking) => {
+    // Hỏi số tiền
+    const amountStr = window.prompt(`Thanh toán cho khách: ${booking.customerName}.\nNhập tổng số tiền thực tế (VNĐ):`);
+    
+    if (!amountStr) return; // Nếu bấm Cancel thì thôi
+
+    const amount = parseFloat(amountStr);
+    if (isNaN(amount) || amount <= 0) {
+        alert("Số tiền không hợp lệ!");
+        return;
+    }
+
+    try {
+        // --- SỬA ĐOẠN NÀY ---
+        await axiosClient.post("/api/admin/bills", {
+            totalAmount: parseFloat(amountStr), // Số tiền
+            note: `Thanh toán Booking ID: ${booking.id} - ${booking.customerName}`,
+            
+            // 👇 THÊM DÒNG NÀY: Ép ngày hóa đơn = Ngày Booking
+            date: booking.bookingDate 
+        });
+
+        alert("✅ Đã thanh toán thành công! Doanh thu đã được cập nhật.");
+        
+        // (Tùy chọn) Tự động chuyển trạng thái thành Hoàn tất sau khi trả tiền
+        if (booking.status !== 'COMPLETED') {
+            updateStatus(booking.id, 'COMPLETED');
+        }
+    } catch (error) {
+        alert("❌ Lỗi thanh toán: " + (error.response?.data || error.message));
+    }
+  };
+
   // 6. ĐỔ DỮ LIỆU LÊN FORM ĐỂ SỬA
   const edit = (item) => {
     setEditing(item);
@@ -88,7 +119,6 @@ function BookingManager() {
       num_guests: item.numGuests,
       special_requests: item.specialRequests || ""
     });
-    // Cuộn lên đầu trang để người dùng thấy form
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -100,7 +130,6 @@ function BookingManager() {
     setEditing(null);
   };
 
-  // Helper: Chọn màu badge trạng thái
   const getStatusColor = (status) => {
     switch (status) {
       case 'PENDING': return 'orange';
@@ -117,8 +146,6 @@ function BookingManager() {
 
       {/* --- FORM NHẬP LIỆU --- */}
       <div className="form-container" style={{ background: "#fff", padding: "20px", borderRadius: "8px", boxShadow: "0 2px 5px rgba(0,0,0,0.1)", marginBottom: "20px" }}>
-        
-        {/* Đổi tiêu đề tùy theo đang Thêm hay Sửa */}
         <h2 style={{marginTop: 0, color: editing ? "#ffc107" : "#2c3e50"}}>
             {editing ? `✏️ Đang sửa: ${editing.customerName}` : "➕ Thêm Booking Mới"}
         </h2>
@@ -165,12 +192,10 @@ function BookingManager() {
         <div style={{ marginTop: "15px" }}>
           {editing ? (
             <>
-              {/* Nếu đang sửa thì hiện nút Lưu và Hủy */}
               <button className="btn btn-primary" onClick={saveUpdate}>💾 Lưu thay đổi</button>
               <button className="btn btn-secondary" onClick={resetForm}>Hủy bỏ</button>
             </>
           ) : (
-            /* Nếu không sửa thì hiện nút Tạo mới */
             <button className="btn btn-primary" onClick={create}>+ Tạo Booking</button>
           )}
         </div>
@@ -185,7 +210,6 @@ function BookingManager() {
               boxShadow: "0 2px 4px rgba(0,0,0,0.05)"
           }}>
             
-            {/* Badge Trạng thái */}
             <span style={{
               position: "absolute", top: "15px", right: "15px",
               background: getStatusColor(b.status), color: "white",
@@ -212,12 +236,19 @@ function BookingManager() {
             {/* ACTION BUTTONS */}
             <div className="item-actions" style={{ marginTop: "15px", borderTop: "1px solid #eee", paddingTop: "10px", display: "flex", flexWrap: "wrap", gap: "5px" }}>
               
-              {/* Nút Sửa: Đẩy dữ liệu lên form */}
               <button className="btn btn-warning" onClick={() => edit(b)}>
                 ✏️ Sửa
               </button>
 
-              {/* Logic nút trạng thái */}
+              {/* --- NÚT THANH TOÁN (MỚI) --- */}
+              <button 
+                className="btn" 
+                onClick={() => handlePayment(b)}
+                style={{ background: "#28a745", color: "white", border: "none" }} // Màu xanh lá cây tiền bạc
+              >
+                💰 Thanh toán
+              </button>
+
               {b.status === 'PENDING' && (
                 <>
                   <button className="btn btn-success" onClick={() => updateStatus(b.id, 'CONFIRMED')}>
@@ -235,7 +266,6 @@ function BookingManager() {
                 </button>
               )}
 
-              {/* Nút Xóa: Đẩy sang phải cùng */}
               <button className="btn btn-secondary" style={{marginLeft: "auto"}} onClick={() => remove(b.id)}>
                 🗑️ Xóa
               </button>
