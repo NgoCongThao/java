@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
@@ -814,6 +814,15 @@
                   <i class="fas fa-qrcode"></i>
                   Tiếp tục với tư cách Khách
                 </a>
+                <div class="text-center mt-3 pt-3 border-top">
+                  <a
+                    href="kitchen-auth.html"
+                    class="text-decoration-none text-secondary small fw-bold"
+                  >
+                    <i class="fas fa-utensils me-1"></i> Đăng nhập dành cho Quản
+                    lý Bếp
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -1191,14 +1200,17 @@
         // --- XỬ LÝ ĐĂNG NHẬP CHUẨN ---
         document.getElementById("loginForm").onsubmit = async function (e) {
           e.preventDefault();
-          
+
           const phone = document.getElementById("login-phone").value;
           const password = document.getElementById("login-password").value;
           const btn = document.getElementById("login-submit");
-          
+
           // Validation
           if (!validatePhone(phone)) {
-            showError(loginError, "Vui lòng nhập số điện thoại hợp lệ (10-11 số)");
+            showError(
+              loginError,
+              "Vui lòng nhập số điện thoại hợp lệ (10-11 số)",
+            );
             return;
           }
 
@@ -1208,13 +1220,14 @@
           }
 
           const originalText = btn.innerHTML;
-          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+          btn.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
           btn.disabled = true;
           loginError.style.display = "none";
 
           const data = {
-            username: phone,  // Sử dụng số điện thoại làm username
-            password: password
+            username: phone, // Sử dụng số điện thoại làm username
+            password: password,
           };
 
           try {
@@ -1230,22 +1243,22 @@
             }
 
             const result = await response.json();
-            
+
             // 1. Lưu Token
             if (result.token) {
-                localStorage.setItem("token", result.token);
+              localStorage.setItem("token", result.token);
             }
-            
+
             // 2. Lưu User
             const userToSave = result.user ? result.user : result;
-            if(!userToSave.fullName) {
-              userToSave.fullName = userToSave.fullName || userToSave.username || "Người dùng";
+            if (!userToSave.fullName) {
+              userToSave.fullName =
+                userToSave.fullName || userToSave.username || "Người dùng";
             }
             localStorage.setItem("user", JSON.stringify(userToSave));
 
             // 3. Chuyển trang
             window.location.href = "restaurant-list.html";
-
           } catch (err) {
             console.error("Login error:", err);
             showError(loginError, err.message || "Đăng nhập thất bại");
@@ -1256,85 +1269,87 @@
         };
 
         // --- XỬ LÝ ĐĂNG KÝ ---
-        document.getElementById("signupForm").onsubmit = async function(e) {
-            e.preventDefault();
-            
-            const fullName = document.getElementById("signup-fullname").value;
-            const phone = document.getElementById("signup-phone").value;
-            const pass = document.getElementById("signup-password").value;
-            const confirm = document.getElementById("signup-confirm").value;
-            const agreeTerms = document.getElementById("agree-terms").checked;
-            
-            // Validation
-            if (!fullName.trim()) {
-              alert("Vui lòng nhập họ và tên");
-              return;
+        document.getElementById("signupForm").onsubmit = async function (e) {
+          e.preventDefault();
+
+          const fullName = document.getElementById("signup-fullname").value;
+          const phone = document.getElementById("signup-phone").value;
+          const pass = document.getElementById("signup-password").value;
+          const confirm = document.getElementById("signup-confirm").value;
+          const agreeTerms = document.getElementById("agree-terms").checked;
+
+          // Validation
+          if (!fullName.trim()) {
+            alert("Vui lòng nhập họ và tên");
+            return;
+          }
+
+          if (!validatePhone(phone)) {
+            alert("Vui lòng nhập số điện thoại hợp lệ (10-11 số)");
+            return;
+          }
+
+          const passwordValidation = validateStrongPassword(pass);
+          if (!passwordValidation.isValid) {
+            alert(
+              "Mật khẩu không đủ mạnh. Vui lòng kiểm tra các yêu cầu bên dưới.",
+            );
+            return;
+          }
+
+          if (pass !== confirm) {
+            alert("Mật khẩu xác nhận không khớp");
+            return;
+          }
+
+          if (!agreeTerms) {
+            alert("Bạn cần đồng ý với điều khoản dịch vụ");
+            return;
+          }
+
+          const btn = document.getElementById("signup-submit");
+          const oldText = btn.innerHTML;
+          btn.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Đang đăng ký...';
+          btn.disabled = true;
+
+          try {
+            const res = await fetch(`${API_BASE_URL}/register`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                fullName: fullName,
+                username: phone, // Số điện thoại làm username
+                password: pass,
+                phone: phone,
+              }),
+            });
+
+            if (!res.ok) {
+              const errorText = await res.text();
+              throw new Error(errorText || "Đăng ký thất bại");
             }
 
-            if (!validatePhone(phone)) {
-              alert("Vui lòng nhập số điện thoại hợp lệ (10-11 số)");
-              return;
-            }
+            const result = await res.json();
 
-            const passwordValidation = validateStrongPassword(pass);
-            if (!passwordValidation.isValid) {
-              alert("Mật khẩu không đủ mạnh. Vui lòng kiểm tra các yêu cầu bên dưới.");
-              return;
-            }
+            document.getElementById("signup-success").style.display = "block";
+            document.getElementById("signupForm").reset();
 
-            if (pass !== confirm) {
-              alert("Mật khẩu xác nhận không khớp");
-              return;
-            }
+            // Reset password requirements
+            document.querySelectorAll(".requirement-item").forEach((item) => {
+              item.classList.remove("valid");
+              item.classList.add("invalid");
+            });
+            document.getElementById("strength-bar").style.width = "0%";
 
-            if (!agreeTerms) {
-              alert("Bạn cần đồng ý với điều khoản dịch vụ");
-              return;
-            }
-
-            const btn = document.getElementById("signup-submit");
-            const oldText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang đăng ký...';
-            btn.disabled = true;
-
-            try {
-                const res = await fetch(`${API_BASE_URL}/register`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        fullName: fullName,
-                        username: phone,  // Số điện thoại làm username
-                        password: pass,
-                        phone: phone
-                    })
-                });
-
-                if (!res.ok) {
-                    const errorText = await res.text();
-                    throw new Error(errorText || "Đăng ký thất bại");
-                }
-
-                const result = await res.json();
-                
-                document.getElementById("signup-success").style.display = "block";
-                document.getElementById("signupForm").reset();
-                
-                // Reset password requirements
-                document.querySelectorAll(".requirement-item").forEach((item) => {
-                  item.classList.remove("valid");
-                  item.classList.add("invalid");
-                });
-                document.getElementById("strength-bar").style.width = "0%";
-                
-                setTimeout(() => switchTab("login"), 2000);
-
-            } catch (err) {
-                console.error("Signup error:", err);
-                alert("Lỗi đăng ký: " + err.message);
-            } finally {
-                btn.innerHTML = oldText;
-                btn.disabled = false;
-            }
+            setTimeout(() => switchTab("login"), 2000);
+          } catch (err) {
+            console.error("Signup error:", err);
+            alert("Lỗi đăng ký: " + err.message);
+          } finally {
+            btn.innerHTML = oldText;
+            btn.disabled = false;
+          }
         };
 
         // Social login buttons
