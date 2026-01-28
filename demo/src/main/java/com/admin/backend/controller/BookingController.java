@@ -17,21 +17,25 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
-    // Xem danh sách booking theo tenant
+    /**
+     * Lấy danh sách booking theo tenant
+     */
     @GetMapping
-    public List<Booking> getBookings(HttpServletRequest req) {
-        Long tenantId = (Long) req.getAttribute("tenantId");
+    public List<Booking> getBookings(HttpServletRequest request) {
+        Long tenantId = (Long) request.getAttribute("tenantId");
         return bookingService.getAll(tenantId);
     }
 
-    // Cập nhật trạng thái booking
+    /**
+     * Cập nhật trạng thái booking
+     */
     @PutMapping("/{id}/status")
-    public Booking updateStatus(
-            @PathVariable Integer id,
-            @RequestParam String status,
-            HttpServletRequest req
+    public Booking updateBookingStatus(
+            @PathVariable("id") Integer bookingId,
+            @RequestParam("status") String status,
+            HttpServletRequest request
     ) {
-        Long tenantId = (Long) req.getAttribute("tenantId");
-        return bookingService.updateStatus(id, status, tenantId);
+        Long tenantId = (Long) request.getAttribute("tenantId");
+        return bookingService.updateStatus(bookingId, status, tenantId);
     }
 }

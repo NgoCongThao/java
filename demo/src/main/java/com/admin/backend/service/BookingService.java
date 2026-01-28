@@ -1,9 +1,11 @@
 package com.admin.backend.service;
-
-import  com.admin.backend.entity.Booking;
-import  com.admin.backend.repository.BookingRepository;
+import com.admin.backend.dto.BookingCreateRequest;
+import com.admin.backend.entity.Booking;
+import com.admin.backend.repository.BookingRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -15,15 +17,36 @@ public class BookingService {
         this.bookingRepository = bookingRepository;
     }
 
+    /**
+     * Lấy toàn bộ booking theo tenant
+     */
     public List<Booking> getAll(Long tenantId) {
         return bookingRepository.findByTenantId(tenantId);
     }
 
-    public Booking updateStatus(Integer id, String status, Long tenantId) {
-        Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Booking không tồn tại"));
+public Booking create(BookingCreateRequest req, Long tenantId) {
 
-        // đảm bảo đúng tenant
+    Booking booking = new Booking();
+
+    booking.setCustomerName(req.getCustomer_name());
+    booking.setBookingDate(LocalDate.parse(req.getDate()));
+    booking.setBookingTime(LocalTime.parse(req.getTime()));
+    booking.setNumGuests(req.getNum_guests());
+    booking.setStatus("PENDING");
+    booking.setTenantId(tenantId);
+
+    return bookingRepository.save(booking);
+}
+    /**
+     * Cập nhật trạng thái booking (có kiểm tra tenant)
+     */
+    public Booking updateStatus(Integer bookingId, String status, Long tenantId) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() ->
+                        new RuntimeException("Booking không tồn tại")
+                );
+
+        // Đảm bảo booking thuộc đúng tenant
         if (!booking.getTenantId().equals(tenantId)) {
             throw new RuntimeException("Không có quyền truy cập booking này");
         }

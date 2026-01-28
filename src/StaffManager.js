@@ -11,29 +11,52 @@ function StaffManager() {
   });
   const [editing, setEditing] = useState(null);
 
-  const load = () => {
-    axiosClient.get("/api/admin/staff").then((res) => setStaff(res.data));
-  };
+ const load = async () => {
+  try {
+    const res = await axiosClient.get("/api/admin/users");
+    setStaff(Array.isArray(res.data) ? res.data : []);
+  } catch (err) {
+    console.error("Load staff error:", err.response?.data || err.message);
+    setStaff([]);
+  }
+};
 
-  useEffect(load, []);
+  useEffect(() => {
+      load();
+    }, []);
 
-  const create = async () => {
-    await axiosClient.post("/api/admin/staff", form);
+ const create = async () => {
+  try {
+    await axiosClient.post("/api/admin/users", form);
     setForm({ username: "", password: "", full_name: "", role: "chef" });
     load();
-  };
+  } catch (err) {
+    console.error("Create staff error:", err.response?.data || err.message);
+    alert(err.response?.data?.message || "Không tạo được nhân viên");
+  }
+};
 
   const update = async () => {
-    await axiosClient.put(`/api/admin/staff/${editing.id}`, form);
+  try {
+    await axiosClient.put(`/api/admin/users/${editing.id}`, form);
     setEditing(null);
     setForm({ username: "", password: "", full_name: "", role: "chef" });
     load();
-  };
+  } catch (err) {
+    console.error("Update staff error:", err.response?.data || err.message);
+  }
+};
 
-  const remove = async (id) => {
-    await axiosClient.delete(`/api/admin/staff/${id}`);
+ const remove = async (id) => {
+  if (!window.confirm("Xóa nhân viên này?")) return;
+
+  try {
+    await axiosClient.delete(`/api/admin/users/${id}`);
     load();
-  };
+  } catch (err) {
+    console.error("Delete staff error:", err.response?.data || err.message);
+  }
+};
 
   const edit = (item) => {
     setEditing(item);

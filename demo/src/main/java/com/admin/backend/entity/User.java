@@ -1,5 +1,7 @@
 package com.admin.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +19,9 @@ public class User {
     private String username;
 
     private String password;
-
+    
+    @JsonProperty("full_name") // Jackson dùng cái này để đọc từ Postman
+    @Column(name = "full_name") // Hibernate dùng cái này để lưu vào DB
     private String fullName;
 
     @Enumerated(EnumType.STRING)

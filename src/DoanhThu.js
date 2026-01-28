@@ -7,9 +7,13 @@ function RevenueReport() {
   const [revenue, setRevenue] = useState(0);
 
   const fetchRevenue = () => {
-    axiosClient.get("/api/revenue", { params: { start_date: startDate, end_date: endDate } })
-      .then((res) => setRevenue(res.data.total));
-  };
+  axiosClient.get("/api/admin/revenue", {
+    params: {
+      from: startDate,
+      to: endDate
+    }
+  }).then((res) => setRevenue(res.data));
+};
 
   useEffect(fetchRevenue, [startDate, endDate]);
 

@@ -1,7 +1,9 @@
 package com.admin.backend.entity;
 
 import jakarta.persistence.*;
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "bookings")
@@ -11,16 +13,38 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "customer_name")
     private String customerName;
+
+    // ✅ THÊM
+    private String phone;
+
+    // ✅ THÊM
+    private String email;
+
+    @Column(name = "booking_date")
     private LocalDate bookingDate;
+
+    @Column(name = "booking_time")
     private LocalTime bookingTime;
+
+    @Column(name = "num_guests")
     private Integer numGuests;
+
+    // ✅ THÊM
+    @Column(name = "special_requests")
+    private String specialRequests;
+
     private String status;
 
-    @Column(name = "tenant_id")
+    // ✅ THÊM – tự set khi tạo
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "tenant_id", nullable = false)
     private Long tenantId;
 
-    // ===== GETTER / SETTER =====
+    // ===== GETTERS / SETTERS =====
 
     public Integer getId() {
         return id;
@@ -32,6 +56,22 @@ public class Booking {
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public LocalDate getBookingDate() {
@@ -58,6 +98,14 @@ public class Booking {
         this.numGuests = numGuests;
     }
 
+    public String getSpecialRequests() {
+        return specialRequests;
+    }
+
+    public void setSpecialRequests(String specialRequests) {
+        this.specialRequests = specialRequests;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -66,11 +114,21 @@ public class Booking {
         this.status = status;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
     public Long getTenantId() {
         return tenantId;
     }
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
+    }
+
+    // ✅ tự động set created_at
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
     }
 }
