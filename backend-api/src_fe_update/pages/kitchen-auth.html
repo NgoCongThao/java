@@ -178,9 +178,12 @@
           password: document.getElementById("regPassword").value,
           fullName: document.getElementById("regFullName").value.trim(),
           phone: document.getElementById("regPhone").value.trim(),
+
+          // Sửa lại đoạn này:
           restaurantId: parseInt(
             document.getElementById("regRestaurantId").value,
-          ),
+          ), // Đóng ngoặc ) ở đây
+          role: "KITCHEN", // Thêm dòng này ở dưới, ngang hàng với restaurantId
         };
         if (!payload.restaurantId || payload.restaurantId <= 0) {
           alert("Vui lòng nhập ID Nhà hàng hợp lệ!");
