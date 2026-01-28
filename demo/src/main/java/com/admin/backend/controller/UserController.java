@@ -30,22 +30,25 @@ public class UserController {
   @PostMapping
 public ResponseEntity<?> create(@RequestBody User user, HttpServletRequest req) {
     try {
-        // TẠM THỜI: Gán cứng là 1L vì Filter đang tắt
-        // Long tenantId = (Long) req.getAttribute("tenantId"); 
-        Long tenantId = 1L; 
+        // Lấy TenantId từ Token (do JwtFilter đã giải mã và đặt vào đây)
+        Long tenantId = (Long) req.getAttribute("tenantId");
+        
+        // Kiểm tra an toàn: Nếu không có Token hoặc Token sai, cái này sẽ null
+        if (tenantId == null) {
+            return ResponseEntity.status(401).body("Lỗi: Không tìm thấy Tenant ID. Bạn đã đăng nhập chưa?");
+        }
 
-        System.out.println("DEBUG: Creating user with username: " + user.getUsername());
-        System.out.println("DEBUG: Full Name received: " + user.getFullName()); // Kiểm tra xem JsonProperty chạy chưa
-        
+        System.out.println("DEBUG: Tạo user cho Tenant ID: " + tenantId);
+
+        // Gọi Service lưu vào DB
         User createdUser = userService.create(user, tenantId);
+        return ResponseEntity.ok("Thêm thành công user: " + createdUser.getUsername());
         
-        return ResponseEntity.ok("Thêm nhân viên thành công: " + createdUser.getUsername()); 
     } catch (Exception e) {
-        e.printStackTrace(); 
-        return ResponseEntity.status(500).body("Lỗi: " + e.getMessage());
+        e.printStackTrace();
+        return ResponseEntity.status(500).body("Lỗi hệ thống: " + e.getMessage());
     }
 }
-
     // Đổi role nhân viên
     @PutMapping("/{id}/role")
     public User updateRole(
@@ -56,4 +59,24 @@ public ResponseEntity<?> create(@RequestBody User user, HttpServletRequest req) 
         Long tenantId = (Long) req.getAttribute("tenantId");
         return userService.updateRole(id, role, tenantId);
     }
+
+    // Thêm vào trong class UserController
+
+@DeleteMapping("/{id}")
+public ResponseEntity<?> deleteUser(@PathVariable Integer id, HttpServletRequest req) {
+    try {
+        Long tenantId = (Long) req.getAttribute("tenantId");
+        
+        // Gọi Service xử lý
+        userService.deleteUser(id, tenantId);
+        
+        return ResponseEntity.ok("Đã xóa nhân viên thành công!");
+    } catch (RuntimeException e) {
+        // Lỗi do không tìm thấy hoặc không đúng Tenant
+        return ResponseEntity.badRequest().body(e.getMessage());
+    } catch (Exception e) {
+        // Lỗi DB (Ví dụ: Nhân viên đã có dữ liệu hóa đơn)
+        return ResponseEntity.status(500).body("Không thể xóa: " + e.getMessage());
+    }
+}
 }

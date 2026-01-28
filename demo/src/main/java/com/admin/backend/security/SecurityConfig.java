@@ -23,17 +23,24 @@ public class SecurityConfig {
         return new JwtFilter(jwtUtil);
     }
 
-  @Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception { // Bỏ tham số JwtFilter ở đây
+ // ... các đoạn import ...
+
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
     http
         .csrf(csrf -> csrf.disable())
-        .sessionManagement(session ->
-            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        )
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
-            .anyRequest().permitAll() // Mở toang cửa tất cả mọi thứ để test
-        );
-        // Tạm thời xóa/comment dòng addFilterBefore hoàn toàn
+            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            .requestMatchers("/api/admin/login").permitAll()
+            
+            // Chỉ Manager mới được vào các trang admin
+            .requestMatchers("/api/admin/**").hasAuthority("ROLE_MANAGER") 
+            
+            .anyRequest().authenticated()
+        )
+        // QUAN TRỌNG: Bỏ dấu // ở đầu dòng này để bật lại Filter
+        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
 }

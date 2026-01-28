@@ -1,5 +1,5 @@
 package com.admin.backend.service;
-
+import java.util.Optional;
 import com.admin.backend.entity.User;
 import com.admin.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -50,4 +50,19 @@ public class UserService {
         user.setRole(role);
         return userRepository.save(user);
     }
+    // Thêm vào trong class UserService
+
+public void deleteUser(Integer userId, Long tenantId) {
+    // 1. Tìm user
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên với ID: " + userId));
+
+    // 2. Kiểm tra Tenant (Bảo mật)
+    if (!user.getTenantId().equals(tenantId)) {
+        throw new RuntimeException("Lỗi bảo mật: Bạn không được xóa nhân viên của nhà hàng khác!");
+    }
+
+    // 3. Xóa
+    userRepository.delete(user);
+}
 }
