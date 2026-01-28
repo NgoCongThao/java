@@ -224,4 +224,23 @@ public class BookingController {
                     ));
         }
     }
+    // --- API MỚI CHO BẾP: Cập nhật trạng thái Booking ---
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateBookingStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String newStatus = body.get("status");
+        if (newStatus == null || newStatus.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Trạng thái không hợp lệ"));
+        }
+
+        return bookingRepository.findById(id)
+                .map(booking -> {
+                    booking.setStatus(newStatus);
+                    bookingRepository.save(booking);
+                    return ResponseEntity.ok(Map.of(
+                        "success", true,
+                        "message", "Cập nhật trạng thái thành công: " + newStatus
+                    ));
+                })
+                .orElse(ResponseEntity.badRequest().body(Map.of("success", false, "message", "Booking không tồn tại")));
+    }
 }

@@ -183,21 +183,43 @@
       }
 
       // CẬP NHẬT STATUS (cần thêm endpoint cho booking nếu muốn)
+      // CẬP NHẬT STATUS (ĐÃ SỬA ĐỂ HOẠT ĐỘNG VỚI CẢ BOOKING VÀ ORDER)
       async function updateStatus(id, newStatus, type) {
         const token = getItem("token");
-        const endpoint =
-          type === "booking"
-            ? `/api/bookings/${id}/status`
-            : `${API_BASE}/orders/${id}/status`;
-        await fetch(endpoint, {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ status: newStatus }),
-        });
-        loadOrders();
+        let endpoint = "";
+
+        // Phân loại endpoint dựa trên type
+        if (type === "booking") {
+          // Gọi vào BookingController (Vừa thêm API ở trên)
+          endpoint = `http://localhost:8080/api/bookings/${id}/status`;
+        } else {
+          // Gọi vào KitchenController (Cho đơn món thông thường)
+          endpoint = `${API_BASE}/orders/${id}/status`;
+        }
+
+        try {
+          const res = await fetch(endpoint, {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ status: newStatus }),
+          });
+
+          if (res.ok) {
+            // Thành công -> Load lại danh sách ngay
+            loadOrders();
+          } else {
+            const errData = await res.json();
+            alert(
+              "Lỗi: " + (errData.message || "Không thể cập nhật trạng thái"),
+            );
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Lỗi kết nối Server!");
+        }
       }
 
       loadOrders();
