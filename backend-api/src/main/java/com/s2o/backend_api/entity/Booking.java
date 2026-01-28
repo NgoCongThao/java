@@ -1,6 +1,7 @@
 package com.s2o.backend_api.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // Import mới
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -8,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "bookings")
@@ -17,13 +19,13 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Liên kết với Nhà hàng (Khách đặt bàn ở quán nào)
-    @ManyToOne
+    // --- QUAN TRỌNG: ĐÃ SỬA ĐOẠN NÀY ĐỂ LẤY DỮ LIỆU NHÀ HÀNG ---
+    @ManyToOne(fetch = FetchType.EAGER) // Lấy luôn dữ liệu nhà hàng
     @JoinColumn(name = "restaurant_id", nullable = false)
-    @JsonIgnore
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // Cho phép Jackson serialize object này
     private Restaurant restaurant;
+    // -----------------------------------------------------------
 
-    // Liên kết với User (Ai đặt)
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -34,26 +36,35 @@ public class Booking {
     private String phone;
 
     @Column(name = "booking_date")
-    private LocalDate bookingDate; // Ngày đặt (YYYY-MM-DD)
+    private LocalDate bookingDate;
 
     @Column(name = "booking_time")
-    private LocalTime bookingTime; // Giờ đặt (HH:MM:SS)
+    private LocalTime bookingTime;
 
     @Column(name = "guest_count")
     private Integer guestCount;
 
     @Column(name = "table_number")
-    private Integer tableNumber; // Bàn được xếp (có thể null nếu chưa xếp)
+    private Integer tableNumber;
 
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String note;
 
-    private String status; // Vd: "PENDING", "CONFIRMED", "CANCELLED"
+    private String status;
 
     @Column(name = "created_at")
     @CreationTimestamp
     private LocalDateTime createdAt;
-// --- THÊM ĐOẠN NÀY ---
+
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
-    private java.util.List<BookingItem> items;
+    private List<BookingItem> items;
+
+    // --- HÀM TIỆN ÍCH CHO FRONTEND (DỰ PHÒNG) ---
+    public String getRestaurantName() {
+        return restaurant != null ? restaurant.getName() : "";
+    }
+
+    public String getRestaurantImage() {
+        return restaurant != null ? restaurant.getImage() : "";
+    }
 }

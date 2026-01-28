@@ -408,6 +408,9 @@
               ApiService.get(API_CONFIG.BOOKINGS_ENDPOINT(userId)),
             ]);
 
+            console.log("Orders:", orders);
+            console.log("Bookings:", bookings);
+
             // Thêm type để phân biệt
             const ordersWithType = orders.map((o) => ({
               ...o,
@@ -481,7 +484,21 @@
               });
             }
 
-            // --- 3. HIỂN THỊ BADGE LOẠI ĐƠN ---
+            // --- 3. LẤY TÊN NHÀ HÀNG ---
+            let restaurantName = "Nhà hàng S2O";
+            let restaurantImage = IMG_BACKUP;
+
+            if (item.type === "order") {
+              restaurantName = item.restaurantName || "Nhà hàng S2O";
+              restaurantImage = item.img || IMG_BACKUP;
+            } else if (item.type === "booking") {
+              // Code mới sẽ chạy vào đây vì item.restaurant bây giờ đã có dữ liệu
+              if (item.restaurant) {
+                restaurantName = item.restaurant.name;
+                restaurantImage = item.restaurant.image || IMG_BACKUP;
+              }
+            }
+            // --- 4. HIỂN THỊ BADGE LOẠI ĐƠN ---
             let tableHtml = "";
             const tableNumber = item.tableNumber || 0;
 
@@ -505,7 +522,7 @@
                 </span>`;
             }
 
-            // --- 4. HIỂN THỊ GHI CHÚ ---
+            // --- 5. HIỂN THỊ GHI CHÚ ---
             let noteHtml = "";
             if (item.note && item.note.trim() !== "") {
               noteHtml = `
@@ -515,14 +532,29 @@
                 </div>`;
             }
 
+            // --- 6. TÍNH TỔNG TIỀN ---
+            let totalAmount = 0;
+            if (item.type === "order") {
+              totalAmount = item.totalPrice || item.total || 0;
+            } else if (item.type === "booking") {
+              // Tính tổng tiền từ danh sách items trong booking
+              if (item.items && item.items.length > 0) {
+                totalAmount = item.items.reduce((sum, i) => {
+                  const price = i.price || 0;
+                  const quantity = i.quantity || i.qty || 0;
+                  return sum + price * quantity;
+                }, 0);
+              }
+            }
+
             // --- RENDER HTML CARD ---
             html += `
               <div class="order-card">
                 <div class="order-header">
                   <div class="d-flex align-items-center gap-3">
-                    <img src="${item.img || IMG_BACKUP}" class="res-img" onerror="this.src='${IMG_BACKUP}'">
+                    <img src="${restaurantImage}" class="res-img" onerror="this.src='${IMG_BACKUP}'">
                     <div>
-                      <div class="fw-bold text-dark">${item.restaurantName || "Nhà hàng S2O"}</div>
+                      <div class="fw-bold text-dark">${restaurantName}</div>
                       <div class="d-flex align-items-center gap-2 mt-1">
                           ${tableHtml}
                           <span class="small text-muted">#${item.id} • ${dateInfo}</span>
@@ -545,7 +577,7 @@
                 <div class="p-3 border-top d-flex justify-content-between align-items-center bg-light">
                   <div>
                     <span class="small text-muted">Tổng tiền:</span>
-                    <span class="fw-bold text-primary fs-5 ms-1">${(item.totalPrice || item.total || 0).toLocaleString()}đ</span>
+                    <span class="fw-bold text-primary fs-5 ms-1">${totalAmount.toLocaleString()}đ</span>
                   </div>
                   ${
                     item.status === "COMPLETED"
@@ -584,37 +616,50 @@
             .join("");
         },
 
+        // --- ĐOẠN CODE MỚI THAY THẾ ---
         filter(type, btn) {
+          // 1. Cập nhật giao diện Tab đang chọn
           document
             .querySelectorAll(".order-tab")
             .forEach((b) => b.classList.remove("active"));
           btn.classList.add("active");
 
           let filtered = [];
+
+          // Hàm kiểm tra trạng thái ĐANG XỬ LÝ (Chưa xong, chưa hủy)
+          const isActive = (status) =>
+            !["COMPLETED", "CANCELLED", "REJECTED"].includes(status);
+
           if (type === "SHIP") {
-            // Chỉ hiển thị order không có bàn
+            // TAB 1: MANG VỀ / SHIP
+            // Logic: Là đơn món (order) + Không có số bàn + Đang xử lý
             filtered = this.allItems.filter(
               (item) =>
                 item.type === "order" &&
-                (!item.tableNumber || item.tableNumber == 0),
+                (!item.tableNumber || item.tableNumber === 0) &&
+                isActive(item.status),
             );
           } else if (type === "TABLE") {
-            // Hiển thị booking + order có bàn
-            filtered = this.allItems.filter(
-              (item) =>
-                item.type === "booking" ||
-                (item.type === "order" &&
-                  item.tableNumber &&
-                  item.tableNumber > 0),
-            );
+            // TAB 2: ĐẶT BÀN / TẠI BÀN
+            // Logic: (Là Booking đang xử lý) HOẶC (Là Order có số bàn đang xử lý)
+            filtered = this.allItems.filter((item) => {
+              const isBooking =
+                item.type === "booking" && isActive(item.status);
+              const isOrderAtTable =
+                item.type === "order" &&
+                item.tableNumber > 0 &&
+                isActive(item.status);
+              return isBooking || isOrderAtTable;
+            });
           } else if (type === "HISTORY") {
-            // Hiển thị tất cả đơn hoàn thành/hủy
-            filtered = this.allItems.filter((item) =>
-              ["COMPLETED", "CANCELLED"].includes(item.status),
-            );
+            // TAB 3: LỊCH SỬ
+            // Logic: Đã hoàn thành hoặc Đã hủy (Bất kể là Order hay Booking)
+            filtered = this.allItems.filter((item) => !isActive(item.status));
           }
-          this.renderItems(filtered);
+
+          this.renderList(filtered);
         },
+        // -----------------------------
       };
 
       document.addEventListener("DOMContentLoaded", () => App.init());
