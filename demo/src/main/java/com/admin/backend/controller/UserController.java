@@ -79,4 +79,22 @@ public ResponseEntity<?> deleteUser(@PathVariable Integer id, HttpServletRequest
         return ResponseEntity.status(500).body("Không thể xóa: " + e.getMessage());
     }
 }
+@PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody User userRequest, HttpServletRequest req) {
+        try {
+            Long tenantId = (Long) req.getAttribute("tenantId");
+            if (tenantId == null) {
+                 return ResponseEntity.status(401).body("Lỗi: Token không hợp lệ.");
+            }
+
+            User updatedUser = userService.updateUser(id, userRequest, tenantId);
+            
+            return ResponseEntity.ok("Cập nhật thành công nhân viên: " + updatedUser.getUsername());
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
 }
