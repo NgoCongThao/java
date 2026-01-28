@@ -44,4 +44,19 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
                                          @Param("date") LocalDate date,
                                          @Param("startTime") LocalTime startTime,
                                          @Param("endTime") LocalTime endTime);
+
+    // --- METHOD CHO KITCHEN: LẤY BOOKINGS CÓ MÓN ĂN KÈM, CHƯA HOÀN TẤT ---
+    // Sửa WHERE thành b.restaurant.id (vì entity dùng relationship Restaurant)
+    // JOIN FETCH items để tránh lazy load
+    // JOIN restaurant để có thể dùng b.restaurant.id
+    @Query("SELECT b FROM Booking b " +
+           "LEFT JOIN FETCH b.items " +
+           "JOIN b.restaurant r " +
+           "WHERE r.id = :restaurantId " +
+           "AND b.status != :excludedStatus " +
+           "AND SIZE(b.items) > 0 " +
+           "ORDER BY b.createdAt ASC")
+    List<Booking> findKitchenBookings(@Param("restaurantId") Long restaurantId,
+                                      @Param("excludedStatus") String excludedStatus);
+    // --------------------------------------------------------------------
 }

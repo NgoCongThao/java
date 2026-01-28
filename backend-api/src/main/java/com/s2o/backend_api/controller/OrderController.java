@@ -1,5 +1,5 @@
 package com.s2o.backend_api.controller;
-
+import com.s2o.backend_api.repository.RestaurantRepository;
 import com.s2o.backend_api.dto.OrderRequest;
 import com.s2o.backend_api.entity.Order;
 import com.s2o.backend_api.entity.OrderItem;
@@ -18,17 +18,30 @@ public class OrderController {
 
     @Autowired
     private OrderRepository orderRepository;
+// THÊM
+    @Autowired
+    private RestaurantRepository restaurantRepository;
 
     // 1. API TẠO ĐƠN HÀNG (Dành cho trang Menu)
-    @PostMapping("/create")
+   @PostMapping("/create")
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest req) {
         Order order = new Order();
         order.setUserId(req.getUserId());
-        order.setRestaurantName(req.getRestaurantName());
         order.setTotalPrice(req.getTotal());
         order.setAddress(req.getAddress());
-        order.setStatus("PENDING"); // Mới đặt thì chờ xác nhận
-        order.setTableNumber(req.getTableNumber()); // Lưu số bàn
+        order.setStatus("PENDING");
+        order.setTableNumber(req.getTableNumber());
+        order.setNote(req.getNote());
+        // QUAN TRỌNG: lưu restaurantId và lấy tên nhà hàng từ DB
+        if (req.getRestaurantId() != null) {
+            order.setRestaurantId(req.getRestaurantId());
+            restaurantRepository.findById(req.getRestaurantId()).ifPresent(res -> 
+                order.setRestaurantName(res.getName())
+            );
+        } else {
+            // nếu không có id (trường hợp cũ), giữ tên cũ
+            order.setRestaurantName(req.getRestaurantName());
+        }
         
         // --- DÒNG NÀY SẼ HẾT ĐỎ ---
         order.setNote(req.getNote());

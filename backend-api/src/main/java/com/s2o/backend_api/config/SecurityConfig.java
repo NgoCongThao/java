@@ -28,33 +28,33 @@ public class SecurityConfig {
 
     // ... các import và phần đầu file giữ nguyên ...
 
+// ... phần đầu giữ nguyên
+
 @Bean
 public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
         .cors(cors -> cors.configure(http))
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth
-            // Danh sách được phép truy cập không cần Token
             .requestMatchers(
                 "/api/auth/**", 
                 "/api/guest/**", 
                 "/api/reviews/**", 
                 "/api/bookings/**",
-                "/api/bookings/create", // <--- THÊM DÒNG NÀY
+                "/api/bookings/create",
                 "/landing.html", 
                 "/authcus.html", 
                 "/img/**", "/css/**", "/js/**"
             ).permitAll()
-            
-            // Các request còn lại bắt buộc phải có Token
-            .anyRequest().authenticated() 
+            // Nếu muốn kitchen public tạm thời để test (không khuyến khích lâu dài)
+            // .requestMatchers("/api/kitchen/**").permitAll()
+            .anyRequest().authenticated()
         )
         .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
 }
-
 // ... phần còn lại của file giữ nguyên ...
 
     @Bean

@@ -1238,6 +1238,7 @@
 
           const orderPayload = {
             userId: CURRENT_USER.id,
+            restaurantId: REST_ID, // <--- ĐÃ THÊM DÒNG NÀY (QUAN TRỌNG)
             restaurantName: document.getElementById("resName").textContent,
             total: totalAmount,
             tableNumber: TABLE_NUM,

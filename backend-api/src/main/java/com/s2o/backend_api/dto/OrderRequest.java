@@ -11,6 +11,8 @@ public class OrderRequest {
     private Integer tableNumber; // <--- Thêm dòng này
     private Double total;
     private String address;
+    // ... các field hiện có
+    private Long restaurantId; // THÊM DÒNG NÀY
     private List<ItemRequest> items;
 
     @Data
@@ -19,4 +21,5 @@ public class OrderRequest {
         private Integer qty;
         private Double price;
     }
+    
 }
