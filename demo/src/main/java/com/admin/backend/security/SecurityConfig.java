@@ -25,7 +25,7 @@ public class SecurityConfig {
         return new JwtFilter(jwtUtil);
     }
 
- // ... các đoạn import ...
+ 
 
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
@@ -36,12 +36,12 @@ public SecurityFilterChain filterChain(HttpSecurity http, JwtFilter jwtFilter) t
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .requestMatchers("/api/admin/login").permitAll()
             
-            // Chỉ Manager mới được vào các trang admin
+      
             .requestMatchers("/api/admin/**").hasAuthority("ROLE_MANAGER") 
             
             .anyRequest().authenticated()
         )
-        // QUAN TRỌNG: Bỏ dấu // ở đầu dòng này để bật lại Filter
+       
         .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();

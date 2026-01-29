@@ -13,12 +13,11 @@ import java.util.List;
 @Repository
 public interface BillRepository extends JpaRepository<Bill, Long> {
 
-    // Tìm hóa đơn theo ngày và tenant
+   
     List<Bill> findByDateAndTenantId(LocalDate date, Long tenantId);
     List<Bill> findByTenantId(Long tenantId);
 
-    // Tính tổng doanh thu (Sửa Double -> BigDecimal)
-    // Lưu ý: COALESCE để nếu không có đơn nào thì trả về 0 thay vì null
+ 
     @Query("SELECT COALESCE(SUM(b.totalAmount), 0) FROM Bill b WHERE b.date BETWEEN :from AND :to AND b.tenantId = :tenantId")
     BigDecimal sumTotalAmountByDateRange(
         @Param("from") LocalDate from, 

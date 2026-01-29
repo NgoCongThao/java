@@ -36,9 +36,9 @@ public class JwtFilter extends OncePerRequestFilter {
             if (jwtUtil.validateToken(token)) {
 
                 String userId = jwtUtil.getUserId(token);
-                Long tenantId = jwtUtil.getTenantId(token); // ⭐ LẤY tenantId
+                Long tenantId = jwtUtil.getTenantId(token); 
 
-                // ⭐⭐ GÁN tenantId VÀO REQUEST (THIẾU DÒNG NÀY LÀ HỎNG)
+           
                 request.setAttribute("tenantId", tenantId);
 
                 UsernamePasswordAuthenticationToken authentication =

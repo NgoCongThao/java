@@ -7,7 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal; // ✅ Import quan trọng
+import java.math.BigDecimal; // 
 import java.time.LocalDate;
 import java.util.Map;
 
@@ -21,7 +21,7 @@ public class BillController {
         this.billService = billService;
     }
 
-    // 1. Tạo hóa đơn (POST)
+    
     @PostMapping
     public ResponseEntity<?> createBill(@RequestBody Bill bill, HttpServletRequest req) {
         try {
@@ -34,7 +34,7 @@ public class BillController {
         }
     }
 
-    // 2. Lấy danh sách hóa đơn theo ngày (GET)
+   
     @GetMapping
 public ResponseEntity<?> getBills(
         @RequestParam(required = false)
@@ -47,7 +47,7 @@ public ResponseEntity<?> getBills(
         return ResponseEntity.status(401).body("Chưa đăng nhập");
     }
 
-    // 👉 Có date thì lọc, không có thì lấy tất cả
+
     if (date != null) {
         return ResponseEntity.ok(
             billService.getBillsByDate(date, tenantId)
@@ -59,7 +59,6 @@ public ResponseEntity<?> getBills(
     );
 }
 
-    // 3. Báo cáo doanh thu (GET /revenue) -> Trả về BigDecimal
     @GetMapping("/revenue")
     public ResponseEntity<?> getRevenue(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -69,10 +68,10 @@ public ResponseEntity<?> getBills(
         Long tenantId = (Long) req.getAttribute("tenantId");
         if (tenantId == null) return ResponseEntity.status(401).body("Chưa đăng nhập");
 
-        // Service trả về BigDecimal -> Controller trả về Client
+      
         BigDecimal total = billService.getRevenue(from, to, tenantId);
         
-        // Trả về JSON: { "revenue": 500000 }
+       
         return ResponseEntity.ok(Map.of("revenue", total));
     }
 

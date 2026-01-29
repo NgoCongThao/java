@@ -15,10 +15,9 @@ public class ReportService {
         this.billRepository = billRepository;
     }
 
-    // Sửa phương thức này để khớp với BillRepository mới
+  
     public BigDecimal getRevenue(Long tenantId, LocalDate from, LocalDate to) {
-        // Gọi đúng tên hàm mới trong Repository: sumTotalAmountByDateRange
-        // Và truyền tham số đúng thứ tự: (from, to, tenantId)
+    
         return billRepository.sumTotalAmountByDateRange(from, to, tenantId);
     }
 }

@@ -17,7 +17,7 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
-    // 1. Lấy danh sách booking (GET)
+ 
     @GetMapping
     public ResponseEntity<?> getBookings(HttpServletRequest request) {
         Long tenantId = (Long) request.getAttribute("tenantId");
@@ -27,7 +27,7 @@ public class BookingController {
         return ResponseEntity.ok(bookingService.getAll(tenantId));
     }
 
-    // 2. Tạo booking mới (POST) -> ĐANG THIẾU CÁI NÀY
+
     @PostMapping
     public ResponseEntity<?> createBooking(
             @RequestBody BookingCreateRequest bookingRequest, // Hứng cục JSON bằng DTO
@@ -39,7 +39,7 @@ public class BookingController {
                 return ResponseEntity.status(401).body("Lỗi: Chưa đăng nhập");
             }
 
-            // Gọi service tạo mới
+            
             Booking newBooking = bookingService.create(bookingRequest, tenantId);
             
             return ResponseEntity.ok(newBooking);
@@ -50,7 +50,7 @@ public class BookingController {
         }
     }
 
-    // 3. Cập nhật trạng thái booking (PUT)
+
     @PutMapping("/{id}/status")
     public ResponseEntity<?> updateBookingStatus(
             @PathVariable("id") Integer bookingId,
@@ -88,7 +88,7 @@ public class BookingController {
         }
     }
 
-    // 5. Xóa Booking
+ 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBooking(@PathVariable Integer id, HttpServletRequest request) {
         try {

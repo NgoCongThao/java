@@ -20,8 +20,8 @@ public class User {
 
     private String password;
     
-    @JsonProperty("full_name") // Jackson dùng cái này để đọc từ Postman
-    @Column(name = "full_name") // Hibernate dùng cái này để lưu vào DB
+    @JsonProperty("full_name")
+    @Column(name = "full_name") 
     private String fullName;
 
     @Enumerated(EnumType.STRING)

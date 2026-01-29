@@ -16,10 +16,10 @@ public class Booking {
     @Column(name = "customer_name")
     private String customerName;
 
-    // ✅ THÊM
+ 
     private String phone;
 
-    // ✅ THÊM
+   
     private String email;
 
     @Column(name = "booking_date")
@@ -31,20 +31,19 @@ public class Booking {
     @Column(name = "num_guests")
     private Integer numGuests;
 
-    // ✅ THÊM
     @Column(name = "special_requests")
     private String specialRequests;
 
     private String status;
 
-    // ✅ THÊM – tự set khi tạo
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "tenant_id", nullable = false)
     private Long tenantId;
 
-    // ===== GETTERS / SETTERS =====
+  
 
     public Integer getId() {
         return id;
@@ -126,7 +125,7 @@ public class Booking {
         this.tenantId = tenantId;
     }
 
-    // ✅ tự động set created_at
+ 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

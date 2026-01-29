@@ -4,11 +4,11 @@ public class BookingCreateRequest {
 
     private String customer_name;
     private String phone;
-    private String email;            // ✅ Bổ sung thêm
+    private String email;           
     private String date;
     private String time;
     private Integer num_guests;
-    private String special_requests; // ✅ Bổ sung thêm
+    private String special_requests; 
 
     // --- GETTERS & SETTERS ---
 
@@ -28,7 +28,7 @@ public class BookingCreateRequest {
         this.phone = phone;
     }
 
-    // ✅ Getter/Setter cho Email
+  
     public String getEmail() {
         return email;
     }
@@ -61,7 +61,7 @@ public class BookingCreateRequest {
         this.num_guests = num_guests;
     }
 
-    // ✅ Getter/Setter cho Special Requests
+   
     public String getSpecial_requests() {
         return special_requests;
     }

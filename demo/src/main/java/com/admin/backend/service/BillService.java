@@ -4,7 +4,7 @@ import com.admin.backend.entity.Bill;
 import com.admin.backend.repository.BillRepository;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal; // ✅ Import này
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -20,7 +20,7 @@ public Bill createBill(Bill bill, Long tenantId) {
 bill.setTenantId(tenantId);
 
 
-// nếu client không gửi date thì set ngày hôm nay
+
 if (bill.getDate() == null) {
 bill.setDate(LocalDate.now());
 }
@@ -33,7 +33,7 @@ return billRepository.save(bill);
         return billRepository.findByDateAndTenantId(date, tenantId);
     }
 
-    // --- SỬA HÀM NÀY: Trả về BigDecimal ---
+   
     public BigDecimal getRevenue(LocalDate from, LocalDate to, Long tenantId) {
         return billRepository.sumTotalAmountByDateRange(from, to, tenantId);
     }

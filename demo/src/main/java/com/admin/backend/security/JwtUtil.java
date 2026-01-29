@@ -10,7 +10,7 @@ import java.util.Date;
 
 public class JwtUtil {
 
-    // 🔐 KEY phải >= 256 bit
+   
     private static final String SECRET_KEY =
             "mysecretkeymysecretkeymysecretkey12";
 
@@ -18,7 +18,7 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
 
-    // ✅ TẠO TOKEN
+  
     public String generateToken(Integer userId, Long tenantId, String role) {
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))   // userId
@@ -32,7 +32,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    // ✅ Kiểm tra token hợp lệ
+
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
@@ -45,13 +45,13 @@ public class JwtUtil {
         }
     }
 
-    // ✅ LẤY tenantId
+   
     public Long getTenantId(String token) {
         Claims claims = getAllClaimsFromToken(token);
         return ((Number) claims.get("tenantId")).longValue();
     }
 
-    // ✅ Lấy userId từ token
+ 
     public String getUserId(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSignKey())
@@ -62,7 +62,7 @@ public class JwtUtil {
         return claims.getSubject();
     }
 
-    // ================== ✅ CHỈ THÊM PHẦN NÀY ==================
+    
     private Claims getAllClaimsFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSignKey())

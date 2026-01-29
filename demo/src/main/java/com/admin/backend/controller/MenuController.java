@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/menu")
-//@PreAuthorize("hasRole('MANAGER')")
+
 public class MenuController {
 
     private final MenuService menuService;
