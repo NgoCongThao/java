@@ -39,7 +39,7 @@ public class MenuService {
         menu.setPrice(newData.getPrice());
         menu.setCategory(newData.getCategory());
         menu.setAvailable(newData.getAvailable());
-
+menu.setImage(newData.getImage());
         return menuRepository.save(menu);
     }
 

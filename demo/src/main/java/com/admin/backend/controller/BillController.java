@@ -36,16 +36,28 @@ public class BillController {
 
     // 2. Lấy danh sách hóa đơn theo ngày (GET)
     @GetMapping
-    public ResponseEntity<?> getBills(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            HttpServletRequest req) {
-        
-        Long tenantId = (Long) req.getAttribute("tenantId");
-        if (tenantId == null) return ResponseEntity.status(401).body("Chưa đăng nhập");
-        
-        LocalDate targetDate = (date != null) ? date : LocalDate.now();
-        return ResponseEntity.ok(billService.getBillsByDate(targetDate, tenantId));
+public ResponseEntity<?> getBills(
+        @RequestParam(required = false)
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        LocalDate date,
+        HttpServletRequest req) {
+
+    Long tenantId = (Long) req.getAttribute("tenantId");
+    if (tenantId == null) {
+        return ResponseEntity.status(401).body("Chưa đăng nhập");
     }
+
+    // 👉 Có date thì lọc, không có thì lấy tất cả
+    if (date != null) {
+        return ResponseEntity.ok(
+            billService.getBillsByDate(date, tenantId)
+        );
+    }
+
+    return ResponseEntity.ok(
+        billService.getAllBills(tenantId)
+    );
+}
 
     // 3. Báo cáo doanh thu (GET /revenue) -> Trả về BigDecimal
     @GetMapping("/revenue")
@@ -63,4 +75,19 @@ public class BillController {
         // Trả về JSON: { "revenue": 500000 }
         return ResponseEntity.ok(Map.of("revenue", total));
     }
+
+    @DeleteMapping("/{id}")
+public ResponseEntity<?> deleteBill(
+        @PathVariable Long id,
+        HttpServletRequest req
+) {
+    Long tenantId = (Long) req.getAttribute("tenantId");
+    if (tenantId == null) {
+        return ResponseEntity.status(401).body("Chưa đăng nhập");
+    }
+
+    billService.deleteById(id, tenantId);
+    return ResponseEntity.ok("Đã xóa hóa đơn");
+}
+
 }

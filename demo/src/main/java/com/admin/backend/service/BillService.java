@@ -16,15 +16,18 @@ public class BillService {
     public BillService(BillRepository billRepository) {
         this.billRepository = billRepository;
     }
+public Bill createBill(Bill bill, Long tenantId) {
+bill.setTenantId(tenantId);
 
-    public Bill createBill(Bill bill, Long tenantId) {
-        bill.setTenantId(tenantId);
-        // Nếu chưa có ngày thì set là hôm nay (đề phòng)
-        if (bill.getDate() == null) {
-            bill.setDate(LocalDate.now());
-        }
-        return billRepository.save(bill);
-    }
+
+// nếu client không gửi date thì set ngày hôm nay
+if (bill.getDate() == null) {
+bill.setDate(LocalDate.now());
+}
+
+
+return billRepository.save(bill);
+}
 
     public List<Bill> getBillsByDate(LocalDate date, Long tenantId) {
         return billRepository.findByDateAndTenantId(date, tenantId);
@@ -34,4 +37,18 @@ public class BillService {
     public BigDecimal getRevenue(LocalDate from, LocalDate to, Long tenantId) {
         return billRepository.sumTotalAmountByDateRange(from, to, tenantId);
     }
+    public List<Bill> getAllBills(Long tenantId) {
+    return billRepository.findByTenantId(tenantId);
+}
+
+public void deleteById(Long id, Long tenantId) {
+    Bill bill = billRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Bill không tồn tại"));
+
+    if (!bill.getTenantId().equals(tenantId)) {
+        throw new RuntimeException("Không có quyền xóa bill này");
+    }
+
+    billRepository.delete(bill);
+}
 }

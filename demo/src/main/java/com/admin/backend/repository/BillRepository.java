@@ -15,6 +15,7 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
 
     // Tìm hóa đơn theo ngày và tenant
     List<Bill> findByDateAndTenantId(LocalDate date, Long tenantId);
+    List<Bill> findByTenantId(Long tenantId);
 
     // Tính tổng doanh thu (Sửa Double -> BigDecimal)
     // Lưu ý: COALESCE để nếu không có đơn nào thì trả về 0 thay vì null

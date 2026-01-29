@@ -7,6 +7,7 @@ import StaffManager from "./StaffManager";
 import BookingManager from "./BookingManager";
 import RevenueReport from "./RevenueReport";
 import ProtectedRoute from "./ProtectedRoute";
+import PaymentHistory from "./PaymentHistory";
 import "./App.css";
 console.log("1. Login:", Login);
 console.log("2. Dashboard:", Dashboard);
@@ -34,6 +35,9 @@ function AppContent() {
             <li><Link to="/staff" className={location.pathname === "/staff" ? "active" : ""}>Quản lý Nhân viên</Link></li>
             <li><Link to="/booking" className={location.pathname === "/booking" ? "active" : ""}>Quản lý Booking</Link></li>
             <li><Link to="/revenue" className={location.pathname === "/revenue" ? "active" : ""}>Báo cáo Doanh thu</Link></li>
+            <li><Link to="/payment-history" className={location.pathname === "/payment-history" ? "active" : ""}>Lịch sử Thanh toán</Link></li>
+            
+          
           </ul>
           <button onClick={() => { localStorage.clear(); window.location.href = "/login"; }}>Đăng xuất</button>
         </div>
@@ -47,6 +51,7 @@ function AppContent() {
             <Route path="/staff" element={<StaffManager />} />
             <Route path="/booking" element={<BookingManager />} />
             <Route path="/revenue" element={<RevenueReport />} />
+            <Route path="/payment-history" element={<PaymentHistory />} />
           </Route>
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

@@ -240,15 +240,7 @@ function BookingManager() {
                 ✏️ Sửa
               </button>
 
-              {/* --- NÚT THANH TOÁN (MỚI) --- */}
-              <button 
-                className="btn" 
-                onClick={() => handlePayment(b)}
-                style={{ background: "#28a745", color: "white", border: "none" }} // Màu xanh lá cây tiền bạc
-              >
-                💰 Thanh toán
-              </button>
-
+        
               {b.status === 'PENDING' && (
                 <>
                   <button className="btn btn-success" onClick={() => updateStatus(b.id, 'CONFIRMED')}>

@@ -28,11 +28,20 @@ public class Menu {
     @Column(name = "tenant_id", nullable = false)
     private Long tenantId;
 
+    @Column(name = "image")
+    private String image;
     // ===== CONSTRUCTOR =====
     public Menu() {
     }
 
     // ===== GETTER / SETTER =====
+    public String getImage() {
+    return image;
+}
+
+public void setImage(String image) {
+    this.image = image;
+}
 
     public Integer getId() {
         return id;
