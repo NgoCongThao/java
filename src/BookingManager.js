@@ -4,7 +4,6 @@ import axiosClient from "./api/axiosClient";
 function BookingManager() {
   const [bookings, setBookings] = useState([]);
 
-  // Form state khớp với DTO (snake_case)
   const [form, setForm] = useState({
     customer_name: "",
     phone: "",
@@ -15,19 +14,19 @@ function BookingManager() {
     special_requests: "",
   });
 
-  // Biến editing lưu object đang được sửa. Nếu null = đang ở chế độ thêm mới
   const [editing, setEditing] = useState(null);
 
-  // 1. TẢI DANH SÁCH
+  // LOAD DATA
   const load = () => {
-    axiosClient.get("/api/admin/bookings")
+    axiosClient
+      .get("/api/admin/bookings")
       .then((res) => setBookings(res.data))
       .catch((err) => alert("Lỗi tải dữ liệu: " + err.message));
   };
 
   useEffect(load, []);
 
-  // 2. TẠO BOOKING MỚI (POST)
+  // CREATE
   const create = async () => {
     try {
       await axiosClient.post("/api/admin/bookings", form);
@@ -39,11 +38,11 @@ function BookingManager() {
     }
   };
 
-  // 3. CẬP NHẬT THÔNG TIN (PUT)
+  // UPDATE
   const saveUpdate = async () => {
     try {
       await axiosClient.put(`/api/admin/bookings/${editing.id}`, form);
-      alert("Cập nhật thông tin thành công!");
+      alert("Cập nhật thành công!");
       resetForm();
       load();
     } catch (error) {
@@ -51,222 +50,177 @@ function BookingManager() {
     }
   };
 
-  // 4. XÓA BOOKING (DELETE)
+  // DELETE
   const remove = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa đơn đặt bàn này không?")) {
-      try {
-        await axiosClient.delete(`/api/admin/bookings/${id}`);
-        load();
-      } catch (error) {
-        alert("Lỗi xóa: " + (error.response?.data || error.message));
-      }
+    if (!window.confirm("Bạn chắc chắn muốn xóa?")) return;
+    try {
+      await axiosClient.delete(`/api/admin/bookings/${id}`);
+      load();
+    } catch (error) {
+      alert("Lỗi xóa: " + (error.response?.data || error.message));
     }
   };
 
-  // 5. CẬP NHẬT TRẠNG THÁI (Duyệt/Hủy)
+  // STATUS (Vẫn giữ hàm này để logic thanh toán hoạt động ngầm, nhưng không hiển thị ra nữa)
   const updateStatus = async (id, status) => {
     try {
       await axiosClient.put(`/api/admin/bookings/${id}/status?status=${status}`);
       load();
     } catch (error) {
-      alert("Lỗi cập nhật trạng thái");
+      console.error(error);
     }
   };
 
-  // --- HÀM THANH TOÁN (MỚI THÊM) ---
+  // PAYMENT
   const handlePayment = async (booking) => {
-    // Hỏi số tiền
-    const amountStr = window.prompt(`Thanh toán cho khách: ${booking.customerName}.\nNhập tổng số tiền thực tế (VNĐ):`);
-    
-    if (!amountStr) return; // Nếu bấm Cancel thì thôi
+    const amountStr = window.prompt(
+      `Thanh toán cho khách: ${booking.customerName}\nNhập số tiền (VNĐ):`
+    );
+    if (!amountStr) return;
 
     const amount = parseFloat(amountStr);
     if (isNaN(amount) || amount <= 0) {
-        alert("Số tiền không hợp lệ!");
-        return;
+      alert("Số tiền không hợp lệ!");
+      return;
     }
 
     try {
-        // --- SỬA ĐOẠN NÀY ---
-        await axiosClient.post("/api/admin/bills", {
-            totalAmount: parseFloat(amountStr), // Số tiền
-            note: `Thanh toán Booking ID: ${booking.id} - ${booking.customerName}`,
-            
-            // 👇 THÊM DÒNG NÀY: Ép ngày hóa đơn = Ngày Booking
-            date: booking.bookingDate 
-        });
+      await axiosClient.post("/api/admin/bills", {
+        totalAmount: amount,
+        note: `Thanh toán Booking ID: ${booking.id} - ${booking.customerName}`,
+        date: booking.bookingDate,
+      });
 
-        alert("✅ Đã thanh toán thành công! Doanh thu đã được cập nhật.");
-        
-        // (Tùy chọn) Tự động chuyển trạng thái thành Hoàn tất sau khi trả tiền
-        if (booking.status !== 'COMPLETED') {
-            updateStatus(booking.id, 'COMPLETED');
-        }
+      alert("✅ Thanh toán thành công!");
+
+      // Cập nhật ngầm trạng thái thành COMPLETED trong database
+      const currentStatus = booking.status ? booking.status.toUpperCase() : "";
+      if (currentStatus !== "COMPLETED") {
+        updateStatus(booking.id, "COMPLETED");
+      }
     } catch (error) {
-        alert("❌ Lỗi thanh toán: " + (error.response?.data || error.message));
+      alert("❌ Lỗi thanh toán: " + (error.response?.data || error.message));
     }
   };
 
-  // 6. ĐỔ DỮ LIỆU LÊN FORM ĐỂ SỬA
+  // EDIT
   const edit = (item) => {
     setEditing(item);
     setForm({
       customer_name: item.customerName,
       phone: item.phone,
       email: item.email || "",
-      date: item.bookingDate ? item.bookingDate.toString() : "",
-      time: item.bookingTime ? item.bookingTime.toString() : "",
+      date: item.bookingDate || "",
+      time: item.bookingTime || "",
       num_guests: item.numGuests,
-      special_requests: item.specialRequests || ""
+      special_requests: item.specialRequests || "",
     });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const resetForm = () => {
     setForm({
-      customer_name: "", phone: "", email: "",
-      date: "", time: "", num_guests: "", special_requests: ""
+      customer_name: "",
+      phone: "",
+      email: "",
+      date: "",
+      time: "",
+      num_guests: "",
+      special_requests: "",
     });
     setEditing(null);
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'PENDING': return 'orange';
-      case 'CONFIRMED': return 'green';
-      case 'CANCELLED': return 'red';
-      case 'COMPLETED': return 'blue';
-      default: return '#777';
-    }
-  };
-
   return (
-    <div className="booking-manager" style={{ padding: "20px" }}>
+    <div style={{ padding: 20, maxWidth: "1000px", margin: "0 auto" }}>
       <h1>📅 Quản lý Đặt bàn</h1>
 
-      {/* --- FORM NHẬP LIỆU --- */}
-      <div className="form-container" style={{ background: "#fff", padding: "20px", borderRadius: "8px", boxShadow: "0 2px 5px rgba(0,0,0,0.1)", marginBottom: "20px" }}>
-        <h2 style={{marginTop: 0, color: editing ? "#ffc107" : "#2c3e50"}}>
-            {editing ? `✏️ Đang sửa: ${editing.customerName}` : "➕ Thêm Booking Mới"}
+      {/* --- FORM --- */}
+      <div style={{ background: "#f5f5f5", padding: 20, marginBottom: 20, borderRadius: 8 }}>
+        <h2>
+          {editing ? `✏️ Đang sửa: ${editing.customerName}` : "➕ Thêm Booking Mới"}
         </h2>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
-          <div className="form-group">
-            <label>Tên khách:</label>
-            <input className="form-control" placeholder="Tên khách" value={form.customer_name}
-              onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
-          </div>
-          <div className="form-group">
-            <label>SĐT:</label>
-            <input className="form-control" placeholder="Số điện thoại" value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-          </div>
-          <div className="form-group">
-            <label>Email:</label>
-            <input className="form-control" placeholder="Email (tùy chọn)" value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })} />
-          </div>
-          <div className="form-group">
-            <label>Số khách:</label>
-            <input type="number" className="form-control" value={form.num_guests}
-              onChange={(e) => setForm({ ...form, num_guests: e.target.value })} />
-          </div>
-          <div className="form-group">
-            <label>Ngày:</label>
-            <input type="date" className="form-control" value={form.date}
-              onChange={(e) => setForm({ ...form, date: e.target.value })} />
-          </div>
-          <div className="form-group">
-            <label>Giờ:</label>
-            <input type="time" className="form-control" value={form.time}
-              onChange={(e) => setForm({ ...form, time: e.target.value })} />
-          </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+          <input
+            placeholder="Tên khách hàng"
+            value={form.customer_name}
+            onChange={(e) => setForm({ ...form, customer_name: e.target.value })}
+            style={{ padding: 8 }}
+          />
+          <input
+            placeholder="Số điện thoại"
+            value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            style={{ padding: 8 }}
+          />
+          <input
+            placeholder="Email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            style={{ padding: 8 }}
+          />
+          <input
+            type="number"
+            placeholder="Số lượng khách"
+            value={form.num_guests}
+            onChange={(e) => setForm({ ...form, num_guests: e.target.value })}
+            style={{ padding: 8 }}
+          />
+          <input
+            type="date"
+            value={form.date}
+            onChange={(e) => setForm({ ...form, date: e.target.value })}
+            style={{ padding: 8 }}
+          />
+          <input
+            type="time"
+            value={form.time}
+            onChange={(e) => setForm({ ...form, time: e.target.value })}
+            style={{ padding: 8 }}
+          />
+          <textarea
+            placeholder="Yêu cầu đặc biệt (nếu có)"
+            value={form.special_requests}
+            onChange={(e) => setForm({ ...form, special_requests: e.target.value })}
+            style={{ padding: 8, gridColumn: "span 2", minHeight: "60px" }}
+          />
         </div>
 
-        <div className="form-group" style={{ marginTop: "10px" }}>
-          <label>Ghi chú:</label>
-          <textarea className="form-control" rows="2" placeholder="Yêu cầu đặc biệt..." value={form.special_requests}
-            onChange={(e) => setForm({ ...form, special_requests: e.target.value })} />
-        </div>
-
-        <div style={{ marginTop: "15px" }}>
-          {editing ? (
-            <>
-              <button className="btn btn-primary" onClick={saveUpdate}>💾 Lưu thay đổi</button>
-              <button className="btn btn-secondary" onClick={resetForm}>Hủy bỏ</button>
-            </>
-          ) : (
-            <button className="btn btn-primary" onClick={create}>+ Tạo Booking</button>
+        <div style={{ marginTop: 15 }}>
+          <button onClick={editing ? saveUpdate : create} style={{ padding: "8px 16px", cursor: "pointer" }}>
+            {editing ? "Lưu thay đổi" : "Tạo Booking"}
+          </button>
+          {editing && (
+            <button onClick={resetForm} style={{ marginLeft: 10, padding: "8px 16px", cursor: "pointer" }}>
+              Hủy
+            </button>
           )}
         </div>
       </div>
 
-      {/* --- DANH SÁCH BOOKING --- */}
-      <div className="booking-list">
+      {/* --- DANH SÁCH (Đã xóa dòng trạng thái) --- */}
+      <div>
         {bookings.map((b) => (
-          <div key={b.id} className="booking-item" style={{ 
-              background: "white", padding: "15px", marginBottom: "15px", 
-              borderRadius: "8px", border: "1px solid #eee", position: "relative",
-              boxShadow: "0 2px 4px rgba(0,0,0,0.05)"
-          }}>
-            
-            <span style={{
-              position: "absolute", top: "15px", right: "15px",
-              background: getStatusColor(b.status), color: "white",
-              padding: "4px 12px", borderRadius: "20px", fontSize: "12px", fontWeight: "bold"
-            }}>
-              {b.status}
-            </span>
-
-            <h3 style={{ margin: "0 0 10px 0", color: "#333" }}>{b.customerName}</h3>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5px", fontSize: "14px", color: "#555" }}>
-              <p>📞 {b.phone}</p>
-              <p>📧 {b.email || "---"}</p>
-              <p>📅 {b.bookingDate} lúc {b.bookingTime}</p>
-              <p>👥 {b.numGuests} khách</p>
-            </div>
-
-            {b.specialRequests && (
-              <div style={{ background: "#fff8e1", padding: "8px", marginTop: "10px", borderRadius: "4px", fontSize: "13px", color: "#856404" }}>
-                📝 <strong>Note:</strong> {b.specialRequests}
+          <div key={b.id} style={{ background: "white", padding: 15, marginBottom: 10, border: "1px solid #ddd", borderRadius: 5 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <h3 style={{ margin: "0 0 5px 0" }}>{b.customerName} <span style={{fontSize: "0.8em", color: "#666"}}>({b.phone})</span></h3>
+                <p style={{ margin: 0 }}>
+                  📅 {b.bookingDate} lúc {b.bookingTime} | 👥 {b.numGuests} khách
+                </p>
+                {/* Đã xóa dòng hiển thị pending/resolved ở đây */}
               </div>
-            )}
-
-            {/* ACTION BUTTONS */}
-            <div className="item-actions" style={{ marginTop: "15px", borderTop: "1px solid #eee", paddingTop: "10px", display: "flex", flexWrap: "wrap", gap: "5px" }}>
               
-              <button className="btn btn-warning" onClick={() => edit(b)}>
-                ✏️ Sửa
-              </button>
-
-        
-              {b.status === 'PENDING' && (
-                <>
-                  <button className="btn btn-success" onClick={() => updateStatus(b.id, 'CONFIRMED')}>
-                    ✅ Duyệt
-                  </button>
-                  <button className="btn btn-danger" onClick={() => updateStatus(b.id, 'CANCELLED')}>
-                    ❌ Hủy đơn
-                  </button>
-                </>
-              )}
-
-              {b.status === 'CONFIRMED' && (
-                <button className="btn btn-info" onClick={() => updateStatus(b.id, 'COMPLETED')}>
-                  🏁 Hoàn tất
-                </button>
-              )}
-
-              <button className="btn btn-secondary" style={{marginLeft: "auto"}} onClick={() => remove(b.id)}>
-                🗑️ Xóa
-              </button>
-
+              <div style={{ display: "flex", gap: "5px" }}>
+                <button onClick={() => edit(b)}>Sửa</button>
+                <button onClick={() => handlePayment(b)}>Thanh toán</button>
+                <button onClick={() => remove(b.id)} style={{ color: "red" }}>Xóa</button>
+              </div>
             </div>
           </div>
         ))}
-        
-        {bookings.length === 0 && <p style={{textAlign: "center", color: "#999"}}>Chưa có đơn đặt bàn nào.</p>}
       </div>
     </div>
   );

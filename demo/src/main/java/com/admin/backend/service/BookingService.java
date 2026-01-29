@@ -41,6 +41,7 @@ public Booking create(BookingCreateRequest req, Long tenantId) {
     booking.setStatus("PENDING");
     booking.setTenantId(tenantId);
 
+
     return bookingRepository.save(booking);
 }
     /**
@@ -77,6 +78,7 @@ public Booking create(BookingCreateRequest req, Long tenantId) {
         booking.setBookingTime(LocalTime.parse(req.getTime()));
         booking.setNumGuests(req.getNum_guests());
         booking.setSpecialRequests(req.getSpecial_requests());
+      
 
         return bookingRepository.save(booking);
     }
