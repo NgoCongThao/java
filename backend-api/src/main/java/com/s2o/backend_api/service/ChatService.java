@@ -28,7 +28,7 @@ public class ChatService {
 
     // Key Groq của bạn
     private final String API_KEY = "YourKeyHere"; 
-    private final String GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+    private final String GROQ_URL = "YourURLHere";
 
     public String chatWithAI(String userMessage, Long restaurantId) {
         String contextData = "";
