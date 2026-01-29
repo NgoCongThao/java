@@ -27,7 +27,7 @@ public class ChatService {
     private RestaurantRepository restaurantRepository;
 
     // Key Groq của bạn
-    private final String API_KEY = "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"; 
+    private final String API_KEY = "YourKeyHere"; 
     private final String GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
     public String chatWithAI(String userMessage, Long restaurantId) {
