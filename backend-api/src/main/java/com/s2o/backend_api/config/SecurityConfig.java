@@ -42,6 +42,9 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
                 "/api/reviews/**", 
                 "/api/bookings/**",
                 "/api/bookings/create",
+                // --- THÊM DÒNG NÀY ĐỂ CHATBOT HOẠT ĐỘNG ---
+                "/api/chat/**", 
+                // ------------------------------------------
                 
                 // --- CÁC TRANG HTML ĐƯỢC PHÉP TRUY CẬP ---
                 "/landing.html", 
