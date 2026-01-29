@@ -15,30 +15,34 @@
     <style>
       body {
         background-color: #f4f6f9;
+        font-family: "Segoe UI", sans-serif;
       }
       .sidebar {
         min-height: 100vh;
-        background: #343a40;
+        background: #212529;
         color: white;
       }
       .nav-link {
-        color: #cfd8dc;
+        color: #adb5bd;
         cursor: pointer;
+        padding: 12px 20px;
       }
       .nav-link:hover,
       .nav-link.active {
-        color: white;
-        background: #495057;
+        color: #ffc107;
+        background: #343a40;
+        border-left: 4px solid #ffc107;
       }
       .card {
         border: none;
-        shadow-sm: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.05);
       }
-      .btn-circle {
-        width: 30px;
-        height: 30px;
-        padding: 0;
-        border-radius: 50%;
+      .table img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 5px;
       }
       .loading {
         display: none;
@@ -53,11 +57,13 @@
   <body>
     <div class="container-fluid">
       <div class="row">
-        <div class="col-md-2 sidebar p-3">
-          <h4 class="text-center mb-4 text-warning">
-            <i class="fas fa-utensils"></i> S2O ADMIN
-          </h4>
-          <ul class="nav flex-column">
+        <div class="col-md-2 sidebar p-0">
+          <div class="p-4 text-center border-bottom border-secondary">
+            <h4 class="text-warning fw-bold">
+              <i class="fas fa-utensils"></i> S2O ADMIN
+            </h4>
+          </div>
+          <ul class="nav flex-column mt-3">
             <li class="nav-item">
               <a class="nav-link active" onclick="showSection('users')"
                 ><i class="fas fa-users me-2"></i> Quản lý User</a
@@ -69,7 +75,7 @@
               >
             </li>
             <li class="nav-item">
-              <a class="nav-link text-danger" onclick="logout()"
+              <a class="nav-link text-danger mt-5" onclick="logout()"
                 ><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a
               >
             </li>
@@ -77,21 +83,22 @@
         </div>
 
         <div class="col-md-10 p-4">
-          <h2 id="page-title">Quản lý Người dùng</h2>
-          <hr />
+          <h3 id="page-title" class="fw-bold text-secondary mb-4">
+            Quản lý Người dùng
+          </h3>
 
-          <div class="loading spinner-border text-primary" role="status"></div>
+          <div class="loading spinner-border text-warning" role="status"></div>
 
           <div id="sec-users">
             <div class="card p-3">
-              <table class="table table-hover">
+              <table class="table table-hover align-middle">
                 <thead class="table-light">
                   <tr>
                     <th>ID</th>
                     <th>Username</th>
                     <th>Họ tên</th>
-                    <th>Vai trò (Role)</th>
-                    <th>Nhà hàng ID</th>
+                    <th>Vai trò</th>
+                    <th>ID Nhà hàng</th>
                     <th>Thao tác</th>
                   </tr>
                 </thead>
@@ -108,14 +115,14 @@
               <i class="fas fa-plus"></i> Thêm Nhà Hàng Mới
             </button>
             <div class="card p-3">
-              <table class="table table-hover">
+              <table class="table table-hover align-middle">
                 <thead class="table-light">
                   <tr>
                     <th>ID</th>
+                    <th>Ảnh</th>
                     <th>Tên Nhà Hàng</th>
                     <th>Địa chỉ</th>
-                    <th>Số bàn</th>
-                    <th>Vị trí (Lat, Long)</th>
+                    <th>Menu</th>
                     <th>Thao tác</th>
                   </tr>
                 </thead>
@@ -130,8 +137,8 @@
     <div class="modal fade" id="modalUser" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Sửa User</h5>
+          <div class="modal-header bg-light">
+            <h5 class="modal-title">Cập nhật User</h5>
             <button
               type="button"
               class="btn-close"
@@ -141,8 +148,12 @@
           <div class="modal-body">
             <input type="hidden" id="edit-user-id" />
             <div class="mb-3">
-              <label>Họ tên:</label>
-              <input type="text" id="edit-user-fullname" class="form-control" />
+              <label>Họ tên:</label
+              ><input
+                type="text"
+                id="edit-user-fullname"
+                class="form-control"
+              />
             </div>
             <div class="mb-3">
               <label>Vai trò:</label>
@@ -153,16 +164,8 @@
               </select>
             </div>
             <div class="mb-3">
-              <label
-                >Quản lý nhà hàng (ID):
-                <small class="text-muted">(Chỉ dùng cho Kitchen)</small></label
-              >
-              <input
-                type="number"
-                id="edit-user-resId"
-                class="form-control"
-                placeholder="Nhập ID nhà hàng"
-              />
+              <label>ID Nhà hàng (Cho Bếp):</label
+              ><input type="number" id="edit-user-resId" class="form-control" />
             </div>
           </div>
           <div class="modal-footer">
@@ -175,52 +178,134 @@
     </div>
 
     <div class="modal fade" id="modalRes" tabindex="-1">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="modalResTitle">Thêm Nhà Hàng</h5>
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="modalResTitle">Thông tin Nhà Hàng</h5>
             <button
               type="button"
-              class="btn-close"
+              class="btn-close btn-close-white"
               data-bs-dismiss="modal"
             ></button>
           </div>
           <div class="modal-body">
             <input type="hidden" id="res-id" />
-            <div class="mb-2">
-              <label>Tên:</label
-              ><input type="text" id="res-name" class="form-control" />
-            </div>
-            <div class="mb-2">
-              <label>Địa chỉ:</label
-              ><input type="text" id="res-address" class="form-control" />
-            </div>
-            <div class="mb-2">
-              <label>Số bàn:</label
-              ><input type="number" id="res-tables" class="form-control" />
-            </div>
             <div class="row">
-              <div class="col mb-2">
-                <label>Latitude:</label
-                ><input type="text" id="res-lat" class="form-control" />
+              <div class="col-md-6 mb-3">
+                <label>Tên nhà hàng (*):</label
+                ><input
+                  type="text"
+                  id="res-name"
+                  class="form-control"
+                  placeholder="VD: Cơm Tấm Sài Gòn"
+                />
               </div>
-              <div class="col mb-2">
-                <label>Longitude:</label
-                ><input type="text" id="res-long" class="form-control" />
+              <div class="col-md-6 mb-3">
+                <label>Thể loại (*):</label>
+                <select id="res-category" class="form-select">
+                  <option value="Cơm">Cơm</option>
+                  <option value="Phở">Phở</option>
+                  <option value="Lẩu">Lẩu</option>
+                  <option value="Trà sữa">Trà sữa</option>
+                  <option value="Gà rán">Gà rán</option>
+                  <option value="Pizza">Pizza</option>
+                  <option value="Đồ uống">Đồ uống</option>
+                  <option value="Khác">Khác</option>
+                </select>
               </div>
-            </div>
-            <div class="mb-2">
-              <label>Ảnh (URL):</label
-              ><input type="text" id="res-img" class="form-control" />
-            </div>
-            <div class="form-check form-switch mt-2">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                id="res-isOpen"
-                checked
-              />
-              <label class="form-check-label">Đang mở cửa</label>
+
+              <div class="col-md-6 mb-3">
+                <label>Giờ mở cửa:</label
+                ><input
+                  type="text"
+                  id="res-time"
+                  class="form-control"
+                  placeholder="VD: 07:00 - 22:00"
+                />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label>Trạng thái:</label>
+                <select id="res-status" class="form-select">
+                  <option value="active">Hoạt động (Active)</option>
+                  <option value="inactive">Tạm ngưng (Inactive)</option>
+                </select>
+              </div>
+
+              <div class="col-md-12 mb-3">
+                <label>Địa chỉ (*):</label
+                ><input type="text" id="res-address" class="form-control" />
+              </div>
+              <div class="col-md-12 mb-3">
+                <label>Mô tả:</label
+                ><textarea
+                  id="res-desc"
+                  class="form-control"
+                  rows="2"
+                  placeholder="Giới thiệu ngắn về quán..."
+                ></textarea>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label>Số bàn:</label
+                ><input
+                  type="number"
+                  id="res-tables"
+                  class="form-control"
+                  value="20"
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label>Đánh giá (Sao):</label>
+                <input
+                  type="number"
+                  id="res-rating"
+                  class="form-control"
+                  step="0.1"
+                  min="0"
+                  max="5"
+                  placeholder="0.0 - 5.0"
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label>Vĩ độ (Lat):</label
+                ><input
+                  type="text"
+                  id="res-lat"
+                  class="form-control"
+                  value="10.77"
+                />
+              </div>
+              <div class="col-md-4 mb-3">
+                <label>Kinh độ (Long):</label
+                ><input
+                  type="text"
+                  id="res-long"
+                  class="form-control"
+                  value="106.69"
+                />
+              </div>
+
+              <div class="col-md-12 mb-3">
+                <label>Link Ảnh:</label
+                ><input
+                  type="text"
+                  id="res-img"
+                  class="form-control"
+                  placeholder="https://..."
+                />
+              </div>
+
+              <div class="col-md-12">
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="res-isOpen"
+                    checked
+                  />
+                  <label class="form-check-label">Đang mở cửa đón khách</label>
+                </div>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -229,7 +314,98 @@
               class="btn btn-primary"
               onclick="saveRestaurant()"
             >
-              Lưu
+              Lưu Nhà Hàng
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalMenuManager" tabindex="-1">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header bg-warning">
+            <h5 class="modal-title fw-bold" id="menuTitle">Menu Nhà Hàng</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <button class="btn btn-success mb-3" onclick="showModalMenuItem()">
+              <i class="fas fa-plus-circle"></i> Thêm Món Mới
+            </button>
+            <input type="hidden" id="current-res-id-for-menu" />
+            <table class="table table-bordered table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>Ảnh</th>
+                  <th>Tên món</th>
+                  <th>Giá</th>
+                  <th>Mô tả</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody id="table-menu-items"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="modalMenuItem"
+      tabindex="-1"
+      style="z-index: 1060"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title" id="itemTitle">Chi tiết món ăn</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="item-id" />
+            <div class="mb-3">
+              <label>Tên món (*):</label
+              ><input type="text" id="item-name" class="form-control" />
+            </div>
+            <div class="mb-3">
+              <label>Giá tiền (*):</label
+              ><input type="number" id="item-price" class="form-control" />
+            </div>
+            <div class="mb-3">
+              <label>Danh mục (Category):</label
+              ><input
+                type="text"
+                id="item-category"
+                class="form-control"
+                placeholder="VD: Món chính, Đồ uống..."
+              />
+            </div>
+            <div class="mb-3">
+              <label>Mô tả:</label
+              ><textarea id="item-desc" class="form-control"></textarea>
+            </div>
+            <div class="mb-3">
+              <label>Link Ảnh:</label
+              ><input type="text" id="item-img" class="form-control" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-success"
+              onclick="saveMenuItem()"
+            >
+              Lưu Món
             </button>
           </div>
         </div>

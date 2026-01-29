@@ -1,16 +1,17 @@
 package com.s2o.backend_api.controller;
-import org.springframework.http.ResponseEntity;
-import com.s2o.backend_api.repository.RestaurantRepository;
+
 import com.s2o.backend_api.entity.MenuItem;
 import com.s2o.backend_api.repository.MenuItemRepository;
+import com.s2o.backend_api.repository.RestaurantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/guest/menu") // Đường dẫn chung
-@CrossOrigin(origins = "*")        // Quan trọng: Để HTML gọi được mà không bị chặn
+@RequestMapping("/api") // SỬA: Chỉ để /api
+@CrossOrigin(origins = "*")
 public class MenuController {
 
     @Autowired
@@ -19,35 +20,51 @@ public class MenuController {
     @Autowired
     private RestaurantRepository restaurantRepository;
 
-    // API: Lấy thực đơn của nhà hàng theo ID
-    // Link gọi: GET http://localhost:8080/api/guest/menu/restaurant/1
-    @GetMapping("/restaurant/{restaurantId}")
+    // --- GUEST API ---
+    // URL: http://localhost:8080/api/guest/menu/restaurant/1
+    @GetMapping("/guest/menu/restaurant/{restaurantId}")
     public List<MenuItem> getMenuByRestaurant(@PathVariable Long restaurantId) {
-        // Trả về danh sách phẳng (Flat List). 
-        // Việc gom nhóm (Category) đã được file menu.html xử lý bằng Javascript rồi.
         return menuItemRepository.findByRestaurantId(restaurantId);
     }
+
     // --- ADMIN API ---
 
-    // 1. Thêm món ăn vào nhà hàng
+    // 1. Lấy danh sách món của 1 nhà hàng (Để Admin xem và sửa)
+    // URL: http://localhost:8080/api/admin/menu/restaurant/1
+    @GetMapping("/admin/menu/restaurant/{restaurantId}")
+    public List<MenuItem> getAdminMenu(@PathVariable Long restaurantId) {
+        return menuItemRepository.findByRestaurantId(restaurantId);
+    }
+
+   // 2. Thêm món ăn
     @PostMapping("/admin/menu")
     public ResponseEntity<?> addMenuItem(@RequestBody MenuItem menuItem) {
+        // Kiểm tra xem ID nhà hàng có tồn tại trong cục JSON gửi lên không
         if (menuItem.getRestaurant() == null || menuItem.getRestaurant().getId() == null) {
-            return ResponseEntity.badRequest().body("Phải cung cấp ID nhà hàng");
+            return ResponseEntity.badRequest().body("Lỗi: Dữ liệu gửi lên thiếu ID nhà hàng (restaurant.id)");
         }
 
-        // Sửa đoạn này: Dùng if/else thay vì map().orElse() để tránh lỗi Type Inference
-        var restaurantOpt = restaurantRepository.findById(menuItem.getRestaurant().getId());
+        Long resId = menuItem.getRestaurant().getId();
+        var restaurantOpt = restaurantRepository.findById(resId);
         
         if (restaurantOpt.isPresent()) {
             menuItem.setRestaurant(restaurantOpt.get());
+            
+            // --- ĐẢM BẢO DỮ LIỆU CÁC CỘT KHÔNG BỊ NULL ---
+            if (menuItem.getIsAvailable() == null) menuItem.setIsAvailable(true);
+            if (menuItem.getName() == null) menuItem.setName("Món mới chưa đặt tên");
+            if (menuItem.getPrice() == null) menuItem.setPrice(0.0);
+            if (menuItem.getCategory() == null || menuItem.getCategory().isEmpty()) menuItem.setCategory("Khác");
+            if (menuItem.getDescription() == null) menuItem.setDescription("");
+            if (menuItem.getImageUrl() == null) menuItem.setImageUrl("");
+            // ----------------------------------------------
+
             return ResponseEntity.ok(menuItemRepository.save(menuItem));
         } else {
-            return ResponseEntity.badRequest().body("Nhà hàng không tồn tại");
+            return ResponseEntity.badRequest().body("Nhà hàng không tồn tại với ID: " + resId);
         }
     }
-
-    // 2. Xóa món ăn
+    // 3. Xóa món ăn
     @DeleteMapping("/admin/menu/{id}")
     public ResponseEntity<?> deleteMenuItem(@PathVariable Long id) {
         if (!menuItemRepository.existsById(id)) {
@@ -57,7 +74,7 @@ public class MenuController {
         return ResponseEntity.ok("Đã xóa món ăn!");
     }
     
-    // 3. Sửa món ăn (Giá, Tên...)
+    // 4. Sửa món ăn
     @PutMapping("/admin/menu/{id}")
     public ResponseEntity<?> updateMenuItem(@PathVariable Long id, @RequestBody MenuItem req) {
         return menuItemRepository.findById(id).map(item -> {
