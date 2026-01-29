@@ -42,8 +42,14 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
                 "/api/reviews/**", 
                 "/api/bookings/**",
                 "/api/bookings/create",
+                
+                // --- CÁC TRANG HTML ĐƯỢC PHÉP TRUY CẬP ---
                 "/landing.html", 
                 "/authcus.html", 
+                "/admin-login.html",
+                "/kitchen-auth.html",  // <--- THÊM DÒNG NÀY (Trang đăng nhập bếp)
+                "/kitchen.html",       // <--- THÊM DÒNG NÀY (Trang giao diện bếp)
+                
                 "/img/**", "/css/**", "/js/**"
             ).permitAll()
             // Nếu muốn kitchen public tạm thời để test (không khuyến khích lâu dài)

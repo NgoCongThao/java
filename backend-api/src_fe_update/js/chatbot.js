@@ -1,626 +1,527 @@
-/**
- * Chatbot đơn giản cho website S2O
- * Vanilla JS - Chạy hoàn toàn client-side
- */
+// chatbot.js - Chatbot cho website nhà hàng S2O
+// Senior Frontend Developer: Viết bằng Vanilla JS, sử dụng Fuse.js cho fuzzy search
+// Tất cả logic, UI, CSS đều nằm trong file này để dễ maintain
 
-// ================================
-// BIẾN DỮ LIỆU
-// ================================
+// ==================== 1. LOAD THƯ VIỆN & KHỞI TẠO ====================
+(function () {
+  // Load Fuse.js từ CDN nếu chưa có
+  if (!window.Fuse) {
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js";
+    script.onload = initChatbot;
+    script.onerror = () => console.error("Không tải được Fuse.js");
+    document.head.appendChild(script);
+  } else {
+    initChatbot();
+  }
 
-const DB_RESTAURANTS = [
-  {
-    id: 1,
-    name: "Cơm Tấm Cali - Nguyễn Huệ",
-    rating: 4.5,
-    address: "45 Nguyễn Huệ, P. Bến Nghé, Quận 1, TP.HCM",
-    time: "06:30 - 22:30",
-  },
-  {
-    id: 2,
-    name: "Phở Hùng - Nguyễn Trãi",
-    rating: 4.8,
-    address: "243 Nguyễn Trãi, P. Nguyễn Cư Trinh, Quận 1, TP.HCM",
-    time: "06:00 - 03:00",
-  },
-  {
-    id: 3,
-    name: "KOI Thé - Bitexco Tower",
-    image:
-      "https://images.unsplash.com/photo-1558350315-8aa00e8e4590?auto=format&fit=crop&w=800&q=80",
-    rating: 4.6,
-    category: "Trà sữa",
-    status: "active",
-    isOpen: true,
-    latitude: 10.771595,
-    longitude: 106.704384,
-    description: "Trà sữa Đài Loan cao cấp view đẹp",
-    address: "Tầng trệt Bitexco, 2 Hải Triều, Quận 1, TP.HCM",
-    time: "09:00 - 22:00",
-    totalTables: 15,
-  },
-  {
-    id: 4,
-    name: "Haidilao Hotpot - Vincom",
-    image:
-      "https://images.unsplash.com/photo-1549488344-c7052fb51c5b?auto=format&fit=crop&w=800&q=80",
-    rating: 5.0,
-    category: "Lẩu",
-    status: "active",
-    isOpen: true,
-    latitude: 10.778153,
-    longitude: 106.701724,
-    description: "Dịch vụ lẩu 5 sao, múa mì đặc sắc",
-    address: "Tầng B3, Vincom Center, 72 Lê Thánh Tôn, Quận 1, TP.HCM",
-    time: "10:00 - 02:00",
-    totalTables: 15,
-  },
-  {
-    id: 5,
-    name: "McDonald's Bưu Điện TP",
-    image:
-      "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80",
-    rating: 4.3,
-    category: "Gà rán",
-    status: "active",
-    isOpen: true,
-    latitude: 10.779836,
-    longitude: 106.699765,
-    description: "Burger và Gà rán chuẩn Mỹ ngay trung tâm",
-    address: "2 Công Xã Paris, P. Bến Nghé, Quận 1, TP.HCM",
-    time: "00:00 - 23:59",
-    totalTables: 15,
-  },
-  {
-    id: 6,
-    name: "Pizza 4P's - Chợ Bến Thành",
-    image:
-      "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=800&q=80",
-    rating: 4.9,
-    category: "Pizza",
-    status: "active",
-    isOpen: true,
-    latitude: 10.771912,
-    longitude: 106.697555,
-    description: "Pizza nướng củi phong cách Nhật-Ý",
-    address: "8 Thủ Khoa Huân, P. Bến Thành, Quận 1, TP.HCM",
-    time: "10:00 - 22:30",
-    totalTables: 15,
-  },
-  {
-    id: 7,
-    name: "Highlands Coffee - Hồ Con Rùa",
-    image:
-      "https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?auto=format&fit=crop&w=800&q=80",
-    rating: 4.2,
-    category: "Đồ uống",
-    status: "active",
-    isOpen: true,
-    latitude: 10.782729,
-    longitude: 106.695924,
-    description: "Cà phê phin sữa đá đậm chất Việt",
-    address: "1 Công Trường Quốc Tế, Phường 6, Quận 3, TP.HCM",
-    time: "07:00 - 23:00",
-    totalTables: 15,
-  },
-  {
-    id: 8,
-    name: "Bánh Mì Huỳnh Hoa",
-    image:
-      "https://images.unsplash.com/photo-1626509653295-802528373684?auto=format&fit=crop&w=800&q=80",
-    rating: 4.7,
-    category: "Cơm",
-    status: "active",
-    isOpen: false,
-    latitude: 10.7715,
-    longitude: 106.6942,
-    description: "Bánh mì đắt nhất Sài Gòn, full topping",
-    address: "26 Lê Thị Riêng, P. Phạm Ngũ Lão, Quận 1, TP.HCM",
-    time: "14:00 - 23:00",
-    totalTables: 15,
-  },
-  {
-    id: 9,
-    name: "Kichi Kichi - Cao Thắng",
-    image:
-      "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=800&q=80",
-    rating: 4.4,
-    category: "Lẩu",
-    status: "active",
-    isOpen: true,
-    latitude: 10.7686,
-    longitude: 106.6815,
-    description: "Lẩu băng chuyền tự chọn không giới hạn",
-    address: "84 Cao Thắng, Phường 4, Quận 3, TP.HCM",
-    time: "10:00 - 22:00",
-    totalTables: 15,
-  },
-  {
-    id: 10,
-    name: "Phúc Long - Ngô Đức Kế",
-    image:
-      "https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=800&q=80",
-    rating: 4.5,
-    category: "Đồ uống",
-    status: "active",
-    isOpen: true,
-    latitude: 10.7725,
-    longitude: 106.7038,
-    description: "Trà vải và trà đào huyền thoại",
-    address: "29 Ngô Đức Kế, P. Bến Nghé, Quận 1, TP.HCM",
-    time: "08:00 - 22:30",
-    totalTables: 15,
-  },
-  {
-    id: 11,
-    name: "Texas Chicken - Nguyễn Thái Học",
-    image:
-      "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80",
-    rating: 4.3,
-    category: "Gà rán",
-    status: "active",
-    isOpen: true,
-    latitude: 10.7668,
-    longitude: 106.6965,
-    description: "Gà rán tươi 100%, biscuit mật ong",
-    address: "115 Nguyễn Thái Học, P. Cầu Ông Lãnh, Quận 1, TP.HCM",
-    time: "10:00 - 22:00",
-    totalTables: 15,
-  },
-  {
-    id: 12,
-    name: "Manwah Taiwanese Hotpot",
-    image:
-      "https://images.unsplash.com/photo-1536304993881-ff00228b4db1?auto=format&fit=crop&w=800&q=80",
-    rating: 4.8,
-    category: "Lẩu",
-    status: "active",
-    isOpen: true,
-    latitude: 10.7765,
-    longitude: 106.7001,
-    description: "Lẩu Đài Loan hương vị cung đình",
-    address: "Tầng 1, 65 Lê Lợi, P. Bến Nghé, Quận 1, TP.HCM",
-    time: "10:00 - 22:00",
-    totalTables: 15,
-  },
-  {
-    id: 13,
-    name: "Gong Cha - Hồ Tùng Mậu",
-    image:
-      "https://images.unsplash.com/photo-1558855410-3112e474558d?auto=format&fit=crop&w=800&q=80",
-    rating: 4.4,
-    category: "Trà sữa",
-    status: "inactive",
-    isOpen: false,
-    latitude: 10.7712,
-    longitude: 106.7035,
-    description: "Trà sữa trân châu hoàng kim nổi tiếng",
-    address: "83 Hồ Tùng Mậu, P. Bến Nghé, Quận 1, TP.HCM",
-    time: "09:30 - 21:30",
-    totalTables: 15,
-  },
-  {
-    id: 14,
-    name: "Cơm Niêu Thiên Lý",
-    image:
-      "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=800&q=80",
-    rating: 4.5,
-    category: "Cơm",
-    status: "active",
-    isOpen: true,
-    latitude: 10.785,
-    longitude: 106.695,
-    description: "Cơm niêu cháy giòn, món ăn gia đình",
-    address: "16 Nguyễn Đình Chiểu, P. Đa Kao, Quận 1, TP.HCM",
-    time: "10:00 - 14:30 | 16:00 - 21:30",
-    totalTables: 15,
-  },
-  {
-    id: 15,
-    name: "Starbucks Reserve - Hàn Thuyên",
-    image:
-      "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80",
-    rating: 4.6,
-    category: "Đồ uống",
-    status: "active",
-    isOpen: true,
-    latitude: 10.7792,
-    longitude: 106.6985,
-    description: "Cà phê cao cấp ngay cạnh Nhà Thờ Đức Bà",
-    address: "11-13 Hàn Thuyên, P. Bến Nghé, Quận 1, TP.HCM",
-    time: "07:00 - 22:00",
-    totalTables: 15,
-  },
-];
+  function initChatbot() {
+    // Biến toàn cục
+    window.chatbotData = {
+      restaurants: [],
+      flatMenuItems: [],
+      restaurantSearchItems: [],
+      itemFuse: null,
+      restaurantFuse: null,
+      isWelcomed: false,
+    };
 
-// ================================
-// TIỆN ÍCH TIẾNG VIỆT
-// ================================
+    // Fetch dữ liệu từ 2 file JSON
+    Promise.all([
+      fetch("backend-api/src_fe_update/data/restaurants.json")
+        .then((r) => (r.ok ? r.json() : []))
+        .catch((err) => {
+          console.error("Lỗi tải restaurants.json:", err);
+          return [];
+        }),
+      fetch("backend-api/src_fe_update/data/menus.json")
+        .then((r) => (r.ok ? r.json() : []))
+        .catch((err) => {
+          console.error("Lỗi tải menus.json:", err);
+          return [];
+        }),
+    ]).then(([restaurants, menusData]) => {
+      chatbotData.restaurants = restaurants;
 
-function normalizeVietnamese(str) {
+      // Flatten dữ liệu menus (giả định cấu trúc menus.json là mảng các object {restaurant_id, categories: [{category_name, items: [...] }] })
+      chatbotData.flatMenuItems = [];
+      chatbotData.restaurantSearchItems = restaurants.map((r) => ({
+        ...r,
+        searchName: removeAccents(r.name.toLowerCase()),
+      }));
+
+      // Flatten menu items
+      menusData.forEach((menu) => {
+        const restaurant = restaurants.find((r) => r.id === menu.restaurant_id);
+        if (restaurant) {
+          menu.categories.forEach((category) => {
+            category.items.forEach((item) => {
+              chatbotData.flatMenuItems.push({
+                name: item.name,
+                searchName: removeAccents(item.name.toLowerCase()),
+                price: item.price || 0,
+                category: category.category_name,
+                restaurantName: restaurant.name,
+                restaurantRating: restaurant.rating || 0,
+                isBestSeller: !!item.best_seller,
+              });
+            });
+          });
+        }
+      });
+
+      // Khởi tạo Fuse.js
+      chatbotData.itemFuse = new Fuse(chatbotData.flatMenuItems, {
+        keys: ["searchName"],
+        threshold: 0.3, // Cho phép sai chính tả nhẹ & không dấu
+        includeScore: true,
+      });
+
+      chatbotData.restaurantFuse = new Fuse(chatbotData.restaurantSearchItems, {
+        keys: ["searchName"],
+        threshold: 0.3,
+        includeScore: true,
+      });
+
+      // Tạo UI sau khi có dữ liệu
+      createChatbotUI();
+    });
+  }
+})();
+
+// ==================== 2. HÀM HỖ TRỢ ====================
+// Loại bỏ dấu tiếng Việt
+function removeAccents(str) {
   if (!str) return "";
   return str
-    .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/đ/g, "d")
-    .replace(/Đ/g, "d");
+    .replace(/Đ/g, "D");
 }
 
-// ================================
-// LOGIC CHATBOT
-// ================================
-
-function getSmartReply(userMessage) {
-  const normalizedMsg = normalizeVietnamese(userMessage);
-
-  // 1. Chào hỏi
-  if (
-    normalizedMsg.includes("xin chao") ||
-    normalizedMsg.includes("hello") ||
-    normalizedMsg.includes("hi") ||
-    normalizedMsg.includes("chao")
-  ) {
-    return {
-      type: "text",
-      content: "Xin chào! 👋 Tôi là trợ lý ảo S2O. Tôi có thể giúp gì cho bạn?",
-    };
-  }
-
-  // 2. Đặt bàn
-  if (
-    normalizedMsg.includes("dat ban") ||
-    normalizedMsg.includes("book") ||
-    normalizedMsg.includes("dat cho")
-  ) {
-    return {
-      type: "text",
-      content:
-        'Để đặt bàn, vui lòng:\n1. Chọn nhà hàng\n2. Click nút "ĐẶT BÀN"\n3. Điền thông tin\n4. Xác nhận\nHoặc gọi 1900 1234',
-    };
-  }
-
-  // 3. Hỗ trợ
-  if (
-    normalizedMsg.includes("ho tro") ||
-    normalizedMsg.includes("hotline") ||
-    normalizedMsg.includes("so dien thoai") ||
-    normalizedMsg.includes("sdt")
-  ) {
-    return {
-      type: "text",
-      content:
-        "📞 Hotline hỗ trợ: 1900 1234\nEmail: support@s2o.vn\nGiờ làm việc: 8:00 - 22:00",
-    };
-  }
-
-  // 4. Quán ngon
-  if (
-    normalizedMsg.includes("quan nao ngon") ||
-    normalizedMsg.includes("review") ||
-    normalizedMsg.includes("danh gia")
-  ) {
-    const topRestaurants = DB_RESTAURANTS.filter((r) => r.rating >= 4.5);
-    let reply = "🍽️ **Nhà hàng đánh giá cao:**\n\n";
-    topRestaurants.forEach((r, i) => {
-      reply += `${i + 1}. ${r.name} ⭐ ${r.rating}\n📍 ${r.address}\n\n`;
-    });
-    return { type: "text", content: reply };
-  }
-
-  // 5. Tìm món ăn
-  if (
-    normalizedMsg.includes("com") ||
-    normalizedMsg.includes("pho") ||
-    normalizedMsg.includes("banh mi") ||
-    normalizedMsg.includes("tra sua")
-  ) {
-    return {
-      type: "text",
-      content:
-        'Tôi có thể giúp bạn tìm món ăn. Hãy hỏi cụ thể hơn như:\n"Giá cơm tấm bao nhiêu?"\nhoặc\n"Có món phở nào ngon?"',
-    };
-  }
-
-  // 6. Mặc định
-  return {
-    type: "text",
-    content:
-      "Tôi có thể giúp bạn:\n• Tìm nhà hàng\n• Đặt bàn\n• Tư vấn món ăn\n• Hỗ trợ đặt hàng\nHãy hỏi tôi nhé!",
-  };
+// Format giá tiền VND
+function formatPrice(price) {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(price);
 }
 
-// ================================
-// GIAO DIỆN ĐƠN GIẢN
-// ================================
+// ==================== 3. TẠO UI & CSS ====================
+function createChatbotUI() {
+  // Inject CSS
+  const style = document.createElement("style");
+  style.textContent = `
+    /* Chatbot Styles - Giống Facebook Messenger */
+    #s2o-chatbot-container { font-family: Arial, sans-serif; }
+    #s2o-floating-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background: #007bff;
+      border-radius: 50%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: transform 0.2s;
+    }
+    #s2o-floating-button:hover { transform: scale(1.1); }
+    #s2o-floating-button img { width: 32px; height: 32px; }
 
-class SimpleChatbot {
-  constructor() {
-    this.isOpen = false;
-    this.messages = [];
-    this.init();
-  }
+    #s2o-chat-window {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 380px;
+      max-width: 90vw;
+      height: 560px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+      overflow: hidden;
+    }
+    #s2o-chat-header {
+      background: #007bff;
+      color: white;
+      padding: 15px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #s2o-chat-header .close-btn { cursor: pointer; font-size: 24px; }
 
-  init() {
-    this.createHTML();
-    this.bindEvents();
-    this.addMessage(
-      "Xin chào! Tôi là trợ lý S2O. Tôi có thể giúp gì cho bạn?",
-      "bot",
-    );
-  }
+    #s2o-messages {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      background: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .message { display: flex; align-items: flex-start; max-width: 80%; }
+    .message.bot { align-self: flex-start; }
+    .message.user { align-self: flex-end; flex-direction: row-reverse; }
+    .message .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin: 0 8px;
+    }
+    .bubble {
+      padding: 10px 15px;
+      border-radius: 18px;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+    .bot-bubble {
+      background: #e9ecef;
+      border-bottom-left-radius: 4px;
+    }
+    .user-bubble {
+      background: #007bff;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .typing .bubble {
+      background: #e9ecef;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .typing span {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #999;
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-8px); }
+    }
 
-  createHTML() {
-    // Tạo container
-    const container = document.createElement("div");
-    container.id = "s2o-chatbot";
-    container.innerHTML = `
-      <style>
-        /* Chatbot Styles */
-        #s2o-chatbot {
-          position: fixed;
-          bottom: 20px;
-          right: 20px;
-          z-index: 10000;
-          font-family: Arial, sans-serif;
-        }
-        
-        .chatbot-toggle {
-          width: 60px;
-          height: 60px;
-          border-radius: 50%;
-          background: #ff4757;
-          border: none;
-          color: white;
-          font-size: 24px;
-          cursor: pointer;
-          box-shadow: 0 4px 12px rgba(255, 71, 87, 0.4);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.3s;
-        }
-        
-        .chatbot-toggle:hover {
-          transform: scale(1.1);
-          background: #ff3838;
-        }
-        
-        .chatbot-window {
-          position: absolute;
-          bottom: 70px;
-          right: 0;
-          width: 320px;
-          height: 400px;
-          background: white;
-          border-radius: 12px;
-          box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-          display: none;
-          flex-direction: column;
-          overflow: hidden;
-        }
-        
-        .chatbot-window.open {
-          display: flex;
-        }
-        
-        .chatbot-header {
-          background: #ff4757;
-          color: white;
-          padding: 15px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-        
-        .chatbot-title {
-          font-weight: bold;
-          font-size: 16px;
-        }
-        
-        .chatbot-close {
-          background: none;
-          border: none;
-          color: white;
-          font-size: 20px;
-          cursor: pointer;
-          padding: 0;
-        }
-        
-        .chatbot-messages {
-          flex: 1;
-          padding: 15px;
-          overflow-y: auto;
-          background: #f8f9fa;
-        }
-        
-        .message {
-          margin-bottom: 10px;
-          padding: 10px 15px;
-          border-radius: 18px;
-          max-width: 85%;
-          word-wrap: break-word;
-          font-size: 14px;
-          line-height: 1.4;
-        }
-        
-        .message-bot {
-          background: white;
-          align-self: flex-start;
-          border-bottom-left-radius: 5px;
-        }
-        
-        .message-user {
-          background: #3498db;
-          color: white;
-          margin-left: auto;
-          border-bottom-right-radius: 5px;
-        }
-        
-        .chatbot-input-area {
-          display: flex;
-          padding: 10px;
-          border-top: 1px solid #eee;
-          background: white;
-        }
-        
-        .chatbot-input {
-          flex: 1;
-          padding: 10px 15px;
-          border: 1px solid #ddd;
-          border-radius: 20px;
-          font-size: 14px;
-          outline: none;
-        }
-        
-        .chatbot-input:focus {
-          border-color: #3498db;
-        }
-        
-        .chatbot-send {
-          margin-left: 10px;
-          padding: 10px 15px;
-          background: #ff4757;
-          color: white;
-          border: none;
-          border-radius: 20px;
-          cursor: pointer;
-        }
-      </style>
-      
-      <button class="chatbot-toggle">💬</button>
-      
-      <div class="chatbot-window">
-        <div class="chatbot-header">
-          <div class="chatbot-title">Trợ lý S2O</div>
-          <button class="chatbot-close">×</button>
-        </div>
-        
-        <div class="chatbot-messages" id="chatbot-messages">
-          <!-- Messages appear here -->
-        </div>
-        
-        <div class="chatbot-input-area">
-          <input type="text" class="chatbot-input" placeholder="Nhập câu hỏi..." id="chatbot-input">
-          <button class="chatbot-send" id="chatbot-send">Gửi</button>
-        </div>
+    #s2o-input-area {
+      padding: 12px;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #s2o-input-wrapper {
+      display: flex;
+      gap: 8px;
+    }
+    #s2o-chat-input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 24px;
+      outline: none;
+    }
+    #s2o-send-btn {
+      background: #007bff;
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    /* Quick Chips - Gợi ý nhanh */
+    #s2o-quick-chips {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 8px 0;
+      scrollbar-width: none;
+    }
+    #s2o-quick-chips::-webkit-scrollbar { display: none; }
+    .chip {
+      background: #e3f2fd;
+      color: #1976d2;
+      padding: 10px 16px;
+      border-radius: 24px;
+      white-space: nowrap;
+      cursor: pointer;
+      font-size: 14px;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .chip:hover {
+      background: #bbdefb;
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Tạo floating button
+  const floatingBtn = document.createElement("div");
+  floatingBtn.id = "s2o-floating-button";
+  floatingBtn.innerHTML = `<img src="https://img.icons8.com/fluency/48/chat.png" alt="Chat">`;
+  floatingBtn.onclick = openChat;
+  document.body.appendChild(floatingBtn);
+
+  // Tạo chat window
+  const chatWindow = document.createElement("div");
+  chatWindow.id = "s2o-chat-window";
+  chatWindow.innerHTML = `
+    <div id="s2o-chat-header">
+      <span>Chat với S2O</span>
+      <span class="close-btn">&times;</span>
+    </div>
+    <div id="s2o-messages"></div>
+    <div id="s2o-input-area">
+      <div id="s2o-quick-chips"></div>
+      <div id="s2o-input-wrapper">
+        <input type="text" id="s2o-chat-input" placeholder="Nhập tin nhắn..." autocomplete="off">
+        <button id="s2o-send-btn">➤</button>
       </div>
-    `;
+    </div>
+  `;
+  document.body.appendChild(chatWindow);
 
-    document.body.appendChild(container);
-  }
+  // Cache elements
+  const messagesContainer = chatWindow.querySelector("#s2o-messages");
+  const input = chatWindow.querySelector("#s2o-chat-input");
+  const sendBtn = chatWindow.querySelector("#s2o-send-btn");
+  const quickChipsDiv = chatWindow.querySelector("#s2o-quick-chips");
+  const closeBtn = chatWindow.querySelector(".close-btn");
 
-  bindEvents() {
-    // Toggle button
-    document
-      .querySelector("#s2o-chatbot .chatbot-toggle")
-      .addEventListener("click", () => {
-        this.toggleChat();
-      });
+  // Quick suggestions
+  const quickSuggestions = [
+    "🔥 Món Best Seller",
+    "📍 Địa chỉ các quán",
+    "💰 Giá buffet",
+    "📝 Cách đặt bàn",
+  ];
 
-    // Close button
-    document
-      .querySelector("#s2o-chatbot .chatbot-close")
-      .addEventListener("click", () => {
-        this.closeChat();
-      });
+  // Event listeners
+  closeBtn.onclick = closeChat;
+  sendBtn.onclick = () => sendUserMessage(input.value.trim());
+  input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendUserMessage(input.value.trim());
+  });
 
-    // Send button
-    document
-      .querySelector("#s2o-chatbot .chatbot-send")
-      .addEventListener("click", () => {
-        this.sendMessage();
-      });
+  // Hàm mở/đóng chat
+  function openChat() {
+    chatWindow.style.display = "flex";
+    floatingBtn.style.display = "none";
+    input.focus();
 
-    // Enter key
-    document
-      .querySelector("#s2o-chatbot .chatbot-input")
-      .addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-          this.sendMessage();
-        }
-      });
-  }
-
-  toggleChat() {
-    const window = document.querySelector("#s2o-chatbot .chatbot-window");
-    this.isOpen = !this.isOpen;
-
-    if (this.isOpen) {
-      window.classList.add("open");
-      document.querySelector("#s2o-chatbot .chatbot-input").focus();
-    } else {
-      window.classList.remove("open");
+    // Welcome lần đầu
+    if (!chatbotData.isWelcomed) {
+      chatbotData.isWelcomed = true;
+      setTimeout(() => {
+        showTyping();
+        setTimeout(() => {
+          hideTyping();
+          addBotMessage(
+            "Chào bạn! 👋 Mình là trợ lý ảo của S2O. Bạn cần hỗ trợ gì hôm nay ạ?",
+          );
+          showQuickChips();
+          scrollToBottom();
+        }, 800);
+      }, 300);
     }
   }
 
-  closeChat() {
-    this.isOpen = false;
-    document
-      .querySelector("#s2o-chatbot .chatbot-window")
-      .classList.remove("open");
+  function closeChat() {
+    chatWindow.style.display = "none";
+    floatingBtn.style.display = "flex";
   }
 
-  sendMessage() {
-    const input = document.querySelector("#s2o-chatbot .chatbot-input");
-    const message = input.value.trim();
-
-    if (!message) return;
-
-    // Thêm tin nhắn user
-    this.addMessage(message, "user");
-    input.value = "";
-
-    // Xử lý và trả lời
-    setTimeout(() => {
-      const reply = getSmartReply(message);
-      this.addMessage(reply.content, "bot");
-    }, 500);
-  }
-
-  addMessage(content, sender) {
-    const messagesContainer = document.querySelector(
-      "#s2o-chatbot .chatbot-messages",
-    );
-
-    const messageDiv = document.createElement("div");
-    messageDiv.className = `message message-${sender}`;
-    messageDiv.textContent = content;
-
-    messagesContainer.appendChild(messageDiv);
-
-    // Scroll xuống cuối
+  // Scroll xuống cuối
+  function scrollToBottom() {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-    // Lưu vào history
-    this.messages.push({ content, sender, time: new Date() });
   }
-}
 
-// ================================
-// KHỞI TẠO
-// ================================
+  // Hiển thị typing indicator
+  function showTyping() {
+    const typingDiv = document.createElement("div");
+    typingDiv.className = "message bot typing";
+    typingDiv.id = "typing-indicator";
+    typingDiv.innerHTML = `
+      <img src="https://via.placeholder.com/40?text=B" class="avatar">
+      <div class="bubble">Bot đang soạn tin...<span></span><span></span><span></span></div>
+    `;
+    messagesContainer.appendChild(typingDiv);
+    scrollToBottom();
+  }
 
-// Chờ trang load xong
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initChatbot);
-} else {
-  initChatbot();
-}
+  function hideTyping() {
+    const typing = document.getElementById("typing-indicator");
+    if (typing) typing.remove();
+  }
 
-function initChatbot() {
-  console.log("Initializing S2O Chatbot...");
+  // Thêm tin nhắn
+  function addBotMessage(text) {
+    const msg = document.createElement("div");
+    msg.className = "message bot";
+    msg.innerHTML = `
+      <img src="https://via.placeholder.com/40?text=B" class="avatar">
+      <div class="bubble bot-bubble">${text.replace(/\n/g, "<br>")}</div>
+    `;
+    messagesContainer.appendChild(msg);
+  }
 
-  // Tạo chatbot
-  window.s2oChatbot = new SimpleChatbot();
+  function addUserMessage(text) {
+    const msg = document.createElement("div");
+    msg.className = "message user";
+    msg.innerHTML = `
+      <img src="https://via.placeholder.com/40?text=U" class="avatar">
+      <div class="bubble user-bubble">${text.replace(/\n/g, "<br>")}</div>
+    `;
+    messagesContainer.appendChild(msg);
+    input.value = "";
+  }
 
-  // Thông báo console
-  console.log("✅ S2O Chatbot đã sẵn sàng!");
-  console.log("👉 Click vào nút 💬 ở góc dưới bên phải để mở chatbot");
+  // Quick chips
+  function showQuickChips() {
+    quickChipsDiv.innerHTML = "";
+    quickSuggestions.forEach((text) => {
+      const chip = document.createElement("div");
+      chip.className = "chip";
+      chip.textContent = text;
+      chip.onclick = () => {
+        sendUserMessage(text);
+        quickChipsDiv.style.display = "none"; // Ẩn sau khi dùng
+      };
+      quickChipsDiv.appendChild(chip);
+    });
+    quickChipsDiv.style.display = "flex";
+  }
 
-  // Hiển thị thông báo sau 3 giây
-  setTimeout(() => {
-    console.log(
-      '💡 Gợi ý: Hãy hỏi "Xin chào", "Quán nào ngon?", "Cách đặt bàn?"',
+  // Gửi tin nhắn người dùng & xử lý phản hồi
+  function sendUserMessage(text) {
+    if (!text) return;
+    addUserMessage(text);
+    quickChipsDiv.style.display = "none"; // Ẩn quick chips sau tin nhắn đầu
+    scrollToBottom();
+    showTyping();
+
+    setTimeout(
+      () => {
+        const reply = getBotReply(text);
+        hideTyping();
+        addBotMessage(reply);
+        scrollToBottom();
+      },
+      600 + Math.random() * 600,
     );
-  }, 3000);
+  }
+
+  // ==================== 4. LOGIC TRẢ LỜI BOT ====================
+  function getBotReply(message) {
+    const normalized = removeAccents(message.toLowerCase().trim());
+
+    // Các câu hỏi quick chips - xử lý chính xác
+    if (message === "🔥 Món Best Seller") {
+      const bestSellers = chatbotData.flatMenuItems.filter(
+        (i) => i.isBestSeller,
+      );
+      if (bestSellers.length === 0)
+        return "Hiện chưa có thông tin món best seller nổi bật ạ.";
+      let reply = "🔥 Các món Best Seller:\n\n";
+      bestSellers.forEach((item) => {
+        reply += `• ${item.name} tại ${item.restaurantName}\n  Giá: ${formatPrice(item.price)}\n\n`;
+      });
+      return reply.trim();
+    }
+
+    if (message === "📍 Địa chỉ các quán") {
+      if (chatbotData.restaurants.length === 0)
+        return "Chưa tải được danh sách quán.";
+      let reply = "📍 Danh sách các quán S2O:\n\n";
+      chatbotData.restaurants.forEach((r) => {
+        reply += `• ${r.name}\n  Địa chỉ: ${r.address}\n  Giờ mở: ${r.opening_hours}\n\n`;
+      });
+      return reply.trim();
+    }
+
+    if (message === "💰 Giá buffet") {
+      return "💰 Giá buffet hiện tại:\n• Người lớn: 399.000 VND\n• Trẻ em (1m-1.4m): 199.000 VND\n• Bao gồm lẩu + đồ ăn kèm đa dạng";
+    }
+
+    if (message === "📝 Cách đặt bàn") {
+      return "📝 Cách đặt bàn:\n• Đặt trực tuyến qua website S2O\n• Gọi hotline: 1800-XXXXXXX\n• Qua ứng dụng di động\nChúng tôi khuyến khích đặt trước để giữ chỗ!";
+    }
+
+    // Chào hỏi
+    if (/chào|hi|hello|xin chào|hế lô/.test(normalized)) {
+      const greetings = [
+        "Chào bạn! 😊 Rất vui được hỗ trợ!",
+        "Xin chào! 👋 Hôm nay bạn muốn tìm món gì ngon?",
+        "Hi bạn! Có thể giúp gì cho bạn không ạ?",
+      ];
+      return greetings[Math.floor(Math.random() * greetings.length)];
+    }
+
+    // Gợi ý quán ngon
+    if (
+      normalized.includes("ngon") ||
+      normalized.includes("tốt") ||
+      normalized.includes("review") ||
+      normalized.includes("đánh giá")
+    ) {
+      const goodOnes = chatbotData.restaurants.filter((r) => r.rating >= 4.5);
+      if (goodOnes.length === 0)
+        return "Tất cả các quán S2O đều được khách yêu thích lắm ạ! 😄";
+      goodOnes.sort((a, b) => b.rating - a.rating);
+      let reply = "🌟 Các quán được đánh giá cao:\n\n";
+      goodOnes.forEach((r) => {
+        reply += `• ${r.name} - ${r.rating}⭐\n  ${r.address}\n\n`;
+      });
+      return reply.trim();
+    }
+
+    // Tìm tên quán (ưu tiên)
+    const restaurantResults = chatbotData.restaurantFuse.search(normalized);
+    if (restaurantResults.length > 0 && restaurantResults[0].score < 0.4) {
+      const r = restaurantResults[0].item;
+      return `🏠 ${r.name}\n📍 Địa chỉ: ${r.address}\n🕒 Giờ mở cửa: ${r.opening_hours}\n⭐ Đánh giá: ${r.rating}`;
+    }
+
+    // Tìm món ăn
+    const itemResults = chatbotData.itemFuse.search(normalized);
+    if (itemResults.length > 0) {
+      // Lấy top 10 match tốt nhất, sau đó ưu tiên quán rating cao
+      let candidates = itemResults.slice(0, 10);
+      candidates.sort((a, b) => {
+        if (b.item.restaurantRating !== a.item.restaurantRating) {
+          return b.item.restaurantRating - a.item.restaurantRating;
+        }
+        return a.score - b.score;
+      });
+
+      const top3 = candidates.slice(0, 3);
+      let reply = `🍜 Tìm thấy một số món liên quan đến "${message}":\n\n`;
+      top3.forEach((res) => {
+        const i = res.item;
+        reply += `• ${i.name} (${i.category})\n  Tại: ${i.restaurantName}\n  Giá: ${formatPrice(i.price)}\n\n`;
+      });
+      reply += "Bạn muốn biết thêm về món nào không ạ? 😊";
+      return reply.trim();
+    }
+
+    // Không hiểu
+    return "Xin lỗi bạn, mình chưa hiểu rõ câu hỏi 😅\nBạn có thể hỏi về món ăn, địa chỉ quán, giá buffet hoặc cách đặt bàn nhé!";
+  }
+
+  // Expose để có thể mở từ ngoài nếu cần
+  window.openS2OChat = openChat;
 }
