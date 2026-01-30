@@ -18,6 +18,7 @@ public class RestaurantController {
 
     // --- GUEST API ---
     // URL: http://localhost:8080/api/guest/restaurants
+    // Lấy danh sách tất cả nhà hàng 
     @GetMapping("/guest/restaurants")
     public List<Restaurant> getAllRestaurants() {
         return restaurantRepository.findAll();

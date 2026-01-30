@@ -1238,7 +1238,8 @@
             username: phone, // Sử dụng số điện thoại làm username
             password: password,
           };
-
+          // Giá trị API_BASE_URL được định nghĩa ở dòng 2 là http://localhost:8080/api/auth) -> URL cuối cùng là: POST /api/auth/login
+          // controller AuthController.java -> method authenticateUser() sẽ hứng yêu cầu này
           try {
             const response = await fetch(`${API_BASE_URL}/login`, {
               method: "POST",
@@ -1323,6 +1324,7 @@
           btn.disabled = true;
 
           try {
+            // Nó kiểm tra độ mạnh mật khẩu (hàm validateStrongPassword), kiểm tra trùng khớp mật khẩu.
             const res = await fetch(`${API_BASE_URL}/register`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },

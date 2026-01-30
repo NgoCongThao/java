@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
-    // Không cần thêm method nào ở đây (chỉ dùng findById mặc định của JpaRepository)
+    // Không cần thêm method nào ở đây (chỉ dùng findById mặc định của JpaRepository) 
 }

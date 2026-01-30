@@ -879,6 +879,7 @@
 
         try {
           // A. Lấy thông tin nhà hàng
+          // RestaurantController (API /api/guest/restaurants) -> RestaurantRepository.findAll().
           const resRest = await fetch(
             `http://localhost:8080/api/guest/restaurants`,
           );
@@ -903,6 +904,7 @@
           }
 
           // B. Lấy Menu
+          //MenuController (API /api/guest/menu/restaurant/{id}) -> MenuRepository (tìm món ăn theo ID nhà hàng).
           const resMenu = await fetch(
             `http://localhost:8080/api/guest/menu/restaurant/${REST_ID}`,
           );
@@ -1041,6 +1043,9 @@
         list.innerHTML =
           '<div class="text-center text-muted py-3"><div class="spinner-border spinner-border-sm"></div> Đang tải...</div>';
         try {
+          // : Người dùng bấm vào một món ăn, cửa sổ chi tiết hiện lên, phần đánh giá (Review) được tải.
+          //Luồng xử lý backend Controller: ReviewController (API /api/reviews/{itemId}).
+          // Repository: ReviewRepository (Lấy danh sách đánh giá của món ăn đó).
           const res = await fetch(
             `http://localhost:8080/api/reviews/${currentItem.id}`,
           );
