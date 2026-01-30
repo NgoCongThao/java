@@ -150,7 +150,7 @@ async function sendMessage() {
     const urlParams = new URLSearchParams(window.location.search);
     const resId = urlParams.get("id");
 
-    const res = await fetch("/api/chat/ask", {
+    const res = await fetch("http://localhost:8080/api/chat/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: msg, restaurantId: resId }),

@@ -459,9 +459,12 @@
       // --- HÀM MỚI: LẤY THỐNG KÊ & HẠNG ---
       async function fetchUserStats() {
         try {
-          const res = await fetch(`/api/stats/user/${currentUser.id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const res = await fetch(
+            `http://localhost:8080/api/stats/user/${currentUser.id}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
+          );
 
           if (res.ok) {
             const data = await res.json();
@@ -514,14 +517,17 @@
         if (!newAddr) return alert("Vui lòng nhập địa chỉ!");
 
         try {
-          const res = await fetch(`/api/users/${currentUser.id}/address`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
+          const res = await fetch(
+            `http://localhost:8080/api/users/${currentUser.id}/address`,
+            {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ address: newAddr }),
             },
-            body: JSON.stringify({ address: newAddr }),
-          });
+          );
 
           if (res.ok) {
             alert("Cập nhật địa chỉ thành công!");
@@ -552,18 +558,21 @@
         if (!oldPass || !newPass) return alert("Vui lòng nhập đủ thông tin!");
 
         try {
-          const res = await fetch(`/api/auth/change-password`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
+          const res = await fetch(
+            `http://localhost:8080/api/auth/change-password`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                userId: currentUser.id,
+                oldPassword: oldPass,
+                newPassword: newPass,
+              }),
             },
-            body: JSON.stringify({
-              userId: currentUser.id,
-              oldPassword: oldPass,
-              newPassword: newPass,
-            }),
-          });
+          );
 
           if (res.ok) {
             alert("Đổi mật khẩu thành công! Vui lòng đăng nhập lại.");
