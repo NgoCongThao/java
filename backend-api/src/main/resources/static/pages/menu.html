@@ -880,9 +880,7 @@
         try {
           // A. Lấy thông tin nhà hàng
           // RestaurantController (API /api/guest/restaurants) -> RestaurantRepository.findAll().
-          const resRest = await fetch(
-            `http://localhost:8080/api/guest/restaurants`,
-          );
+          const resRest = await fetch(`/api/guest/restaurants`);
           const restaurants = await resRest.json();
           const info = restaurants.find((r) => r.id == REST_ID);
 
@@ -905,9 +903,7 @@
 
           // B. Lấy Menu
           //MenuController (API /api/guest/menu/restaurant/{id}) -> MenuRepository (tìm món ăn theo ID nhà hàng).
-          const resMenu = await fetch(
-            `http://localhost:8080/api/guest/menu/restaurant/${REST_ID}`,
-          );
+          const resMenu = await fetch(`/api/guest/menu/restaurant/${REST_ID}`);
           const flatItems = await resMenu.json();
 
           if (flatItems && flatItems.length > 0) {
@@ -1046,9 +1042,7 @@
           // : Người dùng bấm vào một món ăn, cửa sổ chi tiết hiện lên, phần đánh giá (Review) được tải.
           //Luồng xử lý backend Controller: ReviewController (API /api/reviews/{itemId}).
           // Repository: ReviewRepository (Lấy danh sách đánh giá của món ăn đó).
-          const res = await fetch(
-            `http://localhost:8080/api/reviews/${currentItem.id}`,
-          );
+          const res = await fetch(`/api/reviews/${currentItem.id}`);
           if (!res.ok) throw new Error("Lỗi tải review");
           const reviews = await res.json();
 
@@ -1098,7 +1092,7 @@
         }
 
         try {
-          const res = await fetch(`http://localhost:8080/api/reviews/add`, {
+          const res = await fetch(`/api/reviews/add`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -1258,7 +1252,7 @@
             })),
           };
 
-          const res = await fetch(`http://localhost:8080/api/orders/create`, {
+          const res = await fetch(`/api/orders/create`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -1363,7 +1357,7 @@
         try {
           // Gọi API thực tế từ Backend
           const res = await fetch(
-            `http://localhost:8080/api/bookings/table-status?restaurantId=${REST_ID}&date=${date}&time=${time}`,
+            `/api/bookings/table-status?restaurantId=${REST_ID}&date=${date}&time=${time}`,
           );
 
           if (!res.ok) {
@@ -1481,7 +1475,7 @@
             headers["Authorization"] = `Bearer ${token}`;
           }
 
-          const res = await fetch("http://localhost:8080/api/bookings/create", {
+          const res = await fetch("/api/bookings/create", {
             method: "POST",
             headers: headers,
             body: JSON.stringify(bookingPayload),

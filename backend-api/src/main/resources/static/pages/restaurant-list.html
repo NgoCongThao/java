@@ -449,9 +449,7 @@
       const loadData = async () => {
         try {
           // --- SỬA ĐỔI: Gọi API từ Java Backend (Cổng 8080) ---
-          const res = await fetch(
-            "http://localhost:8080/api/guest/restaurants",
-          );
+          const res = await fetch("/api/guest/restaurants");
           if (!res.ok) throw new Error("Lỗi kết nối API Backend");
           state.restaurants = await res.json();
 
