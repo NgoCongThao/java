@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Đăng nhập Quản Trị Viên</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #2c3e50;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .login-card {
+        width: 400px;
+        padding: 40px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+      .login-title {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #333;
+        font-weight: bold;
+      }
+      .btn-login {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        background: #e74c3c;
+        border: none;
+      }
+      .btn-login:hover {
+        background: #c0392b;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-card">
+      <h3 class="login-title">S2O ADMIN PORTAL</h3>
+      <form id="loginForm">
+        <div class="mb-3">
+          <label class="form-label">Tài khoản</label>
+          <input
+            type="text"
+            class="form-control"
+            id="username"
+            placeholder="Nhập username admin..."
+            required
+          />
+        </div>
+        <div class="mb-4">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" class="form-control" id="password" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-login">
+          Đăng Nhập
+        </button>
+        <div
+          id="error-msg"
+          class="text-danger mt-3 text-center"
+          style="display: none"
+        ></div>
+      </form>
+    </div>
+
+    <script>
+      const API_BASE = "http://localhost:8080/api/auth";
+
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const username = document.getElementById("username").value;
+          const password = document.getElementById("password").value;
+          const errorMsg = document.getElementById("error-msg");
+
+          try {
+            // 1. Gọi API đăng nhập (Dùng chung với khách hàng)
+            const res = await fetch(`${API_BASE}/login`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ username, password }),
+            });
+
+            if (res.ok) {
+              const data = await res.json();
+
+              // 2. GIẢI MÃ TOKEN ĐỂ KIỂM TRA ROLE
+              // (Token có dạng: header.payload.signature - ta lấy phần giữa)
+              const payload = JSON.parse(atob(data.token.split(".")[1]));
+
+              // 3. LOGIC QUAN TRỌNG: CHỈ CHO ADMIN VÀO
+              if (payload.role === "ADMIN") {
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("user", JSON.stringify(data));
+                window.location.href = "admin.html"; // Chuyển hướng vào trang Admin
+              } else {
+                // Nếu là User thường hoặc Bếp -> Chặn lại
+                errorMsg.innerText =
+                  "Lỗi: Tài khoản này không có quyền truy cập Admin!";
+                errorMsg.style.display = "block";
+                // Tùy chọn: Xóa token vừa nhận được để đảm bảo an toàn
+                // localStorage.removeItem("token");
+              }
+            } else {
+              errorMsg.innerText = "Sai tên đăng nhập hoặc mật khẩu!";
+              errorMsg.style.display = "block";
+            }
+          } catch (err) {
+            console.error(err);
+            errorMsg.innerText = "Không thể kết nối đến Server!";
+            errorMsg.style.display = "block";
+          }
+        });
+    </script>
+  </body>
+</html>
