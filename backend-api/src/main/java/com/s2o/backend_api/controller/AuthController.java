@@ -12,7 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication; // Thêm dòng này
 import org.springframework.security.core.userdetails.UserDetails; // Thêm dòng này
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -24,7 +24,8 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     @Autowired
     private JwtUtils jwtUtils;
 
@@ -41,7 +42,8 @@ public class AuthController {
 
         User user = new User();
         user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword()); // Pass chưa mã hóa (NoOp)
+
+        user.setPassword(passwordEncoder.encode(request.getPassword()));// Pass chưa mã hóa (NoOp)
         user.setFullName(request.getFullName());
         user.setPhone(request.getPhone());
         

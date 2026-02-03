@@ -1,229 +1,239 @@
 <!doctype html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard Bếp</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css"
-    />
-    <style>
-      body {
-        background: #f8f9fa;
-        padding-bottom: 80px;
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Màn Hình Bếp (KDS)</title>
+  <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+  />
+  <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css"
+  />
+  <style>
+    body {
+      background-color: #212529; /* Nền tối cho đỡ mỏi mắt */
+      color: #fff;
+      padding-bottom: 50px;
+    }
+    .header {
+      background: #d35400; /* Màu cam đặc trưng của bếp */
+      padding: 15px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    .kitchen-card {
+      background: #fff;
+      color: #000;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      overflow: hidden;
+      border-left: 8px solid #f1c40f; /* Màu vàng: Đang chờ */
+      animation: slideIn 0.3s ease-out;
+    }
+    .kitchen-card.urgent {
+      border-left-color: #e74c3c; /* Màu đỏ: Khách đợi lâu quá rồi */
+    }
+    .card-header-custom {
+      background: #ecf0f1;
+      padding: 10px 15px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-body-custom {
+      padding: 15px;
+    }
+    .dish-name {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #2c3e50;
+    }
+    .dish-note {
+      background: #fff3cd;
+      color: #856404;
+      padding: 8px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-style: italic;
+      border: 1px dashed #ffeeba;
+    }
+    .btn-done {
+      width: 100%;
+      font-size: 1.2rem;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 0 0 12px 12px;
+    }
+    @keyframes slideIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+<header class="header sticky-top d-flex justify-content-between align-items-center">
+  <div class="d-flex align-items-center gap-3">
+    <i class="bi bi-fire fs-3"></i>
+    <h4 class="mb-0 fw-bold">KITCHEN DISPLAY SYSTEM</h4>
+  </div>
+  <div>
+    <span class="me-3" id="clock">00:00:00</span>
+    <button class="btn btn-dark btn-sm" onclick="logout()">
+      <i class="bi bi-box-arrow-right"></i> Thoát
+    </button>
+  </div>
+</header>
+
+<div class="container-fluid mt-4">
+  <div id="statusMsg" class="text-center text-light mb-3"></div>
+
+  <div class="row" id="itemsContainer">
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const API_URL = "http://localhost:8080/api/kitchen";
+  let currentItems = []; // Để so sánh xem có món mới không
+
+  // 1. Hàm khởi tạo & Check quyền
+  function checkAuth() {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('role');
+
+    if (!token) {
+      window.location.href = 'admin-login.html';
+      return false;
+    }
+    // Cho phép cả KITCHEN và MANAGER vào xem
+    if (role !== 'KITCHEN' && role !== 'MANAGER') {
+      alert('Khu vực này chỉ dành cho Bếp!');
+      window.location.href = 'admin-login.html';
+      return false;
+    }
+    return true;
+  }
+
+  // 2. Hàm tải danh sách món (Polling)
+  async function loadPendingItems() {
+    if (!checkAuth()) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/items/pending`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const items = await response.json();
+        renderItems(items);
+      } else if (response.status === 403) {
+        document.getElementById('statusMsg').innerHTML = `<h3 class="text-danger">⛔ Không có quyền truy cập dữ liệu quán này!</h3>`;
       }
-      .order-card {
-        background: white;
-        border-radius: 16px;
-        margin: 15px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-        overflow: hidden;
-      }
-      .status-btn {
-        min-width: 130px;
-        font-weight: bold;
-      }
-      .header {
-        background: #e85d04;
-        color: white;
-      }
-    </style>
-  </head>
-  <body>
-    <header class="header p-3 sticky-top">
-      <div
-        class="container-fluid d-flex justify-content-between align-items-center"
-      >
-        <h5 class="mb-0">
-          Bếp - Nhà hàng ID: <span id="resId" class="fw-bold">...</span>
-        </h5>
-        <button class="btn btn-outline-light btn-sm" onclick="logout()">
-          Đăng xuất
-        </button>
-      </div>
-    </header>
+    } catch (error) {
+      console.error("Lỗi kết nối:", error);
+      document.getElementById('statusMsg').innerText = "⚠️ Mất kết nối tới máy chủ...";
+    }
+  }
 
-    <div class="container-fluid mt-3" id="ordersContainer">
-      <div class="text-center py-5">
-        <div
-          class="spinner-border text-warning"
-          style="width: 3rem; height: 3rem"
-        ></div>
-      </div>
-    </div>
+  // 3. Hàm hiển thị (Render)
+  function renderItems(items) {
+    const container = document.getElementById('itemsContainer');
+    const msgDiv = document.getElementById('statusMsg');
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      const API_BASE = "http://localhost:8080/api/kitchen";
-      const PREFIX = "kitchen_";
+    // Nếu không có món nào
+    if (items.length === 0) {
+      container.innerHTML = '';
+      msgDiv.innerHTML = `
+            <div class="mt-5 opacity-50">
+              <i class="bi bi-cup-hot display-1"></i>
+              <h3 class="mt-3">Hiện không có món cần nấu</h3>
+              <p>Hãy nghỉ ngơi chút đi!</p>
+            </div>
+          `;
+      return;
+    }
 
-      function setItem(key, value) {
-        localStorage.setItem(PREFIX + key, value);
-      }
-      function getItem(key) {
-        return localStorage.getItem(PREFIX + key);
-      }
-      function removeItem(key) {
-        localStorage.removeItem(PREFIX + key);
-      }
+    msgDiv.innerHTML = ''; // Xóa thông báo trống
 
-      function logout() {
-        removeItem("token");
-        removeItem("user");
-        location.href = "kitchen-auth.html";
-      }
+    // So sánh sơ bộ để tránh render lại (giật màn hình) nếu dữ liệu y hệt cũ
+    // (Ở mức độ cơ bản này ta cứ clear render lại cho chắc ăn, nâng cao thì dùng Virtual DOM)
+    container.innerHTML = '';
 
-      async function loadOrders() {
-        const token = getItem("token");
-        const userStr = getItem("user");
-        if (!token || !userStr) {
-          logout();
-          return;
-        }
-        const user = JSON.parse(userStr);
-        if (user.role !== "KITCHEN" || !user.restaurantId) {
-          alert("Phiên đăng nhập không hợp lệ!");
-          logout();
-          return;
-        }
-        document.getElementById("resId").textContent = user.restaurantId;
+    items.forEach(item => {
+      // item là OrderItem (Backend trả về)
+      // Có các trường: id, menuItemName, quantity, note, order: { tableNumber, ... }
 
-        try {
-          const res = await fetch(
-            `${API_BASE}/all?restaurantId=${user.restaurantId}`,
-            {
-              // ĐỔI THÀNH /all
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-            },
-          );
+      const tableNum = item.order ? item.order.tableNumber : 'Mang về';
+      const noteHtml = (item.order && item.order.note)
+              ? `<div class="dish-note"><i class="bi bi-pencil-fill me-1"></i> ${item.order.note}</div>`
+              : '';
 
-          if (!res.ok) {
-            if (res.status === 401 || res.status === 403) {
-              alert("Phiên hết hạn hoặc không có quyền!");
-              logout();
-              return;
-            }
-            throw new Error(`HTTP ${res.status}`);
-          }
+      const col = document.createElement('div');
+      col.className = 'col-12 col-md-6 col-lg-4 col-xl-3';
 
-          const items = await res.json(); // List gộp
-          renderItems(items);
-        } catch (err) {
-          console.error(err);
-          document.getElementById("ordersContainer").innerHTML =
-            "<div class='text-center text-danger py-5'>Lỗi tải dữ liệu</div>";
-        }
-      }
-
-      function renderItems(items) {
-        const container = document.getElementById("ordersContainer");
-        if (!items || items.length === 0) {
-          container.innerHTML =
-            "<div class='text-center py-5 text-muted display-6'>Chưa có đơn hàng nào</div>";
-          return;
-        }
-
-        let html = "";
-        items.forEach((item) => {
-          const itemsHtml = (item.items || [])
-            .map(
-              (i) =>
-                `<div>• ${i.quantity || i.qty}x ${i.itemName || i.name}</div>`,
-            )
-            .join("");
-          const noteHtml = item.note
-            ? `<div class="alert alert-warning mt-3 mb-0"><strong>Ghi chú:</strong> ${item.note}</div>`
-            : "";
-          const typeLabel =
-            item.type === "booking" ? "ĐẶT BÀN KÈM MÓN" : "ĐƠN MÓN";
-          const tableInfo =
-            item.tableNumber > 0 ? `Bàn ${item.tableNumber}` : "Mang về / Ship";
-          const customerInfo = item.customerInfo
-            ? `<small class="text-muted">${item.customerInfo}</small><br>`
-            : "";
-
-          let btnHtml = "";
-          if (item.status === "PENDING") {
-            btnHtml = `<button class="btn btn-primary status-btn" onclick="updateStatus(${item.id}, 'COOKING', '${item.type}')">Nhận đơn</button>`;
-          } else if (item.status === "COOKING") {
-            btnHtml = `<button class="btn btn-warning status-btn text-dark" onclick="updateStatus(${item.id}, 'DELIVERING', '${item.type}')">Lên món</button>`;
-          } else if (item.status === "DELIVERING") {
-            btnHtml = `<button class="btn btn-success status-btn" onclick="updateStatus(${item.id}, 'COMPLETED', '${item.type}')">Hoàn tất</button>`;
-          }
-
-          html += `
-        <div class="order-card">
-          <div class="p-4">
-            <div class="d-flex justify-content-between align-items-start">
-              <div>
-                <h5>${typeLabel} #${item.id} - ${tableInfo}</h5>
-                ${customerInfo}
-                <small class="text-muted">${new Date(item.createdAt).toLocaleString("vi-VN")}</small>
+      col.innerHTML = `
+            <div class="kitchen-card shadow-sm">
+              <div class="card-header-custom">
+                <span><i class="bi bi-geo-alt-fill"></i> Bàn ${tableNum}</span>
+                <span class="badge bg-secondary">#${item.order.id}</span>
               </div>
-              <span class="badge bg-secondary fs-6">${item.status}</span>
+              <div class="card-body-custom">
+                <div class="dish-name text-break">
+                  <span class="text-primary">${item.quantity}x</span> ${item.menuItemName}
+                </div>
+                ${noteHtml}
+              </div>
+              <button class="btn btn-success btn-done" onclick="markReady(${item.id})">
+                <i class="bi bi-check-circle-fill"></i> NẤU XONG
+              </button>
             </div>
-            <div class="mt-3 border-start border-3 border-warning ps-3">${itemsHtml}</div>
-            ${noteHtml}
-            <div class="mt-3 text-end">
-              <strong class="fs-5 text-danger">${(item.totalPrice || 0).toLocaleString()}đ</strong>
-            </div>
-            <div class="mt-3 text-end">${btnHtml}</div>
-          </div>
-        </div>`;
-        });
-        container.innerHTML = html;
+          `;
+      container.appendChild(col);
+    });
+  }
+
+  // 4. Hàm báo xong
+  async function markReady(itemId) {
+    // Hiệu ứng UX: Hỏi nhẹ 1 cái (hoặc bỏ qua cho nhanh cũng được)
+     if(!confirm("Xác nhận đã xong món này?")) return;
+
+    const token = localStorage.getItem('token');
+    try {
+      const res = await fetch(`${API_URL}/items/${itemId}/ready`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        // Reload ngay lập tức
+        loadPendingItems();
+      } else {
+        alert("Có lỗi xảy ra! Thử lại sau.");
       }
+    } catch (e) {
+      alert("Lỗi kết nối mạng!");
+    }
+  }
 
-      // CẬP NHẬT STATUS (cần thêm endpoint cho booking nếu muốn)
-      // CẬP NHẬT STATUS (ĐÃ SỬA ĐỂ HOẠT ĐỘNG VỚI CẢ BOOKING VÀ ORDER)
-      async function updateStatus(id, newStatus, type) {
-        const token = getItem("token");
-        let endpoint = "";
+  function logout() {
+    localStorage.clear();
+    window.location.href = 'admin-login.html';
+  }
 
-        // Phân loại endpoint dựa trên type
-        if (type === "booking") {
-          // Gọi vào BookingController (Vừa thêm API ở trên)
-          endpoint = `http://localhost:8080/api/bookings/${id}/status`;
-        } else {
-          // Gọi vào KitchenController (Cho đơn món thông thường)
-          endpoint = `${API_BASE}/orders/${id}/status`;
-        }
+  // Đồng hồ đếm giờ
+  setInterval(() => {
+    document.getElementById('clock').innerText = new Date().toLocaleTimeString('vi-VN');
+  }, 1000);
 
-        try {
-          const res = await fetch(endpoint, {
-            method: "PUT",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ status: newStatus }),
-          });
+  // Tự động tải dữ liệu mỗi 3 giây (Real-time giả lập)
+  setInterval(loadPendingItems, 3000);
 
-          if (res.ok) {
-            // Thành công -> Load lại danh sách ngay
-            loadOrders();
-          } else {
-            const errData = await res.json();
-            alert(
-              "Lỗi: " + (errData.message || "Không thể cập nhật trạng thái"),
-            );
-          }
-        } catch (err) {
-          console.error(err);
-          alert("Lỗi kết nối Server!");
-        }
-      }
-
-      loadOrders();
-      setInterval(loadOrders, 10000);
-    </script>
-  </body>
+  // Chạy ngay khi mở trang
+  loadPendingItems();
+</script>
+</body>
 </html>

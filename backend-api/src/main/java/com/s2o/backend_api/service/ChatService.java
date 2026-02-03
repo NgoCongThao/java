@@ -13,7 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
+import org.springframework.beans.factory.annotation.Value;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,9 +26,11 @@ public class ChatService {
     @Autowired
     private RestaurantRepository restaurantRepository;
 
-    // Key Groq của bạn
-    private final String API_KEY = "YourKeyHere"; 
-    private final String GROQ_URL = "YourURLHere";
+    @Value("${groq.api.key}")
+    private String apiKey;
+
+    @Value("${groq.api.url}")
+    private String groqUrl;
 
     public String chatWithAI(String userMessage, Long restaurantId) {
         String contextData = "";
@@ -101,7 +103,7 @@ public class ChatService {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Authorization", "Bearer " + API_KEY);
+            headers.set("Authorization", "Bearer " + apiKey);
 
             JSONObject messageSystem = new JSONObject();
             messageSystem.put("role", "system");
@@ -124,7 +126,7 @@ public class ChatService {
 
             HttpEntity<String> request = new HttpEntity<>(requestBody.toString(), headers);
             
-            String response = restTemplate.postForObject(GROQ_URL, request, String.class);
+            String response = restTemplate.postForObject(groqUrl, request, String.class);
 
             JSONObject jsonResponse = new JSONObject(response);
             return jsonResponse.getJSONArray("choices")
