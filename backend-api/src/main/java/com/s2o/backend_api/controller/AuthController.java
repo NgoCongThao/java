@@ -90,7 +90,10 @@ import com.s2o.backend_api.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+// --- 1. IMPORT THƯ VIỆN BẢO MẬT ---
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+// ----------------------------------
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -106,6 +109,9 @@ public class AuthController {
     @Autowired
     private JwtUtils jwtUtils;
 
+    // --- 2. KHAI BÁO CÔNG CỤ MÃ HÓA PASSWORD ---
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     // --- 1. API ĐĂNG KÝ ---
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request) {
@@ -117,7 +123,12 @@ public class AuthController {
         // Tạo user mới
         User user = new User();
         user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword()); // Lưu ý: Thực tế nên mã hóa password bằng BCrypt sau này
+        
+        // --- SỬA: MÃ HÓA MẬT KHẨU TRƯỚC KHI LƯU ---
+        // Thay vì lưu thô, ta dùng encode()
+        user.setPassword(passwordEncoder.encode(request.getPassword())); 
+        // ------------------------------------------
+        
         user.setFullName(request.getFullName());
         user.setPhone(request.getPhone());
         user.setRole("USER");
@@ -139,7 +150,10 @@ public class AuthController {
         // Kiểm tra xem có user không VÀ mật khẩu có khớp không
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            if (user.getPassword().equals(request.getPassword())) {
+            
+            // --- SỬA: KIỂM TRA MẬT KHẨU ĐÃ MÃ HÓA ---
+            // Dùng hàm matches(pass_nhập_vào, pass_trong_db) thay vì equals()
+            if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                 
                 // Tạo Token JWT
                 String token = jwtUtils.generateToken(user.getUsername());
@@ -165,7 +179,7 @@ public class AuthController {
         return ResponseEntity.badRequest().body("Sai tài khoản hoặc mật khẩu!");
     }
 
-    // --- 3. API ĐỔI MẬT KHẨU (MỚI THÊM) ---
+    // --- 3. API ĐỔI MẬT KHẨU ---
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
         // Tìm user theo ID
@@ -177,20 +191,20 @@ public class AuthController {
 
         User user = userOpt.get();
 
-        // Kiểm tra mật khẩu cũ (So sánh chuỗi thô vì hiện tại bạn chưa mã hóa pass)
-        if (!user.getPassword().equals(request.getOldPassword())) {
+        // --- SỬA: KIỂM TRA MẬT KHẨU CŨ (MÃ HÓA) ---
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             return ResponseEntity.badRequest().body("Mật khẩu cũ không đúng!");
         }
 
-        // Cập nhật mật khẩu mới
-        user.setPassword(request.getNewPassword());
+        // --- SỬA: MÃ HÓA MẬT KHẨU MỚI ---
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 
         return ResponseEntity.ok("Đổi mật khẩu thành công!");
     }
 }
 
-// --- DTO PHỤ TRỢ (Để hứng dữ liệu đổi pass) ---
+// --- DTO PHỤ TRỢ (GIỮ NGUYÊN) ---
 class ChangePasswordRequest {
     private Long userId;
     private String oldPassword;
