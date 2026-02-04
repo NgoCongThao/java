@@ -666,6 +666,29 @@
 
       // 6. INIT
       const init = async () => {
+        // --- ĐOẠN CODE MỚI: CHẶN ADMIN ---
+        const userStr = localStorage.getItem("user");
+        if (userStr) {
+          try {
+            const u = JSON.parse(userStr);
+            // Kiểm tra nếu là ADMIN hoặc SUPERADMIN
+            if (
+              u.role === "ADMIN" ||
+              u.role === "SUPERADMIN" ||
+              u.roles?.includes("ADMIN")
+            ) {
+              alert(
+                "Tài khoản Quản trị viên không được truy cập trang đặt hàng!",
+              );
+              window.location.href = "admin.html"; // Chuyển hướng về trang Admin
+              return; // Dừng chạy code phía dưới
+            }
+          } catch (e) {
+            console.error("Lỗi parse user", e);
+          }
+        }
+        // ----------------------------------
+
         await loadData();
         render(); // Render lần đầu (-- km)
 

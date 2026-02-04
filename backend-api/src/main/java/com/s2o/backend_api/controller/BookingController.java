@@ -30,7 +30,9 @@ public class BookingController {
     @Autowired
     private RestaurantRepository restaurantRepository;
 
-    // API tạo booking
+ // API tạo booking
+    // Thêm PreAuthorize để chặn Admin
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('USER', 'ROLE_USER')")
     @PostMapping("/create")
     public ResponseEntity<?> createBooking(@RequestBody BookingRequest request) {
         try {

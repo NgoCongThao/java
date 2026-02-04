@@ -21,9 +21,11 @@ public class OrderController {
 // THÊM
     @Autowired
     private RestaurantRepository restaurantRepository;
-
-    // 1. API TẠO ĐƠN HÀNG (Dành cho trang Menu)
-   @PostMapping("/create")
+//ngày 4/2 thêm lớp bảo vệ hàm tạo đơn hàng
+   // 1. API TẠO ĐƠN HÀNG (Dành cho trang Menu)
+    // Thêm PreAuthorize để chặn Admin ở tầng Controller
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('USER', 'ROLE_USER')")
+    @PostMapping("/create")
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest req) {
         Order order = new Order();
         order.setUserId(req.getUserId());

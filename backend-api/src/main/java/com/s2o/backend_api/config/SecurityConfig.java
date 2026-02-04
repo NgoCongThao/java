@@ -36,15 +36,20 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
         .cors(cors -> cors.configure(http))
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers(
-                "/api/auth/**", 
-                "/api/guest/**", 
-                "/api/reviews/**", 
-                "/api/bookings/**",
-                "/api/bookings/create",
-                // --- THÊM DÒNG NÀY ĐỂ CHATBOT HOẠT ĐỘNG ---
-                "/api/chat/**", 
-                // ------------------------------------------
+.requestMatchers(
+                    // 1. API DÀNH RIÊNG CHO KHÁCH HÀNG (USER) - ADMIN KHÔNG ĐƯỢC VÀO
+                    "/api/orders/create",
+                    "/api/bookings/create"
+                ).hasAnyAuthority("USER", "ROLE_USER") // Chỉ Role USER mới được gọi
+
+                .requestMatchers(
+                    // 2. CÁC API CÔNG KHAI (Ai cũng gọi được)
+                    "/api/auth/**", 
+                    "/api/guest/**", 
+                    "/api/reviews/**", 
+                    "/api/bookings/table-status", // Cho phép xem trạng thái bàn
+                    "/api/bookings/user/**",      // Cho phép xem lịch sử
+                    "/api/chat/**",
                 
                 // --- CÁC TRANG HTML ĐƯỢC PHÉP TRUY CẬP ---
                 "/landing.html", 

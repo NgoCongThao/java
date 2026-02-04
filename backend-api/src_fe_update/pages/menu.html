@@ -872,6 +872,25 @@
 
       // === 5. HÀM INIT (CHẠY KHI LOAD TRANG) ===
       async function init() {
+        // --- ĐOẠN CODE MỚI: CHẶN ADMIN ---
+        if (CURRENT_USER) {
+          // Biến CURRENT_USER đã được lấy ở phần trên script cũ
+          // Lưu ý: Logic lấy CURRENT_USER ở trên bạn chỉ lấy id, name, avatar.
+          // Bạn cần sửa lại đoạn lấy CURRENT_USER ở mục 3 nhỏ trong script cũ để lấy thêm role.
+          // Hoặc check trực tiếp từ localStorage như sau cho chắc ăn:
+          const rawUser = JSON.parse(localStorage.getItem("user") || "{}");
+          if (
+            rawUser.role === "ADMIN" ||
+            rawUser.role === "SUPERADMIN" ||
+            rawUser.roles?.includes("ADMIN")
+          ) {
+            alert("Quản trị viên vui lòng sử dụng trang quản lý!");
+            window.location.href = "admin.html";
+            return;
+          }
+        }
+        // ----------------------------------
+
         if (!REST_ID) return alert("Lỗi: Thiếu ID nhà hàng");
 
         renderCartOffcanvas();
