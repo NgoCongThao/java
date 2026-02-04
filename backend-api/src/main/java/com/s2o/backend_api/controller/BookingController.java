@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime; // <--- NHỚ IMPORT CÁI NÀY
 import java.time.LocalTime;
 
 @RestController
@@ -37,7 +38,6 @@ public class BookingController {
             User user = userRepository.findById(request.getUserId())
                     .orElse(null);
             if (user == null) {
-                System.out.println("Lỗi: User không tồn tại (Do ID cũ?)");
                 return ResponseEntity.badRequest().body("Tài khoản không hợp lệ. Vui lòng đăng xuất và đăng nhập lại.");
             }
 
@@ -45,17 +45,31 @@ public class BookingController {
             Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId())
                     .orElse(null);
             if (restaurant == null) {
-                System.out.println("Lỗi: Nhà hàng không tồn tại");
                 return ResponseEntity.badRequest().body("Nhà hàng không tồn tại.");
             }
+
+            // =================================================================
+            // 2.5 (MỚI) KIỂM TRA THỜI GIAN ĐẶT (KHÔNG ĐƯỢC Ở QUÁ KHỨ)
+            // =================================================================
+            if (request.getDate() == null || request.getTime() == null) {
+                return ResponseEntity.badRequest().body("Vui lòng chọn đầy đủ ngày và giờ!");
+            }
+
+            // Gộp Ngày đặt + Giờ đặt thành một mốc thời gian cụ thể
+            LocalDateTime bookingDateTime = LocalDateTime.of(request.getDate(), request.getTime());
+            LocalDateTime now = LocalDateTime.now(); // Thời gian hiện tại của Server
+
+            // Nếu thời gian đặt < thời gian hiện tại => Lỗi
+            if (bookingDateTime.isBefore(now)) {
+                return ResponseEntity.badRequest()
+                        .body("Thời gian không hợp lệ! Bạn không thể đặt bàn ở quá khứ.");
+            }
+            // =================================================================
 
             // 3. Logic kiểm tra bàn trống
             LocalTime startCheck = request.getTime().minusHours(2);
             LocalTime endCheck = request.getTime().plusHours(2);
 
-            // FIX LỖI TIME: Nếu qua đêm (Ví dụ 23h + 2h = 1h sáng), logic BETWEEN sẽ lỗi
-            // Tạm thời để đơn giản: Nếu start > end (qua đêm), ta bỏ qua check hoặc check kiểu khác.
-            // Ở đây ta chỉ check nếu trong cùng 1 ngày
             long currentBookings = 0;
             if (startCheck.isBefore(endCheck)) {
                 currentBookings = bookingRepository.countBookedTables(
@@ -65,7 +79,6 @@ public class BookingController {
                         endCheck
                 );
             } else {
-                // Trường hợp qua đêm (ít gặp ở quán ăn thường), tạm tính là 0 để không lỗi SQL
                 System.out.println("Cảnh báo: Đặt bàn qua đêm, tạm bỏ qua check trùng.");
             }
 
@@ -96,7 +109,7 @@ public class BookingController {
             return ResponseEntity.ok("Đặt bàn thành công! Mã đơn: " + booking.getId());
 
         } catch (Exception e) {
-            e.printStackTrace(); // In lỗi ra màn hình đen
+            e.printStackTrace();
             return ResponseEntity.internalServerError().body("Lỗi hệ thống: " + e.getMessage());
         }
     }
