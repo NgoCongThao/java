@@ -80,6 +80,10 @@ public class ReviewController {
         MenuItem item = menuItemRepository.findById(request.getItemId())
                 .orElseThrow(() -> new RuntimeException("Món ăn không tồn tại"));
 
+        // --- (MỚI) VALIDATE SỐ SAO (Chặn Postman hack) ---
+        if (request.getRating() == null || request.getRating() < 1 || request.getRating() > 5) {
+            return ResponseEntity.badRequest().body("Lỗi: Số sao đánh giá phải từ 1 đến 5!");
+        }
         // Tạo Review mới và lưu
         Review review = new Review();
         review.setUser(user);       // Gán User thật vào
