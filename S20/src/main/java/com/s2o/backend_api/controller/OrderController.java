@@ -1,5 +1,5 @@
 package com.s2o.backend_api.controller;
-
+import com.s2o.backend_api.repository.RestaurantRepository;
 import com.s2o.backend_api.dto.OrderRequest;
 import com.s2o.backend_api.entity.Order;
 import com.s2o.backend_api.entity.OrderItem;
@@ -18,19 +18,37 @@ public class OrderController {
 
     @Autowired
     private OrderRepository orderRepository;
-
-    // 1. API TẠO ĐƠN HÀNG (Dành cho trang Menu)
+// THÊM
+    @Autowired
+    private RestaurantRepository restaurantRepository;
+//ngày 4/2 thêm lớp bảo vệ hàm tạo đơn hàng
+   // 1. API TẠO ĐƠN HÀNG (Dành cho trang Menu)
+    // Thêm PreAuthorize để chặn Admin ở tầng Controller
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('USER', 'ROLE_USER')")
     @PostMapping("/create")
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest req) {
         Order order = new Order();
         order.setUserId(req.getUserId());
-        order.setRestaurantName(req.getRestaurantName());
+        order.setTotalPrice(req.getTotal());
         order.setAddress(req.getAddress());
-        order.setStatus("PENDING"); // Mới đặt thì chờ xác nhận
-
-        // Biến để tự tính tổng tiền tại Backend
-        double calculatedTotal = 0;
+        order.setStatus("PENDING");
+        order.setTableNumber(req.getTableNumber());
+        order.setNote(req.getNote());
+        // QUAN TRỌNG: lưu restaurantId và lấy tên nhà hàng từ DB
+        if (req.getRestaurantId() != null) {
+            order.setRestaurantId(req.getRestaurantId());
+            restaurantRepository.findById(req.getRestaurantId()).ifPresent(res -> 
+                order.setRestaurantName(res.getName())
+            );
+        } else {
+            // nếu không có id (trường hợp cũ), giữ tên cũ
+            order.setRestaurantName(req.getRestaurantName());
+        }
         
+        // --- DÒNG NÀY SẼ HẾT ĐỎ ---
+        order.setNote(req.getNote());
+        // --------------------------
+
         // Lưu danh sách món
         List<OrderItem> items = new ArrayList<>();
         for (OrderRequest.ItemRequest i : req.getItems()) {
@@ -40,15 +58,8 @@ public class OrderController {
             item.setPrice(i.getPrice());
             item.setOrder(order);
             items.add(item);
-
-            // --- LOGIC MỚI: TỰ TÍNH TIỀN ---
-            // Cộng dồn vào tổng tiền: (Giá x Số lượng)
-            calculatedTotal += (i.getPrice() * i.getQty());
         }
         order.setItems(items);
-
-        // --- CẬP NHẬT TỔNG TIỀN CHÍNH XÁC ---
-        order.setTotalPrice(calculatedTotal);
 
         orderRepository.save(order);
         return ResponseEntity.ok("Đặt hàng thành công!");

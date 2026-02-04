@@ -14,4 +14,11 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     // Hoặc dùng tên đơn giản này (để khớp với code Controller cũ của bạn)
     List<Order> findByUserId(Long userId);
+    // --- BỔ SUNG DÒNG NÀY ĐỂ HẾT LỖI ĐỎ ---
+    // Spring Boot sẽ tự dịch thành: SELECT COUNT(*) FROM orders WHERE user_id = ?
+    long countByUserId(Long userId);
+    // ... các method hiện có
+
+// THÊM METHOD CHO BẾP
+    List<Order> findByRestaurantIdAndStatusNotOrderByCreatedAtAsc(Long restaurantId, String status);
 }

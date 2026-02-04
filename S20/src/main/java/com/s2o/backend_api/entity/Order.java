@@ -19,12 +19,23 @@ public class Order {
     @Column(name = "restaurant_name")
     private String restaurantName;
 
+    // THÊM TRƯỜNG NÀY
+    @Column(name = "restaurant_id")
+    private Long restaurantId;
+
     @Column(name = "total_price")
     private Double totalPrice;
 
     private String status;
+
     private String address;
-    
+
+    @Column(name = "table_number")
+    private Integer tableNumber;
+
+    @Column(columnDefinition = "NVARCHAR(MAX)")
+    private String note;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 

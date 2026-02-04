@@ -22,16 +22,36 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DataSeeder implements CommandLineRunner {
 
-    private final RestaurantRepository restaurantRepository;
+ private final RestaurantRepository restaurantRepository;
     private final MenuItemRepository menuItemRepository;
+    private final com.s2o.backend_api.repository.UserRepository userRepository; // Thêm dòng này
     private final ObjectMapper objectMapper;
 
-    @Override
+   @Override
     public void run(String... args) throws Exception {
+        createSuperAdmin(); // Thêm dòng này chạy trước
         loadRestaurantData();
         loadMenuData();
     }
 
+    private void createSuperAdmin() {
+        // Tìm xem user 'admin' có chưa, nếu chưa thì tạo mới
+        com.s2o.backend_api.entity.User admin = userRepository.findByUsername("admin")
+                .orElse(new com.s2o.backend_api.entity.User());
+
+        // Cập nhật lại thông tin (để đảm bảo luôn đúng quyền)
+        admin.setUsername("admin");
+        if (admin.getPassword() == null) {
+             admin.setPassword("admin123"); // Chỉ set pass nếu là user mới
+        }
+        admin.setFullName("Super Administrator");
+        
+        // --- QUAN TRỌNG NHẤT: ÉP VỀ ADMIN ---
+        admin.setRole("ADMIN"); 
+        
+        userRepository.save(admin);
+        System.out.println("Seed Data: Đã cập nhật quyền ADMIN cho tài khoản 'admin'");
+    }
     private void loadRestaurantData() {
         if (restaurantRepository.count() == 0) {
             try {

@@ -424,18 +424,21 @@
       let currentUser = null;
       const token = localStorage.getItem("token");
 
-      document.addEventListener("DOMContentLoaded", function () {
+      document.addEventListener("DOMContentLoaded", async function () {
         if (!token) {
           window.location.href = "authcus.html";
           return;
         }
 
-        // Load thông tin từ localStorage
+        // 1. Load thông tin cơ bản từ LocalStorage
         const userStr = localStorage.getItem("user");
         if (userStr) {
           currentUser = JSON.parse(userStr);
           renderInfo(currentUser);
         }
+
+        // 2. Gọi API lấy thống kê đơn hàng & Hạng thành viên
+        await fetchUserStats();
       });
 
       function renderInfo(user) {
@@ -453,7 +456,58 @@
         }
       }
 
-      // --- LOGIC ĐỊA CHỈ ---
+      // --- HÀM MỚI: LẤY THỐNG KÊ & HẠNG ---
+      async function fetchUserStats() {
+        try {
+          const res = await fetch(
+            `http://localhost:8080/api/stats/user/${currentUser.id}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
+          );
+
+          if (res.ok) {
+            const data = await res.json();
+
+            // Cập nhật số đơn hàng
+            document.getElementById("statOrders").textContent =
+              data.totalOrders;
+
+            // Cập nhật Rank (Huy hiệu)
+            updateRankUI(data.rank);
+          }
+        } catch (e) {
+          console.error("Lỗi lấy stats:", e);
+        }
+      }
+
+      function updateRankUI(rank) {
+        const rankTag = document.querySelector(".rank-tag");
+        let icon = "bi-star-fill";
+        let colorClass = "text-warning"; // Mặc định màu vàng
+
+        // Logic màu sắc cho từng hạng
+        if (rank === "Đồng") {
+          colorClass = "text-secondary"; // Màu xám nâu
+          icon = "bi-award";
+        } else if (rank === "Bạc") {
+          colorClass = "text-secondary"; // Màu bạc (xám sáng)
+          icon = "bi-award-fill";
+          rankTag.style.background = "rgba(192, 192, 192, 0.3)";
+        } else if (rank === "Vàng") {
+          colorClass = "text-warning"; // Màu vàng
+          icon = "bi-trophy-fill";
+          rankTag.style.background = "rgba(255, 215, 0, 0.3)";
+        } else if (rank === "Kim Cương") {
+          colorClass = "text-info"; // Màu xanh dương sáng
+          icon = "bi-gem";
+          rankTag.style.background = "rgba(0, 255, 255, 0.2)";
+        }
+
+        rankTag.innerHTML = `<i class="bi ${icon} ${colorClass}"></i> Thành viên ${rank}`;
+      }
+
+      // --- LOGIC ĐỊA CHỈ (Giữ nguyên) ---
       function openAddressModal() {
         new bootstrap.Modal(document.getElementById("addressModal")).show();
       }
@@ -492,7 +546,7 @@
         }
       }
 
-      // --- LOGIC ĐỔI PASSWORD ---
+      // --- LOGIC ĐỔI PASSWORD (Giữ nguyên) ---
       function openPasswordModal() {
         new bootstrap.Modal(document.getElementById("passwordModal")).show();
       }

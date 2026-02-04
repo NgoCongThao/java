@@ -1,85 +1,3 @@
-// package com.s2o.backend_api.controller;
-
-// import com.s2o.backend_api.dto.LoginRequest;
-// import com.s2o.backend_api.dto.RegisterRequest;
-// import com.s2o.backend_api.entity.User;
-// import com.s2o.backend_api.repository.UserRepository;
-// import com.s2o.backend_api.utils.JwtUtils; // <--- 1. Import JwtUtils
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.http.ResponseEntity;
-// import org.springframework.web.bind.annotation.*;
-
-// import java.util.HashMap;
-// import java.util.Map;
-// import java.util.Optional;
-
-// @RestController
-// @RequestMapping("/api/auth")
-// @CrossOrigin(origins = "*")
-// public class AuthController {
-
-//     @Autowired
-//     private UserRepository userRepository;
-
-//     @Autowired
-//     private JwtUtils jwtUtils; // <--- 2. Tiêm công cụ tạo Token
-
-//     // --- 1. API ĐĂNG KÝ ---
-//     @PostMapping("/register")
-//     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request) {
-//         // Kiểm tra trùng tên đăng nhập
-//         if (userRepository.existsByUsername(request.getUsername())) {
-//             return ResponseEntity.badRequest().body("Lỗi: Tên đăng nhập đã tồn tại!");
-//         }
-
-//         // Tạo user mới
-//         User user = new User();
-//         user.setUsername(request.getUsername());
-//         user.setPassword(request.getPassword()); // Lưu ý: Thực tế nên mã hóa password bằng BCrypt sau này
-//         user.setFullName(request.getFullName());
-//         user.setPhone(request.getPhone());
-//         user.setRole("USER");
-
-//         userRepository.save(user);
-
-//         // SỬA LỖI: Trả về JSON object thay vì String đơn thuần
-//         Map<String, String> response = new HashMap<>();
-//         response.put("message", "Đăng ký thành công!");
-        
-//         return ResponseEntity.ok(response);
-//     }
-
-//     // --- 2. API ĐĂNG NHẬP (Đã nâng cấp JWT) ---
-//     @PostMapping("/login")
-//     public ResponseEntity<?> loginUser(@RequestBody LoginRequest request) {
-//         // Tìm user trong DB
-//         Optional<User> userOptional = userRepository.findByUsername(request.getUsername());
-
-//         // Kiểm tra xem có user không VÀ mật khẩu có khớp không
-//         if (userOptional.isPresent()) {
-//             User user = userOptional.get();
-//             if (user.getPassword().equals(request.getPassword())) {
-                
-//                 // --- 3. TẠO TOKEN JWT ---
-//                 String token = jwtUtils.generateToken(user.getUsername());
-
-//                 // Đóng gói dữ liệu trả về (Token + Info user)
-//                 Map<String, Object> response = new HashMap<>();
-//                 response.put("token", token);       // <--- QUAN TRỌNG NHẤT
-//                 response.put("type", "Bearer");
-//                 response.put("id", user.getId());
-//                 response.put("username", user.getUsername());
-//                 response.put("fullName", user.getFullName());
-//                 response.put("role", user.getRole());
-                
-//                 return ResponseEntity.ok(response);
-//             }
-//         }
-
-//         // Đăng nhập thất bại
-//         return ResponseEntity.badRequest().body("Sai tài khoản hoặc mật khẩu!");
-//     }
-// }
 package com.s2o.backend_api.controller;
 
 import com.s2o.backend_api.dto.LoginRequest;
@@ -89,11 +7,12 @@ import com.s2o.backend_api.repository.UserRepository;
 import com.s2o.backend_api.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager; // Thêm dòng này
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken; // Thêm dòng này
+import org.springframework.security.core.Authentication; // Thêm dòng này
+import org.springframework.security.core.userdetails.UserDetails; // Thêm dòng này
 import org.springframework.web.bind.annotation.*;
-// --- 1. IMPORT THƯ VIỆN BẢO MẬT ---
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-// ----------------------------------
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -109,80 +28,83 @@ public class AuthController {
     @Autowired
     private JwtUtils jwtUtils;
 
-    // --- 2. KHAI BÁO CÔNG CỤ MÃ HÓA PASSWORD ---
-    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    // Kích hoạt tính năng đăng nhập chuẩn của Spring Security
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     // --- 1. API ĐĂNG KÝ ---
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request) {
-        // Kiểm tra trùng tên đăng nhập
         if (userRepository.existsByUsername(request.getUsername())) {
             return ResponseEntity.badRequest().body("Lỗi: Tên đăng nhập đã tồn tại!");
         }
 
-        // Tạo user mới
         User user = new User();
         user.setUsername(request.getUsername());
-        
-        // --- SỬA: MÃ HÓA MẬT KHẨU TRƯỚC KHI LƯU ---
-        // Thay vì lưu thô, ta dùng encode()
-        user.setPassword(passwordEncoder.encode(request.getPassword())); 
-        // ------------------------------------------
-        
+        user.setPassword(request.getPassword()); // Pass chưa mã hóa (NoOp)
         user.setFullName(request.getFullName());
         user.setPhone(request.getPhone());
-        user.setRole("USER");
+        
+        // Phân biệt role
+        if (request.getRestaurantId() != null) {
+            user.setRole("KITCHEN");
+            user.setRestaurantId(request.getRestaurantId());
+        } else {
+            user.setRole("USER");
+        }
 
         userRepository.save(user);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "Đăng ký thành công!");
-        
         return ResponseEntity.ok(response);
     }
 
-    // --- 2. API ĐĂNG NHẬP ---
+    // --- 2. API ĐĂNG NHẬP (ĐÃ SỬA LỖI) ---
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest request) {
-        // Tìm user trong DB
-        Optional<User> userOptional = userRepository.findByUsername(request.getUsername());
+        try {
+            // Bước 1: Để Spring Security tự kiểm tra Username và Password
+            // Nếu sai pass, nó sẽ tự ném lỗi (nhảy xuống catch)
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            );
 
-        // Kiểm tra xem có user không VÀ mật khẩu có khớp không
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
+            // Bước 2: Lấy thông tin UserDetails chuẩn từ kết quả đăng nhập
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+            // Bước 3: Tạo Token (Lúc này hàm generateToken nhận đúng UserDetails)
+            String token = jwtUtils.generateToken(userDetails);
+
+            // Bước 4: Lấy thêm thông tin user từ DB để trả về cho Frontend hiển thị
+            // (Vì UserDetails chỉ chứa username, pass, role chứ không có fullName, phone...)
+            User user = userRepository.findByUsername(request.getUsername()).get();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("type", "Bearer");
+            response.put("id", user.getId());
+            response.put("username", user.getUsername());
+            response.put("fullName", user.getFullName());
             
-            // --- SỬA: KIỂM TRA MẬT KHẨU ĐÃ MÃ HÓA ---
-            // Dùng hàm matches(pass_nhập_vào, pass_trong_db) thay vì equals()
-            if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                
-                // Tạo Token JWT
-                String token = jwtUtils.generateToken(user.getUsername());
+            // Lấy role từ userDetails để đảm bảo đúng nhất
+            String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
+            response.put("role", role);
 
-                // Đóng gói dữ liệu trả về (Token + Info user)
-                Map<String, Object> response = new HashMap<>();
-                response.put("token", token);
-                response.put("type", "Bearer");
-                response.put("id", user.getId());
-                response.put("username", user.getUsername());
-                response.put("fullName", user.getFullName());
-                response.put("role", user.getRole());
-                
-                // Trả về thêm address và phone để profile hiển thị ngay
-                response.put("phone", user.getPhone());
-                response.put("address", user.getAddress());
-                
-                return ResponseEntity.ok(response);
-            }
+            response.put("restaurantId", user.getRestaurantId());
+            response.put("phone", user.getPhone());
+            response.put("address", user.getAddress());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Sai tài khoản hoặc mật khẩu!");
         }
-
-        // Đăng nhập thất bại
-        return ResponseEntity.badRequest().body("Sai tài khoản hoặc mật khẩu!");
     }
 
     // --- 3. API ĐỔI MẬT KHẨU ---
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
-        // Tìm user theo ID
         Optional<User> userOpt = userRepository.findById(request.getUserId());
         
         if (userOpt.isEmpty()) {
@@ -191,26 +113,23 @@ public class AuthController {
 
         User user = userOpt.get();
 
-        // --- SỬA: KIỂM TRA MẬT KHẨU CŨ (MÃ HÓA) ---
-        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+        if (!user.getPassword().equals(request.getOldPassword())) {
             return ResponseEntity.badRequest().body("Mật khẩu cũ không đúng!");
         }
 
-        // --- SỬA: MÃ HÓA MẬT KHẨU MỚI ---
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setPassword(request.getNewPassword());
         userRepository.save(user);
 
         return ResponseEntity.ok("Đổi mật khẩu thành công!");
     }
 }
 
-// --- DTO PHỤ TRỢ (GIỮ NGUYÊN) ---
+// DTO giữ nguyên
 class ChangePasswordRequest {
     private Long userId;
     private String oldPassword;
     private String newPassword;
 
-    // Getters & Setters
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
     public String getOldPassword() { return oldPassword; }

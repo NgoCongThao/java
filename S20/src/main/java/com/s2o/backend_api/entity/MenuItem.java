@@ -1,11 +1,11 @@
 package com.s2o.backend_api.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties; // Nhớ import cái này
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "menu_items") // Phải khớp tên bảng trong SQL
+@Table(name = "menu_items")
 @Data
 public class MenuItem {
     @Id
@@ -20,20 +20,20 @@ public class MenuItem {
 
     private Double price;
 
-    // Trong SQL là image_url, trong Java đặt là imageUrl cho chuẩn camelCase
     @Column(name = "image_url") 
     private String imageUrl;
 
     @Column(name = "is_available")
     private Boolean isAvailable = true;
 
-    // Cột phân loại (Món chính, Trà sữa...)
     @Column(columnDefinition = "NVARCHAR(100)")
     private String category;
 
-    // Liên kết với Nhà hàng
+    // --- SỬA ĐOẠN NÀY ---
     @ManyToOne
     @JoinColumn(name = "restaurant_id", nullable = false)
-    @JsonIgnore // Quan trọng: Ngắt vòng lặp vô tận khi chuyển thành JSON
+    // Thay @JsonIgnore bằng dòng dưới đây:
+    // Ý nghĩa: Cho phép đọc/ghi object Restaurant, nhưng KHÔNG đi sâu vào list menuItems của nó
+    @JsonIgnoreProperties({"menuItems", "user", "bookings", "hibernateLazyInitializer", "handler"}) 
     private Restaurant restaurant;
 }

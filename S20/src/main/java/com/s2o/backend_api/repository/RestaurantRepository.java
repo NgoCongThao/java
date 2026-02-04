@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
-    // Hiện tại chưa cần hàm tìm kiếm gì đặc biệt, cứ để trống là dùng được hàm findAll()
+    // Không cần thêm method nào ở đây (chỉ dùng findById mặc định của JpaRepository)
 }

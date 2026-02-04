@@ -28,33 +28,47 @@ public class SecurityConfig {
 
     // ... các import và phần đầu file giữ nguyên ...
 
+// ... phần đầu giữ nguyên
+
 @Bean
 public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
         .cors(cors -> cors.configure(http))
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth
-            // Danh sách được phép truy cập không cần Token
-            .requestMatchers(
-                "/api/auth/**", 
-                "/api/guest/**", 
-                "/api/reviews/**", 
-                "/api/bookings/**",
-                "/api/bookings/create", // <--- THÊM DÒNG NÀY
+.requestMatchers(
+                    // 1. API DÀNH RIÊNG CHO KHÁCH HÀNG (USER) - ADMIN KHÔNG ĐƯỢC VÀO
+                    "/api/orders/create",
+                    "/api/bookings/create"
+                ).hasAnyAuthority("USER", "ROLE_USER") // Chỉ Role USER mới được gọi
+
+                .requestMatchers(
+                    // 2. CÁC API CÔNG KHAI (Ai cũng gọi được)
+                    "/api/auth/**", 
+                    "/api/guest/**", 
+                    "/api/reviews/**", 
+                    "/api/bookings/table-status", // Cho phép xem trạng thái bàn
+                    "/api/bookings/user/**",      // Cho phép xem lịch sử
+                    "/api/chat/**",
+                
+                // --- CÁC TRANG HTML ĐƯỢC PHÉP TRUY CẬP ---
                 "/landing.html", 
                 "/authcus.html", 
+                "/admin-login.html",
+                "/kitchen-auth.html",  // <--- THÊM DÒNG NÀY (Trang đăng nhập bếp)
+                "/kitchen.html",       // <--- THÊM DÒNG NÀY (Trang giao diện bếp)
+                
                 "/img/**", "/css/**", "/js/**"
             ).permitAll()
-            
-            // Các request còn lại bắt buộc phải có Token
-            .anyRequest().authenticated() 
+            // Nếu muốn kitchen public tạm thời để test (không khuyến khích lâu dài)
+            // .requestMatchers("/api/kitchen/**").permitAll()
+            .anyRequest().authenticated()
         )
         .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
 }
-
 // ... phần còn lại của file giữ nguyên ...
 
     @Bean

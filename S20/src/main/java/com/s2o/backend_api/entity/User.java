@@ -12,18 +12,22 @@ public class User {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String username; // Tên đăng nhập (hoặc email)
+    private String username;
 
     @Column(nullable = false)
-    private String password; // Mật khẩu
+    private String password;
 
-    @Column(name = "full_name", columnDefinition = "NVARCHAR(255)") // Thêm dòng này
+    @Column(name = "full_name", columnDefinition = "NVARCHAR(255)")
     private String fullName;
-    
-    private String phone;    // Số điện 
-    
-    @Column(columnDefinition = "NVARCHAR(255)") // Thêm dòng này
-    private String address;  // Địa chỉ mặc định
+   
+    private String phone;
 
-    private String role;     // "USER" hoặc "ADMIN"
+    @Column(columnDefinition = "NVARCHAR(255)")
+    private String address;
+
+    private String role; // "USER" hoặc "KITCHEN"
+
+    // THÊM TRƯỜNG NÀY
+    @Column(name = "restaurant_id")
+    private Long restaurantId;
 }
