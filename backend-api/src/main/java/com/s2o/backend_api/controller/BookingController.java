@@ -48,6 +48,11 @@ public class BookingController {
                 return ResponseEntity.badRequest().body("Nhà hàng không tồn tại.");
             }
 
+            // 2.2 KIỂM TRA SỐ LƯỢNG KHÁCH
+            if (request.getGuests() == null || request.getGuests() <= 0) {
+                return ResponseEntity.badRequest().body("Số lượng khách phải lớn hơn 0!");
+            }
+
             // =================================================================
             // 2.5 (MỚI) KIỂM TRA THỜI GIAN ĐẶT (KHÔNG ĐƯỢC Ở QUÁ KHỨ)
             // =================================================================
