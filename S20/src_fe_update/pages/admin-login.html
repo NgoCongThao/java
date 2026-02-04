@@ -70,7 +70,7 @@
       </form>
     </div>
 
-    <script>
+<script>
       const API_BASE = "http://localhost:8080/api/auth";
 
       document
@@ -83,7 +83,7 @@
           const errorMsg = document.getElementById("error-msg");
 
           try {
-            // 1. Gọi API đăng nhập (Dùng chung với khách hàng)
+            // 1. Gọi API đăng nhập
             const res = await fetch(`${API_BASE}/login`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -93,23 +93,25 @@
             if (res.ok) {
               const data = await res.json();
 
-              // 2. GIẢI MÃ TOKEN ĐỂ KIỂM TRA ROLE
-              // (Token có dạng: header.payload.signature - ta lấy phần giữa)
-              const payload = JSON.parse(atob(data.token.split(".")[1]));
+              // --- SỬA LỖI TẠI ĐÂY ---
+              // Không cần giải mã token (payload.role) vì có thể token không chứa role.
+              // Hãy lấy trực tiếp role từ data do Backend gửi về.
+              console.log("Role nhận được từ Server:", data.role); // Log ra để kiểm tra
 
-              // 3. LOGIC QUAN TRỌNG: CHỈ CHO ADMIN VÀO
-              if (payload.role === "ADMIN") {
+              // Chấp nhận cả "ADMIN" và "ROLE_ADMIN" cho chắc ăn
+              if (data.role === "ADMIN" || data.role === "ROLE_ADMIN") {
+                
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("user", JSON.stringify(data));
-                window.location.href = "admin.html"; // Chuyển hướng vào trang Admin
+                
+                // Chuyển hướng
+                window.location.href = "admin.html"; 
               } else {
-                // Nếu là User thường hoặc Bếp -> Chặn lại
-                errorMsg.innerText =
-                  "Lỗi: Tài khoản này không có quyền truy cập Admin!";
+                errorMsg.innerText = "Lỗi: Tài khoản này không có quyền truy cập Admin! (Quyền hiện tại: " + data.role + ")";
                 errorMsg.style.display = "block";
-                // Tùy chọn: Xóa token vừa nhận được để đảm bảo an toàn
-                // localStorage.removeItem("token");
               }
+              // -----------------------
+
             } else {
               errorMsg.innerText = "Sai tên đăng nhập hoặc mật khẩu!";
               errorMsg.style.display = "block";
@@ -120,6 +122,7 @@
             errorMsg.style.display = "block";
           }
         });
+    </script>
     </script>
   </body>
 </html>

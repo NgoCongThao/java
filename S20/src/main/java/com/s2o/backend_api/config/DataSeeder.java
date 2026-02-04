@@ -4,11 +4,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.s2o.backend_api.entity.MenuItem;
 import com.s2o.backend_api.entity.Restaurant;
+import com.s2o.backend_api.entity.User; // Import User entity chuẩn
 import com.s2o.backend_api.repository.MenuItemRepository;
 import com.s2o.backend_api.repository.RestaurantRepository;
+import com.s2o.backend_api.repository.UserRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder; // <--- 1. Import PasswordEncoder
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -22,36 +25,39 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DataSeeder implements CommandLineRunner {
 
- private final RestaurantRepository restaurantRepository;
+    private final RestaurantRepository restaurantRepository;
     private final MenuItemRepository menuItemRepository;
-    private final com.s2o.backend_api.repository.UserRepository userRepository; // Thêm dòng này
+    private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
+    
+    // --- 2. TIÊM BEAN MÃ HÓA MẬT KHẨU ---
+    private final PasswordEncoder passwordEncoder; 
 
-   @Override
+    @Override
     public void run(String... args) throws Exception {
-        createSuperAdmin(); // Thêm dòng này chạy trước
+        createSuperAdmin();
         loadRestaurantData();
         loadMenuData();
     }
 
     private void createSuperAdmin() {
-        // Tìm xem user 'admin' có chưa, nếu chưa thì tạo mới
-        com.s2o.backend_api.entity.User admin = userRepository.findByUsername("admin")
-                .orElse(new com.s2o.backend_api.entity.User());
+        // Tìm xem user 'admin' có chưa
+        User admin = userRepository.findByUsername("admin")
+                .orElse(new User());
 
-        // Cập nhật lại thông tin (để đảm bảo luôn đúng quyền)
+        // Cập nhật thông tin
         admin.setUsername("admin");
-        if (admin.getPassword() == null) {
-             admin.setPassword("admin123"); // Chỉ set pass nếu là user mới
-        }
         admin.setFullName("Super Administrator");
-        
-        // --- QUAN TRỌNG NHẤT: ÉP VỀ ADMIN ---
-        admin.setRole("ADMIN"); 
+        admin.setRole("ADMIN");
+
+        // --- 3. QUAN TRỌNG: LUÔN MÃ HÓA MẬT KHẨU ---
+        // Ta set cứng password mã hóa để đảm bảo đăng nhập được ngay
+        admin.setPassword(passwordEncoder.encode("admin123")); 
         
         userRepository.save(admin);
-        System.out.println("Seed Data: Đã cập nhật quyền ADMIN cho tài khoản 'admin'");
+        System.out.println("Seed Data: Đã cập nhật quyền ADMIN và mật khẩu mã hóa cho tài khoản 'admin'");
     }
+
     private void loadRestaurantData() {
         if (restaurantRepository.count() == 0) {
             try {
@@ -83,7 +89,6 @@ public class DataSeeder implements CommandLineRunner {
                 
                 // Map ID JSON sang Restaurant Entity
                 Map<Long, Restaurant> restaurantMap = new HashMap<>();
-                // Giả định ID trong DB tự tăng khớp với thứ tự trong JSON (vì DB đang trống)
                 long jsonIdCounter = 1; 
                 for (Restaurant r : savedRestaurants) {
                     restaurantMap.put(jsonIdCounter++, r);
@@ -115,7 +120,7 @@ public class DataSeeder implements CommandLineRunner {
         }
     }
 
-    // Các class phụ để hứng dữ liệu JSON
+    // Các class phụ DTO
     @Data
     static class MenuImportDTO {
         private Long restaurantId;
