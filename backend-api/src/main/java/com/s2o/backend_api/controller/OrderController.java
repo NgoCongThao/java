@@ -25,10 +25,12 @@ public class OrderController {
         Order order = new Order();
         order.setUserId(req.getUserId());
         order.setRestaurantName(req.getRestaurantName());
-        order.setTotalPrice(req.getTotal());
         order.setAddress(req.getAddress());
         order.setStatus("PENDING"); // Mới đặt thì chờ xác nhận
 
+        // Biến để tự tính tổng tiền tại Backend
+        double calculatedTotal = 0;
+        
         // Lưu danh sách món
         List<OrderItem> items = new ArrayList<>();
         for (OrderRequest.ItemRequest i : req.getItems()) {
@@ -38,8 +40,15 @@ public class OrderController {
             item.setPrice(i.getPrice());
             item.setOrder(order);
             items.add(item);
+
+            // --- LOGIC MỚI: TỰ TÍNH TIỀN ---
+            // Cộng dồn vào tổng tiền: (Giá x Số lượng)
+            calculatedTotal += (i.getPrice() * i.getQty());
         }
         order.setItems(items);
+
+        // --- CẬP NHẬT TỔNG TIỀN CHÍNH XÁC ---
+        order.setTotalPrice(calculatedTotal);
 
         orderRepository.save(order);
         return ResponseEntity.ok("Đặt hàng thành công!");
