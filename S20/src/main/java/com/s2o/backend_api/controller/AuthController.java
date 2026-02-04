@@ -7,10 +7,12 @@ import com.s2o.backend_api.repository.UserRepository;
 import com.s2o.backend_api.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager; // Thêm dòng này
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken; // Thêm dòng này
-import org.springframework.security.core.Authentication; // Thêm dòng này
-import org.springframework.security.core.userdetails.UserDetails; // Thêm dòng này
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+// --- THÊM IMPORT ĐỂ SỬA LỖI ---
+import org.springframework.security.core.userdetails.UserDetails;
+import java.util.ArrayList; 
+// -----------------------------
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -28,9 +30,7 @@ public class AuthController {
     @Autowired
     private JwtUtils jwtUtils;
 
-    // Kích hoạt tính năng đăng nhập chuẩn của Spring Security
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     // --- 1. API ĐĂNG KÝ ---
     @PostMapping("/register")
@@ -41,11 +41,10 @@ public class AuthController {
 
         User user = new User();
         user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword()); // Pass chưa mã hóa (NoOp)
+        user.setPassword(passwordEncoder.encode(request.getPassword())); 
         user.setFullName(request.getFullName());
         user.setPhone(request.getPhone());
         
-        // Phân biệt role
         if (request.getRestaurantId() != null) {
             user.setRole("KITCHEN");
             user.setRestaurantId(request.getRestaurantId());
@@ -60,46 +59,44 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    // --- 2. API ĐĂNG NHẬP (ĐÃ SỬA LỖI) ---
+    // --- 2. API ĐĂNG NHẬP (ĐÃ SỬA LỖI generateToken) ---
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest request) {
-        try {
-            // Bước 1: Để Spring Security tự kiểm tra Username và Password
-            // Nếu sai pass, nó sẽ tự ném lỗi (nhảy xuống catch)
-            Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-            );
+        Optional<User> userOptional = userRepository.findByUsername(request.getUsername());
 
-            // Bước 2: Lấy thông tin UserDetails chuẩn từ kết quả đăng nhập
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
 
-            // Bước 3: Tạo Token (Lúc này hàm generateToken nhận đúng UserDetails)
-            String token = jwtUtils.generateToken(userDetails);
+            if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                
+                // --- SỬA LỖI TẠI ĐÂY ---
+                // JwtUtils cần UserDetails, nên ta tạo nhanh một cái từ user tìm được
+                UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                        user.getUsername(), 
+                        user.getPassword(), 
+                        new ArrayList<>() // Tạm thời không cần role trong UserDetails
+                );
 
-            // Bước 4: Lấy thêm thông tin user từ DB để trả về cho Frontend hiển thị
-            // (Vì UserDetails chỉ chứa username, pass, role chứ không có fullName, phone...)
-            User user = userRepository.findByUsername(request.getUsername()).get();
+                // Bây giờ truyền userDetails vào sẽ không bị lỗi nữa
+                String token = jwtUtils.generateToken(userDetails);
+                // -----------------------
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("token", token);
-            response.put("type", "Bearer");
-            response.put("id", user.getId());
-            response.put("username", user.getUsername());
-            response.put("fullName", user.getFullName());
-            
-            // Lấy role từ userDetails để đảm bảo đúng nhất
-            String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
-            response.put("role", role);
+                Map<String, Object> response = new HashMap<>();
+                response.put("token", token);
+                response.put("type", "Bearer");
+                response.put("id", user.getId());
+                response.put("username", user.getUsername());
+                response.put("fullName", user.getFullName());
+                response.put("role", user.getRole());
+                response.put("restaurantId", user.getRestaurantId());
+                response.put("phone", user.getPhone());
+                response.put("address", user.getAddress());
 
-            response.put("restaurantId", user.getRestaurantId());
-            response.put("phone", user.getPhone());
-            response.put("address", user.getAddress());
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Sai tài khoản hoặc mật khẩu!");
+                return ResponseEntity.ok(response);
+            }
         }
+
+        return ResponseEntity.badRequest().body("Sai tài khoản hoặc mật khẩu!");
     }
 
     // --- 3. API ĐỔI MẬT KHẨU ---
@@ -113,18 +110,18 @@ public class AuthController {
 
         User user = userOpt.get();
 
-        if (!user.getPassword().equals(request.getOldPassword())) {
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             return ResponseEntity.badRequest().body("Mật khẩu cũ không đúng!");
         }
 
-        user.setPassword(request.getNewPassword());
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 
         return ResponseEntity.ok("Đổi mật khẩu thành công!");
     }
 }
 
-// DTO giữ nguyên
+// DTO
 class ChangePasswordRequest {
     private Long userId;
     private String oldPassword;
