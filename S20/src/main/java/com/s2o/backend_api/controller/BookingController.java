@@ -110,7 +110,7 @@ public class BookingController {
                 }
             }
 
-            // 4. Lưu Booking (Giữ nguyên)
+              // 4. Lưu Booking
             Booking booking = new Booking();
             booking.setUser(user);
             booking.setRestaurant(restaurant);
@@ -123,18 +123,25 @@ public class BookingController {
             if (request.getTableNumber() != null) booking.setTableNumber(request.getTableNumber());
             booking.setStatus("PENDING");
 
+            // Tuấn đã sửa đoạn này để tính tổng tiền
             if (request.getItems() != null) {
-                List<BookingItem> items = new ArrayList<>();
-                for (BookingRequest.BookingItemRequest i : request.getItems()) {
-                    BookingItem item = new BookingItem();
-                    item.setItemName(i.getName());
-                    item.setQuantity(i.getQty());
-                    item.setPrice(i.getPrice());
-                    item.setBooking(booking);
-                    items.add(item);
-                }
-                booking.setItems(items);
-            }
+    List<BookingItem> items = new ArrayList<>();
+    double grandTotal = 0; // Biến tạm để tính tổng
+
+    for (BookingRequest.BookingItemRequest i : request.getItems()) {
+        BookingItem item = new BookingItem();
+        item.setItemName(i.getName());
+        item.setQuantity(i.getQty());
+        item.setPrice(i.getPrice());
+        item.setBooking(booking);
+        items.add(item);
+        
+        // Cộng dồn: Giá * Số lượng
+        grandTotal += (i.getPrice() != null ? i.getPrice() : 0) * i.getQty();
+    }
+    booking.setItems(items);
+    booking.setTotalPrice(grandTotal); // Lưu tổng tiền vào bảng cha
+}
 
             bookingRepository.save(booking);
             return ResponseEntity.ok(Map.of("success", true, "message", "Đặt bàn thành công", "id", booking.getId()));
