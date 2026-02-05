@@ -46,7 +46,6 @@
         </ul>
 
         <div class="tab-content">
-          <!-- ĐĂNG NHẬP -->
           <div class="tab-pane active" id="login">
             <form id="loginForm">
               <div class="mb-3">
@@ -73,7 +72,6 @@
             </form>
           </div>
 
-          <!-- ĐĂNG KÝ -->
           <div class="tab-pane" id="register">
             <form id="registerForm">
               <div class="mb-3">
@@ -158,13 +156,21 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           });
+          
+          if (!res.ok) {
+             // Đọc lỗi từ backend (ví dụ: Tài khoản đang chờ duyệt)
+             const errorText = await res.text();
+             alert(errorText || "Đăng nhập thất bại");
+             return;
+          }
+
           const data = await res.json();
-          if (res.ok && data.role === "KITCHEN" && data.restaurantId) {
+          if (data.role === "KITCHEN" && data.restaurantId) {
             setItem("token", data.token);
             setItem("user", JSON.stringify(data));
             location.href = "kitchen.html";
           } else {
-            alert(data || "Bạn không có quyền truy cập khu vực bếp!");
+            alert("Bạn không có quyền truy cập khu vực bếp!");
           }
         } catch (err) {
           alert("Lỗi kết nối server");
@@ -178,12 +184,8 @@
           password: document.getElementById("regPassword").value,
           fullName: document.getElementById("regFullName").value.trim(),
           phone: document.getElementById("regPhone").value.trim(),
-
-          // Sửa lại đoạn này:
-          restaurantId: parseInt(
-            document.getElementById("regRestaurantId").value,
-          ), // Đóng ngoặc ) ở đây
-          role: "KITCHEN", // Thêm dòng này ở dưới, ngang hàng với restaurantId
+          restaurantId: parseInt(document.getElementById("regRestaurantId").value),
+          role: "KITCHEN",
         };
         if (!payload.restaurantId || payload.restaurantId <= 0) {
           alert("Vui lòng nhập ID Nhà hàng hợp lệ!");
@@ -197,7 +199,8 @@
           });
           const data = await res.json();
           if (res.ok) {
-            alert("Đăng ký thành công! Vui lòng đăng nhập.");
+            // 👇 ĐÃ SỬA THÔNG BÁO Ở ĐÂY
+            alert("Đăng ký thành công! Vui lòng chờ xét duyệt.");
             new bootstrap.Tab(
               document.querySelector('a[href="#login"]'),
             ).show();
