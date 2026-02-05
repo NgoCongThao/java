@@ -109,7 +109,6 @@ function openEditUser(id, name, role, resId) {
 } */      //Tuấn đã vô hiệu hóa đoạn code này vì không có quyền chỉnh sửa user
     
 async function deleteUser(id) {
-  // 👇 SỬA Ở ĐÂY: Chặn không cho xóa dù gọi hàm này
   alert("Chức năng xóa User đang bị tạm khóa!");
   return;
 
@@ -128,7 +127,6 @@ async function deleteUser(id) {
 // =========================================
 async function loadRestaurants() {
   try {
-    // Gọi API Guest để lấy danh sách (hoặc API Admin tùy backend)
     const res = await fetch(`${API_BASE}/guest/restaurants`); 
     const data = await res.json();
     const tbody = document.getElementById("table-restaurants");
@@ -137,7 +135,6 @@ async function loadRestaurants() {
     data.forEach((r) => {
       const cat = r.category ? `<span class="badge bg-info text-dark">${r.category}</span>` : "";
       
-      // Hiển thị Badge trạng thái đẹp hơn
       let statusBadge = '<span class="badge bg-secondary">Unknown</span>';
       if(r.status === 'active') statusBadge = '<span class="badge bg-success">Active</span>';
       if(r.status === 'inactive') statusBadge = '<span class="badge bg-secondary">Inactive</span>';
@@ -159,17 +156,21 @@ async function loadRestaurants() {
                         <small class="text-muted"><i class="fas fa-phone"></i> ${r.phone || '---'}</small>
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-warning" onclick="openMenuManager(${r.id}, '${r.name}')"><i class="fas fa-list"></i> Menu</button>
+                        <button class="btn btn-sm btn-warning" onclick="openMenuManager(${r.id}, '${r.name}')"><i class="fas fa-list"></i> Xem Menu</button>
                     </td>
                     <td>
                         <button class="btn btn-sm btn-primary" onclick='openEditRes(${JSON.stringify(r)})'><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteRes(${r.id})"><i class="fas fa-trash"></i></button>
+                        
+                        <button class="btn btn-sm btn-secondary" disabled title="Chức năng xóa đã bị khóa">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 </tr>
             `;
     });
   } catch (e) { console.error(e); }
 }
+
 
 function showModalRestaurant() {
   document.getElementById("res-id").value = "";
@@ -246,13 +247,9 @@ async function saveRestaurant() {
 }
 
 async function deleteRes(id) {
-  if (!confirm("CẢNH BÁO: Xóa nhà hàng sẽ xóa toàn bộ menu của nó!")) return;
-  const res = await fetch(`${API_BASE}/admin/restaurants/${id}`, {
-    method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (res.ok) loadRestaurants();
-  else alert("Không thể xóa nhà hàng này!");
+  // 👇 CHẶN CHỨC NĂNG XÓA
+  alert("Chức năng xóa nhà hàng đang bị tạm khóa để bảo vệ dữ liệu!");
+  return; 
 }
 
 // =========================================
