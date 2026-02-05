@@ -70,12 +70,15 @@ async function loadUsers() {
                     <td><span class="badge ${roleClass}">${u.role}</span></td>
                     <td>${u.restaurantId || ""}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteUser(${u.id})"><i class="fas fa-trash"></i></button>
+                        <button class="btn btn-sm btn-secondary" disabled title="Chức năng tạm khóa">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 </tr>
             `;
     });
   } catch (e) { console.error(e); }
+
 }
 
 function openEditUser(id, name, role, resId) {
@@ -106,12 +109,18 @@ function openEditUser(id, name, role, resId) {
 } */      //Tuấn đã vô hiệu hóa đoạn code này vì không có quyền chỉnh sửa user
     
 async function deleteUser(id) {
+  // 👇 SỬA Ở ĐÂY: Chặn không cho xóa dù gọi hàm này
+  alert("Chức năng xóa User đang bị tạm khóa!");
+  return;
+
+  /* ĐOẠN CODE CŨ ĐÃ BỊ VÔ HIỆU HÓA
   if (!confirm("Xóa user này?")) return;
   await fetch(`${API_BASE}/admin/users/${id}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
   loadUsers();
+  */
 }
 
 // =========================================
