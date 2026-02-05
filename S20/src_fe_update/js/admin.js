@@ -247,9 +247,13 @@ async function saveRestaurant() {
 }
 
 async function deleteRes(id) {
-  // 👇 CHẶN CHỨC NĂNG XÓA
-  alert("Chức năng xóa nhà hàng đang bị tạm khóa để bảo vệ dữ liệu!");
-  return; 
+  if (!confirm("CẢNH BÁO: Xóa nhà hàng sẽ xóa toàn bộ menu của nó!")) return;
+  const res = await fetch(`${API_BASE}/admin/restaurants/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (res.ok) loadRestaurants();
+  else alert("Không thể xóa nhà hàng này!");
 }
 
 // =========================================
@@ -334,6 +338,10 @@ async function openMenuManager(resId, resName) {
   document.getElementById("current-res-id-for-menu").value = resId;
   document.getElementById("menuTitle").innerText = "Menu: " + resName;
 
+  // 👇 Ẩn nút "Thêm món mới" trong Modal
+  const addBtn = document.querySelector("#modalMenuManager .btn-success");
+  if(addBtn) addBtn.style.display = 'none';
+
   try {
     const res = await fetch(`${API_BASE}/admin/menu/restaurant/${resId}`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -342,6 +350,11 @@ async function openMenuManager(resId, resName) {
 
     const tbody = document.getElementById("table-menu-items");
     tbody.innerHTML = "";
+    
+    if(items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">Chưa có món ăn nào.</td></tr>`;
+    }
+
     items.forEach((i) => {
       tbody.innerHTML += `
                 <tr>
@@ -351,8 +364,7 @@ async function openMenuManager(resId, resName) {
                     <td class="text-success">${formatMoney(i.price)}</td>
                     <td><small>${i.description || ""}</small></td>
                     <td>
-                        <button class="btn btn-sm btn-outline-primary" onclick='showModalMenuItem(${JSON.stringify(i)})'><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteMenuItem(${i.id})"><i class="fas fa-trash"></i></button>
+                        <span class="badge bg-secondary"><i class="fas fa-eye"></i> Chỉ xem</span>
                     </td>
                 </tr>
             `;
