@@ -123,7 +123,7 @@ public class BookingController {
             if (request.getTableNumber() != null) booking.setTableNumber(request.getTableNumber());
             booking.setStatus("PENDING");
 
-            // Tuấn đã sửa đoạn này để tính tổng tiền
+            // Huy đã sửa đoạn này để tính tổng tiền
             if (request.getItems() != null) {
     List<BookingItem> items = new ArrayList<>();
     double grandTotal = 0; // Biến tạm để tính tổng

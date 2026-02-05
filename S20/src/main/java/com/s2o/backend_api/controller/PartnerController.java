@@ -4,7 +4,9 @@ import com.s2o.backend_api.dto.RestaurantUpdateRequest;
 import com.s2o.backend_api.entity.MenuItem;
 import com.s2o.backend_api.entity.Restaurant;
 import com.s2o.backend_api.entity.User;
+import com.s2o.backend_api.repository.BookingRepository;
 import com.s2o.backend_api.repository.MenuItemRepository;
+import com.s2o.backend_api.repository.OrderRepository;
 import com.s2o.backend_api.repository.RestaurantRepository;
 import com.s2o.backend_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,12 @@ public class PartnerController {
     @Autowired
     private RestaurantRepository restaurantRepository;
 
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private BookingRepository bookingRepository;
+    
     // --- HÀM TIỆN ÍCH: Lấy ID Nhà Hàng ---
     private Long getCurrentRestaurantId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -168,7 +176,6 @@ public class PartnerController {
         List<User> staff = userRepository.findByRestaurantIdAndRoleAndStatus(resId, "KITCHEN", status);
         return ResponseEntity.ok(staff);
     }
-
     // 2. Duyệt nhân viên
     @PutMapping("/staff/{userId}/approve")
     public ResponseEntity<?> approveStaff(@PathVariable Long userId) {
@@ -198,5 +205,17 @@ public class PartnerController {
 
         userRepository.delete(staff);
         return ResponseEntity.ok("Đã xóa nhân viên!");
+    }
+
+    // 1. API Lấy danh sách Đơn món ăn của nhà hàng
+    @GetMapping("/orders/{resId}")
+    public ResponseEntity<?> getRestaurantOrders(@PathVariable Long resId) {
+        return ResponseEntity.ok(orderRepository.findByRestaurantIdOrderByCreatedAtDesc(resId));
+    }
+
+    // 2. API Lấy danh sách Đặt bàn của nhà hàng
+    @GetMapping("/bookings/{resId}")
+    public ResponseEntity<?> getRestaurantBookings(@PathVariable Long resId) {
+        return ResponseEntity.ok(bookingRepository.findByRestaurantIdOrderByCreatedAtDesc(resId));
     }
 }

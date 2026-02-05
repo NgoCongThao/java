@@ -49,7 +49,7 @@ public class StatisticController {
         return ResponseEntity.ok(res);
     }
 
-    // Huy thêm đoạn code này để tính doanh thu theo khoảng thời gian
+    // Tuấn thêm đoạn code này để tính doanh thu theo khoảng thời gian
    @GetMapping("/partner/{restaurantId}/range")
 public ResponseEntity<?> getRevenueByRange(
     @PathVariable Long restaurantId,
@@ -66,7 +66,7 @@ public ResponseEntity<?> getRevenueByRange(
     return ResponseEntity.ok(Map.of("revenue", revenue != null ? revenue : 0.0));
 }
 
-// Huy thêm đoạn code này để tính tổng doanh thu
+// Tuấn thêm đoạn code này để tính tổng doanh thu
 @GetMapping("/partner/{restaurantId}")
 public ResponseEntity<?> getPartnerStats(@PathVariable Long restaurantId) {
     // 1. Tính tổng toàn bộ để hiện ở Dashboard

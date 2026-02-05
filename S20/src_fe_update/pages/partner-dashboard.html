@@ -25,6 +25,11 @@
             <a class="nav-link active" onclick="switchTab('dashboard', this)">
                 <i class="fas fa-chart-line me-2"></i> Tổng quan
             </a>
+            
+            <a class="nav-link" onclick="switchTab('orders', this)">
+                <i class="fas fa-clipboard-list me-2"></i> Quản lý Đơn hàng
+            </a>
+
             <a class="nav-link" onclick="switchTab('menu', this)">
                 <i class="fas fa-book-open me-2"></i> Quản lý Menu
             </a>
@@ -35,11 +40,10 @@
                 <i class="fas fa-store me-2"></i> Thông tin Quán
             </a>
             <a class="nav-link" onclick="switchTab('revenue', this)">
-        <i class="fas fa-wallet me-2"></i> Quản lý Doanh thu
-    </a>
+                <i class="fas fa-wallet me-2"></i> Quản lý Doanh thu
+            </a>
         </nav>
 
-        
         <div class="mt-auto p-3">
             <button class="btn btn-danger w-100" onclick="logout()">
                 <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
@@ -57,63 +61,112 @@
         </div>
         
         <div id="tab-dashboard">
-           <div class="row g-3">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="card p-3 bg-white border-start border-4 border-primary">
+                        <h6 class="text-muted fw-bold small text-uppercase">Tổng món ăn</h6>
+                        <h3 class="fw-bold" id="stats-menu-count">0</h3>
+                    </div>
+                </div>
 
-    <!-- Huy đã thêm phần hiển thị tổng doanh thu toàn bộ ở đây -->
-          <div class="col-md-4">
-            <div class="card p-3 bg-white border-start border-4 border-success">
-                <h6 class="text-muted fw-bold small text-uppercase">Tổng doanh thu toàn bộ</h6>
-                <h3 class="fw-bold text-success" id="stats-revenue-grand-total">0 ₫</h3>
+                <div class="col-md-4">
+                    <div class="card p-3 bg-white border-start border-4 border-warning">
+                        <h6 class="text-muted fw-bold small text-uppercase">Nhân viên chờ duyệt</h6>
+                        <h3 class="fw-bold" id="stats-staff-pending">0</h3>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card p-3 bg-white border-start border-4 border-success">
+                        <h6 class="text-muted fw-bold small text-uppercase">Tổng doanh thu toàn bộ</h6>
+                        <h3 class="fw-bold text-success" id="stats-revenue-grand-total">0 ₫</h3>
+                    </div>
+                </div>
             </div>
-        </div> 
-
-        <div class="col-md-4">
-            <div class="card p-3 bg-white border-start border-4 border-primary">
-                <h6 class="text-muted fw-bold small text-uppercase">Tổng món ăn</h6>
-                <h3 class="fw-bold" id="stats-menu-count">0</h3>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card p-3 bg-white border-start border-4 border-warning">
-                <h6 class="text-muted fw-bold small text-uppercase">Nhân viên chờ duyệt</h6>
-                <h3 class="fw-bold" id="stats-staff-pending">0</h3>
-            </div>
-        </div>
-    </div>
             <div class="alert alert-info mt-4">
                 <i class="fas fa-info-circle me-2"></i> 
                 ID Nhà hàng của bạn là: <b class="fs-5 text-danger"><span id="id-hint">...</span></b>. Hãy cung cấp số này cho Đầu bếp khi họ đăng ký.
             </div>
         </div>
 
-<div id="tab-revenue" style="display: none;">
-        <h4 class="fw-bold mb-4">Quản lý Doanh thu</h4>
-        
-        <div class="card p-4 mb-4 border-0 shadow-sm">
-            <h5 class="fw-bold mb-3"><i class="fas fa-filter me-2 text-primary"></i>Lọc doanh thu theo ngày</h5>
-            <div class="row g-3 align-items-end">
-                <div class="col-md-4">
-                    <label class="form-label small fw-bold">Từ ngày:</label>
-                    <input type="date" id="filter-start-date" class="form-control">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label small fw-bold">Đến ngày:</label>
-                    <input type="date" id="filter-end-date" class="form-control">
-                </div>
-                <div class="col-md-4">
-                    <button class="btn btn-primary w-100 fw-bold" onclick="loadRevenueByRange()">
-                        <i class="fas fa-search me-1"></i> Xem kết quả
-                    </button>
-                </div>
-            </div>
+        <div id="tab-orders" style="display: none;">
+            <h4 class="fw-bold mb-3">Quản lý Đơn hàng & Đặt bàn</h4>
             
-            <div class="mt-4 p-3 bg-light rounded border text-center">
-                <span class="text-muted">Tổng doanh thu kỳ này:</span>
-                <h2 class="fw-bold text-danger mb-0" id="range-revenue-display">0 ₫</h2>
+            <ul class="nav nav-tabs mb-3" id="orderTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold" id="food-tab" data-bs-toggle="tab" data-bs-target="#subtab-food" type="button" role="tab">
+                        <i class="fas fa-utensils me-2"></i> Đơn Món Ăn
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold" id="booking-tab" data-bs-toggle="tab" data-bs-target="#subtab-booking" type="button" role="tab">
+                        <i class="fas fa-calendar-check me-2"></i> Đơn Đặt Bàn
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="subtab-food" role="tabpanel">
+                    <div class="card p-0 border-0 shadow-sm">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Khách hàng</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thời gian</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-orders-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="subtab-booking" role="tabpanel">
+                    <div class="card p-0 border-0 shadow-sm">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-primary text-white">
+                                <tr>
+                                    <th>Mã Booking</th>
+                                    <th>Khách hàng</th>
+                                    <th>Số người</th>
+                                    <th>Tổng tiền</th> <th>Ngày đến</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-bookings-body"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+
+        <div id="tab-revenue" style="display: none;">
+            <h4 class="fw-bold mb-4">Quản lý Doanh thu</h4>
+            <div class="card p-4 mb-4 border-0 shadow-sm">
+                <h5 class="fw-bold mb-3"><i class="fas fa-filter me-2 text-primary"></i>Lọc doanh thu theo ngày</h5>
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Từ ngày:</label>
+                        <input type="date" id="filter-start-date" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Đến ngày:</label>
+                        <input type="date" id="filter-end-date" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-primary w-100 fw-bold" onclick="loadRevenueByRange()">
+                            <i class="fas fa-search me-1"></i> Xem kết quả
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 bg-light rounded border text-center">
+                    <span class="text-muted">Tổng doanh thu kỳ này:</span>
+                    <h2 class="fw-bold text-danger mb-0" id="range-revenue-display">0 ₫</h2>
+                </div>
+            </div>
+        </div>
 
         <div id="tab-menu" style="display: none;">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -152,11 +205,7 @@
                 <table class="table table-hover mb-0 align-middle">
                     <thead class="bg-light">
                         <tr>
-                            <th class="ps-4">Họ tên</th> 
-                            <th>Số điện thoại</th> 
-                            <th>Vai trò</th>
-                            <th>Trạng thái</th> 
-                            <th class="text-end pe-4">Hành động</th>
+                            <th class="ps-4">Họ tên</th> <th>Số điện thoại</th> <th>Vai trò</th> <th>Trạng thái</th> <th class="text-end pe-4">Hành động</th>
                         </tr>
                     </thead>
                     <tbody id="staff-tbody">
@@ -244,13 +293,106 @@
 
         function switchTab(tabName, element) {
             document.querySelectorAll('.main-content > div[id^="tab-"]').forEach(el => el.style.display = 'none');
-            document.getElementById('tab-' + tabName).style.display = 'block';
+            const target = document.getElementById('tab-' + tabName);
+            if(target) target.style.display = 'block';
+
             document.querySelectorAll('.sidebar .nav-link').forEach(el => el.classList.remove('active'));
             if(element) element.classList.add('active');
 
             if (tabName === 'menu') loadMenu();
             if (tabName === 'info') loadRestaurantInfo();
             if (tabName === 'staff') loadStaff('PENDING'); 
+            if (tabName === 'dashboard') loadDashboardStats();
+            
+            if (tabName === 'orders') {
+                loadPartnerOrders();
+                loadPartnerBookings();
+            }
+        }
+
+        async function loadPartnerOrders() {
+            const resId = userObj.restaurantId;
+            try {
+                const res = await fetch(`${API_BASE}/partner/orders/${resId}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const list = await res.json();
+                const tbody = document.getElementById("table-orders-body");
+                tbody.innerHTML = "";
+
+                if(list.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-muted">Chưa có đơn hàng nào.</td></tr>`;
+                    return;
+                }
+
+                list.forEach(o => {
+                    let statusBadge = 'bg-secondary';
+                    if(o.status === 'COMPLETED') statusBadge = 'bg-success';
+                    if(o.status === 'PENDING') statusBadge = 'bg-warning text-dark';
+                    if(o.status === 'CANCELLED') statusBadge = 'bg-danger';
+
+                    const price = o.totalPrice ? o.totalPrice.toLocaleString('vi-VN') + ' ₫' : '0 ₫';
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><span class="fw-bold">#${o.id}</span></td>
+                            <td>
+                                <div class="fw-bold">${o.user ? o.user.fullName : "Khách lẻ"}</div>
+                                <small class="text-muted">${o.phone || ""}</small>
+                            </td>
+                            <td class="text-danger fw-bold">${price}</td>
+                            <td><span class="badge ${statusBadge}">${o.status}</span></td>
+                            <td>${new Date(o.createdAt).toLocaleString('vi-VN')}</td>
+                        </tr>
+                    `;
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadPartnerBookings() {
+            const resId = userObj.restaurantId;
+            try {
+                const res = await fetch(`${API_BASE}/partner/bookings/${resId}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+                const list = await res.json();
+                const tbody = document.getElementById("table-bookings-body");
+                tbody.innerHTML = "";
+
+                if(list.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-muted">Chưa có lượt đặt bàn nào.</td></tr>`;
+                    return;
+                }
+
+                list.forEach(b => {
+                    let statusBadge = 'bg-secondary';
+                    if(b.status === 'CONFIRMED') statusBadge = 'bg-primary';
+                    if(b.status === 'PENDING') statusBadge = 'bg-warning text-dark';
+                    if(b.status === 'CANCELLED') statusBadge = 'bg-danger';
+                    if(b.status === 'COMPLETED') statusBadge = 'bg-success';
+
+                    const bookingTime = b.bookingDate ? new Date(b.bookingDate).toLocaleString('vi-VN') : "---";
+                    
+                    // 🔥 ĐÃ THÊM LOGIC HIỂN THỊ GIÁ TIỀN
+                    const price = b.totalPrice ? b.totalPrice.toLocaleString('vi-VN') + ' ₫' : '0 ₫';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><span class="fw-bold text-primary">BK-${b.id}</span></td>
+                            <td>
+                                <div class="fw-bold">${b.user ? b.user.fullName : "Khách vãng lai"}</div>
+                                <small class="text-muted">${b.phone || ""}</small>
+                            </td>
+                            <td><span class="badge bg-info text-dark"><i class="fas fa-users"></i> ${b.numberOfPeople || 1}</span></td>
+                            
+                            <td class="text-danger fw-bold">${price}</td>
+
+                            <td>${bookingTime}</td>
+                            <td><span class="badge ${statusBadge}">${b.status}</span></td>
+                        </tr>
+                    `;
+                });
+            } catch (e) { console.error(e); }
         }
 
         // --- STAFF LOGIC ---
@@ -300,72 +442,65 @@
             } catch(e) { console.error("Lỗi tải staff:", e); }
         }
 
-async function loadDashboardStats() {
-    const resId = userObj.restaurantId; // Lấy ID quán từ localStorage
-    if (!resId) return;
+        async function loadDashboardStats() {
+            const resId = userObj.restaurantId;
+            if (!resId) return;
 
-    try {
-        const res = await fetch(`${API_BASE}/stats/partner/${resId}`, {
-            headers: { "Authorization": `Bearer ${token}` }
-        });
+            try {
+                const res = await fetch(`${API_BASE}/stats/partner/${resId}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
 
-        if (res.ok) {
-            const data = await res.json();
-            
-            // Định dạng tiền tệ VND
-            const formatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
-            
-            // Gán giá trị vào đúng ID stats-revenue-grand-total trên giao diện
-            const el = document.getElementById("stats-revenue-grand-total");
-            if (el) {
-                el.innerText = formatter.format(data.totalRevenue);
+                if (res.ok) {
+                    const data = await res.json();
+                    const formatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
+                    
+                    const el = document.getElementById("stats-revenue-grand-total");
+                    if (el) {
+                        el.innerText = formatter.format(data.totalRevenue);
+                    }
+                }
+            } catch (e) {
+                console.error("Lỗi tải thống kê Dashboard:", e);
             }
         }
-    } catch (e) {
-        console.error("Lỗi tải thống kê Dashboard:", e);
-    }
-}
 
-// Đảm bảo hàm này được gọi khi trang vừa load xong
-window.onload = function() {
-    loadDashboardStats(); // Tải tiền tổng
-    loadRestaurantInfo();
-    loadMenu();
-    loadStaff('PENDING');
-};
+        window.onload = function() {
+            loadDashboardStats();
+            loadRestaurantInfo();
+            loadMenu();
+            loadStaff('PENDING');
+        };
         
-async function loadRevenueByRange() {
-    const resId = userObj.restaurantId;
-    const start = document.getElementById("filter-start-date").value;
-    const end = document.getElementById("filter-end-date").value;
+        async function loadRevenueByRange() {
+            const resId = userObj.restaurantId;
+            const start = document.getElementById("filter-start-date").value;
+            const end = document.getElementById("filter-end-date").value;
 
-    if (!start || !end) {
-        alert("Vui lòng chọn đầy đủ từ ngày và đến ngày!");
-        return;
-    }
+            if (!start || !end) {
+                alert("Vui lòng chọn đầy đủ từ ngày và đến ngày!");
+                return;
+            }
 
-    try {
-        const res = await fetch(`${API_BASE}/stats/partner/${resId}/range?startDate=${start}&endDate=${end}`, {
-            headers: { "Authorization": `Bearer ${token}` }
-        });
+            try {
+                const res = await fetch(`${API_BASE}/stats/partner/${resId}/range?startDate=${start}&endDate=${end}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
 
-        if (res.ok) {
-            const data = await res.json();
-            const formatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
-            
-            // Hiển thị kết quả
-            document.getElementById("range-revenue-display").innerText = formatter.format(data.revenue);
-        } else {
-            alert("Không thể lấy dữ liệu doanh thu!");
+                if (res.ok) {
+                    const data = await res.json();
+                    const formatter = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
+                    document.getElementById("range-revenue-display").innerText = formatter.format(data.revenue);
+                } else {
+                    alert("Không thể lấy dữ liệu doanh thu!");
+                }
+            } catch (err) {
+                console.error("Lỗi:", err);
+            }
         }
-    } catch (err) {
-        console.error("Lỗi:", err);
-    }
-}
 
-// Tự động điền ngày hôm nay vào ô lọc cho tiện
-document.getElementById("filter-start-date").valueAsDate = new Date();
-document.getElementById("filter-end-date").valueAsDate = new Date();
+        document.getElementById("filter-start-date").valueAsDate = new Date();
+        document.getElementById("filter-end-date").valueAsDate = new Date();
 
         async function approveStaff(id) {
             if(!confirm("Duyệt nhân viên này?")) return;
@@ -448,7 +583,7 @@ document.getElementById("filter-end-date").valueAsDate = new Date();
             new bootstrap.Modal(document.getElementById('menuModal')).show();
         }
 
-        // --- INFO LOGIC (CẬP NHẬT THÊM LAT/LONG/STATUS) ---
+        // --- INFO LOGIC ---
         async function loadRestaurantInfo() {
             try {
                 const res = await fetch(`${API_BASE}/partner/info`, { headers: { "Authorization": `Bearer ${token}` } });
@@ -468,11 +603,9 @@ document.getElementById("filter-end-date").valueAsDate = new Date();
                 document.getElementById('info-desc').value = data.description || '';
                 document.getElementById('info-isOpen').checked = data.isOpen === true;
 
-                // --- 👇 LOAD KINH ĐỘ / VĨ ĐỘ 👇 ---
                 document.getElementById('info-latitude').value = data.latitude || '';
                 document.getElementById('info-longitude').value = data.longitude || '';
                 
-                // --- 👇 HIỂN THỊ STATUS 👇 ---
                 const statusBadge = document.getElementById('info-status-badge');
                 statusBadge.innerText = data.status || 'UNKNOWN';
                 statusBadge.className = `badge ${data.status === 'ACTIVE' ? 'bg-success' : 'bg-danger'}`;
@@ -491,11 +624,8 @@ document.getElementById("filter-end-date").valueAsDate = new Date();
                 image: document.getElementById('info-image').value, 
                 description: document.getElementById('info-desc').value, 
                 isOpen: document.getElementById('info-isOpen').checked,
-                
-                // --- 👇 GỬI LAT/LONG VỀ SERVER 👇 ---
                 latitude: document.getElementById('info-latitude').value,
                 longitude: document.getElementById('info-longitude').value
-                // ------------------------------------
             };
             await fetch(`${API_BASE}/partner/info`, { method: "PUT", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }, body: JSON.stringify(body) });
             loadRestaurantInfo(); alert("Đã cập nhật thông tin quán!");

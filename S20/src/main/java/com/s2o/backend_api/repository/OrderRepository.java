@@ -43,4 +43,6 @@ Double calculateRevenueByRange(
        "(SELECT COALESCE(SUM(total_price), 0) FROM bookings WHERE restaurant_id = :resId AND status = 'COMPLETED')", 
        nativeQuery = true)
 Double calculateGrandTotalRevenue(@Param("resId") Long resId);
+
+List<Order> findByRestaurantIdOrderByCreatedAtDesc(Long restaurantId);
 }

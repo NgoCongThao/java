@@ -57,4 +57,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
            "AND b.status NOT IN ('CANCELLED', 'REJECTED')")
     long countTotalBookingsInDay(@Param("resId") Long resId, 
                                  @Param("date") LocalDate date);
+
+List<Booking> findByRestaurantIdOrderByCreatedAtDesc(Long restaurantId);
 }
