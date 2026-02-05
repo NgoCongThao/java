@@ -13,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime; // Import thêm cái này
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter; // Import thêm cái này để parse giờ mở cửa
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,7 +34,7 @@ public class BookingController {
     private RestaurantRepository restaurantRepository;
 
     // ========================================================================
-    // API 1: TẠO BOOKING (SỬ DỤNG JAVA LOGIC ĐỂ CHẶN TRÙNG)
+    // API 1: TẠO BOOKING (ĐÃ THÊM LOGIC CHECK GIỜ MỞ CỬA & QUÁ KHỨ)
     // ========================================================================
     @org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('USER', 'ROLE_USER')")
     @PostMapping("/create")
@@ -40,7 +42,7 @@ public class BookingController {
         try {
             System.out.println("--- BẮT ĐẦU ĐẶT BÀN ---");
 
-            // 1. Xử lý thời gian
+            // 1. Xử lý thời gian từ Request
             LocalTime bookingTime;
             try {
                 bookingTime = LocalTime.parse(request.getTime().toString()); 
@@ -55,9 +57,45 @@ public class BookingController {
             Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId()).orElse(null);
             if (restaurant == null) return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Nhà hàng lỗi."));
 
-            // 3. KIỂM TRA TRÙNG BÀN (Logic Java chính xác 100%)
+            // -----------------------------------------------------------
+            // LOGIC MỚI THÊM: KIỂM TRA THỜI GIAN HỢP LỆ
+            // -----------------------------------------------------------
+
+            // A. Kiểm tra Quá khứ (Ngày + Giờ)
+            LocalDateTime selectedDateTime = LocalDateTime.of(request.getDate(), bookingTime);
+            if (selectedDateTime.isBefore(LocalDateTime.now())) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false, 
+                    "message", "Lỗi: Thời gian đặt bàn đã trôi qua. Vui lòng chọn thời gian khác!"
+                ));
+            }
+
+            // B. Kiểm tra Giờ mở cửa của Nhà hàng (Ví dụ string: "08:00 - 22:00")
+            String timeRange = restaurant.getTime(); // Giả sử DB lưu chuỗi "HH:mm - HH:mm"
+            if (timeRange != null && timeRange.contains("-")) {
+                try {
+                    String[] parts = timeRange.split("-");
+                    // Xử lý cắt chuỗi và trim khoảng trắng
+                    LocalTime openTime = LocalTime.parse(parts[0].trim()); 
+                    LocalTime closeTime = LocalTime.parse(parts[1].trim());
+
+                    // Logic: Giờ đặt phải >= Giờ mở VÀ Giờ đặt <= Giờ đóng
+                    // (Có thể trừ đi 1 tiếng trước khi đóng cửa để kịp ăn nếu muốn)
+                    if (bookingTime.isBefore(openTime) || bookingTime.isAfter(closeTime)) {
+                        return ResponseEntity.badRequest().body(Map.of(
+                            "success", false, 
+                            "message", "Nhà hàng chưa mở cửa vào giờ này. Giờ hoạt động: " + timeRange
+                        ));
+                    }
+                } catch (Exception e) {
+                    System.out.println("Lỗi parse giờ mở cửa nhà hàng: " + e.getMessage());
+                    // Nếu lỗi format giờ trong DB thì tạm thời cho qua hoặc log lại
+                }
+            }
+            // -----------------------------------------------------------
+
+            // 3. KIỂM TRA TRÙNG BÀN (Logic cũ giữ nguyên)
             if (request.getTableNumber() != null && request.getTableNumber() > 0) {
-                // Lấy danh sách đơn của bàn này
                 List<Booking> bookings = bookingRepository.findBookingsForConflictCheck(
                         restaurant.getId(), 
                         request.getTableNumber(), 
@@ -67,12 +105,12 @@ public class BookingController {
                 if (isTimeOverlapping(bookings, bookingTime)) {
                     return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "message", "Rất tiếc! Bàn số " + request.getTableNumber() + " đã bị trùng giờ với khách khác. Vui lòng chọn bàn khác!"
+                        "message", "Rất tiếc! Bàn số " + request.getTableNumber() + " đã bị trùng giờ với khách khác."
                     ));
                 }
             }
 
-            // 4. Lưu Booking
+            // 4. Lưu Booking (Giữ nguyên)
             Booking booking = new Booking();
             booking.setUser(user);
             booking.setRestaurant(restaurant);
@@ -107,6 +145,8 @@ public class BookingController {
         }
     }
 
+    // ... (Giữ nguyên phần còn lại của file: API Table Status, Helper methods...)
+    
     // ========================================================================
     // API 2: LẤY TRẠNG THÁI BÀN (SỬA LẠI ĐỂ ĐỒNG BỘ VỚI LOGIC ĐẶT BÀN)
     // ========================================================================
