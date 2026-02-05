@@ -13,42 +13,21 @@ import java.util.List;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    // --- QUAN TRỌNG: QUERY NÀY SẼ LẤY LUÔN THÔNG TIN NHÀ HÀNG ---
+    // 1. Lấy lịch sử của User
     @Query("SELECT b FROM Booking b JOIN FETCH b.restaurant WHERE b.user.id = :userId ORDER BY b.createdAt DESC")
     List<Booking> findByUserIdOrderByCreatedAtDesc(@Param("userId") Long userId);
-    // ------------------------------------------------------------
 
-    // Đếm số lượng bàn đã đặt (Logic kiểm tra full bàn)
-    @Query(value = "SELECT COUNT(*) FROM bookings " +
-                   "WHERE restaurant_id = :resId " +
-                   "AND booking_date = :date " +
-                   "AND booking_time >= CAST(:startTime AS TIME) " +
-                   "AND booking_time <= CAST(:endTime AS TIME) " +
-                   "AND status NOT IN ('CANCELLED', 'REJECTED')", 
-           nativeQuery = true)
-    long countBookedTables(@Param("resId") Long resId, 
-                           @Param("date") LocalDate date, 
-                           @Param("startTime") LocalTime startTime, 
-                           @Param("endTime") LocalTime endTime);
-
-    // Lấy danh sách các số bàn (table_number) đã bị đặt (để tô màu đỏ trên Frontend)
+    // 2. Query cũ (Chỉ giữ lại để tham khảo, logic chính sẽ dùng hàm findBookingsForConflictCheck bên dưới)
     @Query(value = "SELECT DISTINCT table_number FROM bookings " +
                    "WHERE restaurant_id = :resId " +
                    "AND booking_date = :date " +
-                   "AND booking_time >= CAST(:startTime AS TIME) " +
-                   "AND booking_time <= CAST(:endTime AS TIME) " +
                    "AND status NOT IN ('CANCELLED', 'REJECTED') " +
                    "AND table_number IS NOT NULL", 
            nativeQuery = true)
     List<Integer> findBookedTableNumbers(@Param("resId") Long resId,
-                                         @Param("date") LocalDate date,
-                                         @Param("startTime") LocalTime startTime,
-                                         @Param("endTime") LocalTime endTime);
+                                         @Param("date") LocalDate date);
 
-    // --- METHOD CHO KITCHEN: LẤY BOOKINGS CÓ MÓN ĂN KÈM, CHƯA HOÀN TẤT ---
-    // Sửa WHERE thành b.restaurant.id (vì entity dùng relationship Restaurant)
-    // JOIN FETCH items để tránh lazy load
-    // JOIN restaurant để có thể dùng b.restaurant.id
+    // 3. Method cho Bếp
     @Query("SELECT b FROM Booking b " +
            "LEFT JOIN FETCH b.items " +
            "JOIN b.restaurant r " +
@@ -58,5 +37,24 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
            "ORDER BY b.createdAt ASC")
     List<Booking> findKitchenBookings(@Param("restaurantId") Long restaurantId,
                                       @Param("excludedStatus") String excludedStatus);
-    // --------------------------------------------------------------------
+
+    // --- [HÀM QUAN TRỌNG NHẤT: JAVA LOGIC DATA SOURCE] ---
+    // Lấy danh sách booking để Java tự xử lý logic trùng giờ.
+    // Cập nhật: Thêm điều kiện (:tableNumber IS NULL OR ...) để hỗ trợ lấy tất cả bàn
+    @Query("SELECT b FROM Booking b " +
+           "WHERE b.restaurant.id = :resId " +
+           "AND (:tableNumber IS NULL OR b.tableNumber = :tableNumber) " +
+           "AND b.bookingDate = :date " +
+           "AND b.status NOT IN ('CANCELLED', 'REJECTED')")
+    List<Booking> findBookingsForConflictCheck(@Param("resId") Long resId,
+                                               @Param("tableNumber") Integer tableNumber,
+                                               @Param("date") LocalDate date);
+    
+    // Hàm đếm tổng (check full quán)
+    @Query("SELECT COUNT(b) FROM Booking b " +
+           "WHERE b.restaurant.id = :resId " +
+           "AND b.bookingDate = :date " +
+           "AND b.status NOT IN ('CANCELLED', 'REJECTED')")
+    long countTotalBookingsInDay(@Param("resId") Long resId, 
+                                 @Param("date") LocalDate date);
 }

@@ -1356,6 +1356,9 @@
       }
 
       // Hàm tải trạng thái bàn từ API thực tế
+      // ---------------------------------------------------------
+      // 1. HÀM TẢI TRẠNG THÁI BÀN (Cập nhật logic reset bàn chọn)
+      // ---------------------------------------------------------
       async function loadTableStatus() {
         const date = document.getElementById("bookDate").value;
         const time = document.getElementById("bookTime").value;
@@ -1366,32 +1369,50 @@
         }
 
         const tableGrid = document.getElementById("tableGrid");
+        // Giữ độ cao khung để không bị giật layout khi loading
         tableGrid.innerHTML = `
-          <div class="table-loading">
-            <div class="spinner-border spinner-border-sm"></div>
-            <div class="mt-2">Đang tải trạng thái bàn...</div>
+          <div class="table-loading" style="min-height: 150px; display:flex; flex-direction:column; justify-content:center;">
+            <div class="spinner-border spinner-border-sm text-primary mx-auto"></div>
+            <div class="mt-2 small text-muted">Đang kiểm tra bàn trống...</div>
           </div>
         `;
 
         try {
-          // Gọi API thực tế từ Backend
+          // Gọi API Backend (API này đã được sửa ở bước trước để check giờ chính xác)
           const res = await fetch(
             `http://localhost:8080/api/bookings/table-status?restaurantId=${REST_ID}&date=${date}&time=${time}`,
           );
 
           if (!res.ok) {
-            throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+            throw new Error(`Lỗi HTTP ${res.status}`);
           }
 
           const tables = await res.json();
           renderTables(tables);
+
+          // --- LOGIC MỚI: TỰ ĐỘNG BỎ CHỌN NẾU BÀN ĐANG CHỌN BỊ NGƯỜI KHÁC ĐẶT ---
+          if (selectedTable) {
+            const currentTableState = tables.find(
+              (t) => t.number === selectedTable,
+            );
+            // Nếu bàn đang chọn bỗng nhiên chuyển sang status 'booked'
+            if (currentTableState && currentTableState.status === "booked") {
+              selectedTable = null; // Hủy chọn
+              document.getElementById("selectedTableInfo").textContent =
+                "Bàn đã bị đặt! Vui lòng chọn bàn khác";
+              document.getElementById("selectedTableInfo").className =
+                "text-danger fw-bold";
+              // Render lại để mất màu cam (selected)
+              renderTables(tables);
+            }
+          }
+          // -----------------------------------------------------------------------
         } catch (error) {
-          console.error("Lỗi tải trạng thái bàn:", error);
+          console.error("Lỗi tải bàn:", error);
           tableGrid.innerHTML = `
             <div class="table-loading text-danger">
-              <i class="fas fa-exclamation-triangle"></i>
-              <div class="mt-2">Không thể tải trạng thái bàn</div>
-              <small class="text-muted">${error.message}</small>
+              <i class="fas fa-wifi"></i>
+              <div class="mt-1 small">Không tải được dữ liệu bàn</div>
             </div>
           `;
         }
@@ -1404,8 +1425,7 @@
         if (!tables || tables.length === 0) {
           tableGrid.innerHTML = `
             <div class="table-loading">
-              <i class="fas fa-table fa-2x mb-2"></i>
-              <div>Không có dữ liệu bàn</div>
+              <span class="text-muted small">Vui lòng chọn ngày giờ để xem bàn</span>
             </div>
           `;
           return;
@@ -1414,36 +1434,50 @@
         let html = "";
         tables.forEach((table) => {
           let className = "table-item";
+          let isBooked = table.status === "booked";
+          let isSelected = selectedTable === table.number;
 
-          if (table.status === "booked") {
-            className += " booked";
+          // 1. Xử lý Class màu sắc
+          if (isBooked) {
+            className += " booked"; // Class này sẽ làm bàn hiện màu ĐỎ (theo CSS ở trên)
+          } else if (isSelected) {
+            className += " selected"; // Màu CAM
           } else {
-            className += " available";
+            className += " available"; // Màu XANH
           }
 
-          if (selectedTable === table.number) {
-            className += " selected";
-          }
+          // 2. Xử lý sự kiện Click (Chỉ cho click nếu bàn chưa đặt)
+          // Dùng hàm void(0) để chặn click nếu đã booked
+          const clickAction = !isBooked ? `selectTable(${table.number})` : "";
+          const titleText = isBooked
+            ? `Bàn ${table.number} (Đã có khách)`
+            : `Bàn ${table.number} (Trống)`;
 
           html += `
             <div class="${className}" 
-                 onclick="${table.status === "available" ? `selectTable(${table.number})` : ""}"
-                 title="Bàn ${table.number}">
+                 onclick="${clickAction}"
+                 title="${titleText}">
               ${table.number}
+              ${isBooked ? '<i class="fas fa-times-circle small ms-1" style="font-size: 0.6rem;"></i>' : ""}
             </div>
           `;
         });
 
         tableGrid.innerHTML = html;
       }
-
       // Hàm chọn bàn
       function selectTable(tableNumber) {
+        // Cập nhật biến toàn cục
         selectedTable = tableNumber;
-        document.getElementById("selectedTableInfo").textContent =
-          `Đã chọn: Bàn ${tableNumber}`;
-        renderTables(tables); // Lưu ý: cần có biến tables toàn cục, hoặc gọi lại API
-        // Tạm thời reload lại UI bằng cách gọi lại loadTableStatus
+
+        // Cập nhật text hiển thị
+        const infoLabel = document.getElementById("selectedTableInfo");
+        infoLabel.textContent = `Đã chọn: Bàn ${tableNumber}`;
+        infoLabel.className = "text-primary fw-bold"; // Reset màu về xanh nếu trước đó bị đỏ
+
+        // Gọi lại loadTableStatus để render lại màu sắc (Bàn vừa chọn sẽ thành màu cam)
+        // Tuy nhiên để đỡ gọi API lại, ta có thể chỉ update class trong DOM,
+        // nhưng gọi lại loadTableStatus cho an toàn (đồng bộ dữ liệu mới nhất)
         loadTableStatus();
       }
 
