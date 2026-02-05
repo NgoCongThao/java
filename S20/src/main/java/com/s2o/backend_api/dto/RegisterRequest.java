@@ -9,6 +9,17 @@ public class RegisterRequest {
     private String fullName;
     private String phone;
 
-    // THÊM TRƯỜNG NÀY (có thể null cho khách thường)
+    // Dành cho Bếp (KITCHEN) hoặc nhập tay ID quán
     private Long restaurantId;
+
+    // --- 👇 CÁC TRƯỜNG MỚI CHO CHỦ NHÀ HÀNG (MANAGER) 👇 ---
+    
+    // Để phân biệt vai trò: "MANAGER", "USER", "KITCHEN"
+    private String role;           
+    
+    // Tên quán (Bắt buộc nếu là MANAGER)
+    private String restaurantName; 
+    
+    // Địa chỉ quán (Bắt buộc nếu là MANAGER)
+    private String address;        
 }

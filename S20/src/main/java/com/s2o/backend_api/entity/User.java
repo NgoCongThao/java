@@ -25,9 +25,12 @@ public class User {
     @Column(columnDefinition = "NVARCHAR(255)")
     private String address;
 
-    private String role; // "USER" hoặc "KITCHEN"
+    private String role; // "USER", "MANAGER", "KITCHEN"
 
-    // THÊM TRƯỜNG NÀY
+    // --- 👇 MỚI THÊM: Sửa lỗi setStatus/getStatus bị đỏ bên AuthController 👇 ---
+    private String status; // Lưu: "PENDING", "ACTIVE", "BANNED"
+    // --------------------------------------------------------------------------
+
     @Column(name = "restaurant_id")
     private Long restaurantId;
 }

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S2O Partner - Kênh Đối Tác Nhà Hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #cc5500; 
+            --primary-dark: #a34500;
+            --bg-color: #fff5f0;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .auth-wrapper {
+            background: white;
+            width: 900px;
+            max-width: 95%;
+            min-height: 600px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            display: flex;
+            overflow: hidden;
+        }
+        
+        /* Cột Trái: Banner Quảng Cáo */
+        .auth-banner {
+            width: 45%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #ff9f43 100%);
+            color: white;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .banner-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.2);
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+        }
+        .tick-list li {
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+        .tick-list i {
+            margin-right: 10px;
+            color: #fff;
+        }
+
+        /* Cột Phải: Form */
+        .auth-form-container {
+            width: 55%;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        .nav-pills .nav-link {
+            color: #6c757d;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 10px 20px;
+        }
+        .nav-pills .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .form-control {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(204, 85, 0, 0.15);
+        }
+        .btn-partner {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 8px;
+            width: 100%;
+            border: none;
+            transition: 0.3s;
+        }
+        .btn-partner:hover {
+            background-color: var(--primary-dark);
+        }
+        .back-home {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-decoration: none;
+            color: #adb5bd;
+            font-size: 0.9rem;
+        }
+        .back-home:hover { color: var(--primary-color); }
+
+        @media (max-width: 768px) {
+            .auth-wrapper { flex-direction: column; height: auto; }
+            .auth-banner { display: none; }
+            .auth-form-container { width: 100%; padding: 30px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-wrapper">
+    <div class="auth-banner">
+        <div class="banner-icon"><i class="fas fa-chart-line"></i></div>
+        <h2 class="fw-bold mb-3">S2O PARTNER</h2>
+        <p class="opacity-75 mb-4">Giải pháp quản lý nhà hàng thông minh, giúp bạn tăng doanh thu và tối ưu vận hành.</p>
+        
+        <ul class="list-unstyled tick-list">
+            <li><i class="fas fa-check-circle"></i> Quản lý Menu & Giá bán linh hoạt</li>
+            <li><i class="fas fa-check-circle"></i> Theo dõi doanh thu Real-time</li>
+            <li><i class="fas fa-check-circle"></i> Tự động in hóa đơn xuống bếp</li>
+            <li><i class="fas fa-check-circle"></i> Không phí cài đặt ban đầu</li>
+        </ul>
+        
+        <div class="mt-auto pt-4 border-top border-white border-opacity-25">
+            <small class="d-block mb-1">Đã có hơn 500+ đối tác tin dùng</small>
+            <div class="d-flex gap-2">
+                <i class="fas fa-star text-warning"></i>
+                <i class="fas fa-star text-warning"></i>
+                <i class="fas fa-star text-warning"></i>
+                <i class="fas fa-star text-warning"></i>
+                <i class="fas fa-star text-warning"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-form-container">
+        <a href="authcus.html" class="back-home"><i class="fas fa-arrow-left"></i> Quay lại</a>
+
+        <div class="text-center mb-4">
+            <h3 class="fw-bold text-dark">Kênh Đối Tác</h3>
+            <p class="text-muted small">Dành cho Chủ Nhà Hàng & Quản Lý</p>
+        </div>
+
+        <ul class="nav nav-pills nav-fill mb-4" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="pills-login-tab" data-bs-toggle="pill" data-bs-target="#pills-login" type="button">Đăng nhập</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-register-tab" data-bs-toggle="pill" data-bs-target="#pills-register" type="button">Đăng ký Mở Quán</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="pills-tabContent">
+            
+            <div class="tab-pane fade show active" id="pills-login">
+                <form onsubmit="handlePartnerLogin(event)">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Tên đăng nhập</label>
+                        <input type="text" id="login-user" class="form-control" placeholder="Username quản lý" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Mật khẩu</label>
+                        <input type="password" id="login-pass" class="form-control" placeholder="••••••••" required>
+                    </div>
+                    <div class="d-flex justify-content-between mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="remember">
+                            <label class="form-check-label small" for="remember">Ghi nhớ</label>
+                        </div>
+                        <a href="#" class="small text-decoration-none" style="color:var(--primary-color)">Quên mật khẩu?</a>
+                    </div>
+                    <button type="submit" class="btn-partner">Truy Cập Quản Lý</button>
+                </form>
+            </div>
+
+            <div class="tab-pane fade" id="pills-register">
+                <form onsubmit="handlePartnerRegister(event)">
+                    <h6 class="text-muted small fw-bold mb-3 text-uppercase"><i class="fas fa-store me-1"></i> Thông tin quán</h6>
+                    
+                    <div class="mb-2">
+                        <input type="text" id="reg-res-name" class="form-control" placeholder="Tên Nhà Hàng (*)" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" id="reg-res-addr" class="form-control" placeholder="Địa chỉ kinh doanh (*)" required>
+                    </div>
+
+                    <h6 class="text-muted small fw-bold mb-3 text-uppercase border-top pt-3"><i class="fas fa-user-shield me-1"></i> Tài khoản quản trị</h6>
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <input type="text" id="reg-fullname" class="form-control" placeholder="Họ tên chủ quán" required>
+                        </div>
+                        <div class="col-6">
+                            <input type="text" id="reg-user" class="form-control" placeholder="Tên đăng nhập" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <input type="password" id="reg-pass" class="form-control" placeholder="Mật khẩu" required>
+                    </div>
+
+                    <button type="submit" class="btn-partner">Đăng Ký Đối Tác</button>
+                    <p class="text-center small mt-3 text-muted">
+                        Bằng việc đăng ký, bạn đồng ý với <a href="#" class="text-dark fw-bold">Điều khoản hợp tác</a> của S2O.
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const API_BASE = "http://localhost:8080/api/auth";
+
+    // 1. Xử lý Đăng Ký (Partner) - Có cảnh báo chờ duyệt
+    async function handlePartnerRegister(e) {
+        e.preventDefault();
+        
+        const body = {
+            username: document.getElementById('reg-user').value,
+            password: document.getElementById('reg-pass').value,
+            fullName: document.getElementById('reg-fullname').value,
+            
+            // Vai trò: MANAGER (Chủ quán)
+            role: "MANAGER", 
+            
+            // Thông tin tạo quán (ID sẽ do Backend tự sinh, không cần gửi)
+            restaurantId: null, 
+            restaurantName: document.getElementById('reg-res-name').value,
+            address: document.getElementById('reg-res-addr').value
+        };
+
+        try {
+            const res = await fetch(`${API_BASE}/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+
+            if (res.ok) {
+                // 👇 THÔNG BÁO QUAN TRỌNG CHO NGƯỜI DÙNG
+                alert("Đăng ký thành công!\n\nHệ thống đã ghi nhận yêu cầu mở quán.\nVui lòng CHỜ ADMIN PHÊ DUYỆT trước khi đăng nhập.");
+                
+                // Chuyển sang tab đăng nhập để họ thấy tiện
+                document.getElementById("pills-login-tab").click();
+                document.getElementById("login-user").value = body.username;
+            } else {
+                const text = await res.text();
+                alert("Đăng ký thất bại: " + text);
+            }
+        } catch (err) {
+            alert("Lỗi kết nối Server! Vui lòng thử lại.");
+            console.error(err);
+        }
+    }
+
+    // 2. Xử lý Đăng Nhập
+    async function handlePartnerLogin(e) {
+        e.preventDefault();
+        const u = document.getElementById('login-user').value;
+        const p = document.getElementById('login-pass').value;
+
+        try {
+            const res = await fetch(`${API_BASE}/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: u, password: p })
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+
+                if (data.role === 'MANAGER' || data.role === 'ADMIN') {
+                    // Lưu Token
+                    localStorage.setItem("token", data.token); 
+                    localStorage.setItem("user", JSON.stringify(data));
+                    
+                    // Lưu riêng ID quán để tiện truy xuất
+                    if(data.restaurantId) localStorage.setItem("partner_tenant_id", data.restaurantId);
+                    
+                    window.location.href = "partner-dashboard.html";
+                } else {
+                    alert("Tài khoản này không phải là Đối tác Nhà hàng!");
+                }
+            } else {
+                // Backend trả về lỗi cụ thể (ví dụ: "Tài khoản đang chờ duyệt")
+                const errorText = await res.text();
+                alert("Đăng nhập thất bại:\n" + errorText);
+            }
+        } catch (err) {
+            alert("Lỗi kết nối Server!");
+        }
+    }
+</script>
+
+</body>
+</html>
