@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>S2O - Super Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+  />
+  <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+  />
+  <style>
+    body {
+      background-color: #f4f6f9;
+      font-family: "Segoe UI", sans-serif;
+    }
+    .sidebar {
+      min-height: 100vh;
+      background: #1a252f; /* Màu tối hơn cho chuyên nghiệp */
+      color: white;
+    }
+    .nav-link {
+      color: #ecf0f1;
+      cursor: pointer;
+      padding: 15px 20px;
+      transition: 0.3s;
+    }
+    .nav-link:hover,
+    .nav-link.active {
+      color: #fff;
+      background: #34495e;
+      border-left: 5px solid #e74c3c; /* Màu đỏ Admin */
+    }
+    .card {
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+    .loading {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+    }
+    .badge-role {
+      font-size: 0.85rem;
+      padding: 6px 10px;
+    }
+  </style>
+</head>
+<body>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-2 sidebar p-0">
+      <div class="p-4 text-center border-bottom border-secondary">
+        <h4 class="text-white fw-bold">
+          <i class="fas fa-user-shield text-danger"></i> S2O ADMIN
+        </h4>
+        <small class="text-muted">System Management</small>
+      </div>
+      <ul class="nav flex-column mt-3">
+        <li class="nav-item">
+          <a class="nav-link active" onclick="showSection('restaurants')"
+          ><i class="fas fa-store me-2"></i> Quản lý Tenant (Nhà hàng)</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" onclick="showSection('users')"
+          ><i class="fas fa-users me-2"></i> Quản lý Users Hệ Thống</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-danger mt-5" onclick="logout()"
+          ><i class="fas fa-sign-out-alt me-2"></i> Đăng xuất</a
+          >
+        </li>
+      </ul>
+    </div>
+
+    <div class="col-md-10 p-4">
+      <h3 id="page-title" class="fw-bold text-dark mb-4">
+        Quản lý Nhà hàng (Tenants)
+      </h3>
+
+      <div class="loading spinner-border text-primary" role="status"></div>
+
+      <div id="sec-restaurants">
+        <div class="d-flex justify-content-between mb-3">
+          <button class="btn btn-success" onclick="openCreateTenantModal()">
+            <i class="fas fa-plus-circle"></i> Cấp Phép Nhà Hàng Mới
+          </button>
+          <div class="input-group w-25">
+            <input type="text" class="form-control" placeholder="Tìm kiếm nhà hàng...">
+            <button class="btn btn-outline-secondary"><i class="fas fa-search"></i></button>
+          </div>
+        </div>
+
+        <div class="card p-0 overflow-hidden">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Tên Nhà Hàng</th>
+              <th>Địa chỉ / SĐT</th>
+              <th>Trạng Thái</th>
+              <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody id="table-restaurants">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="sec-users" style="display: none">
+        <div class="card p-0 overflow-hidden">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Họ tên</th>
+              <th>Vai trò (Role)</th>
+              <th>Thuộc Nhà Hàng (ID)</th>
+              <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody id="table-users">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalCreateTenant" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-file-signature"></i> Đăng Ký Nhà Hàng Mới (Provisioning)
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formCreateTenant">
+          <div class="row">
+            <div class="col-md-6 border-end">
+              <h6 class="text-success fw-bold mb-3">1. Thông tin Doanh Nghiệp</h6>
+              <div class="mb-3">
+                <label class="form-label">Tên Nhà Hàng (*)</label>
+                <input type="text" id="new-res-name" class="form-control" required placeholder="VD: Phở Cồ Hà Nội">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Địa chỉ (*)</label>
+                <input type="text" id="new-res-address" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Hotline</label>
+                <input type="text" id="new-res-phone" class="form-control">
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <h6 class="text-primary fw-bold mb-3">2. Tài khoản Quản Lý (Manager)</h6>
+              <div class="alert alert-info py-2" style="font-size: 0.9rem">
+                Hệ thống sẽ tự động tạo 1 tài khoản Manager quản lý nhà hàng này.
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Username (*)</label>
+                <input type="text" id="new-mgr-username" class="form-control" required placeholder="VD: manager_phoco">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Password (*)</label>
+                <input type="password" id="new-mgr-password" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Họ tên chủ quán</label>
+                <input type="text" id="new-mgr-fullname" class="form-control">
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+        <button type="button" class="btn btn-success" onclick="submitCreateTenant()">
+          <i class="fas fa-check"></i> Hoàn Tất Đăng Ký
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalEditUser" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title">Quản trị User</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-user-id">
+        <p>Đang chỉnh sửa user: <strong id="display-username"></strong></p>
+
+        <div class="mb-3">
+          <label class="form-label">Đổi mật khẩu mới (Nếu cần):</label>
+          <input type="text" class="form-control" id="reset-password" placeholder="Bỏ trống nếu không đổi">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Trạng thái:</label>
+          <select class="form-select" id="edit-user-status">
+            <option value="ACTIVE">Hoạt động</option>
+            <option value="LOCKED">Khóa tài khoản</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="saveUserChanges()">Lưu thay đổi</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/admin.js"></script>
+</body>
+</html>

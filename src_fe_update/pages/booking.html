@@ -1,0 +1,16 @@
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const dateInput = document.getElementById("bookingDate"); // Đảm bảo ID thẻ input đúng là 'bookingDate'
+        if(dateInput) {
+            // 1. Ngày tối thiểu: Hôm nay
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.setAttribute('min', today);
+
+            // 2. Ngày tối đa: Ngày mai
+            const tomorrowDate = new Date();
+            tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+            const tomorrow = tomorrowDate.toISOString().split('T')[0];
+            dateInput.setAttribute('max', tomorrow);
+        }
+    });
+</script>

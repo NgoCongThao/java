@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <meta charset="UTF-8">
+    <title>S2O Staff - Phục Vụ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* CSS Nút QR trên thẻ bàn */
+        .btn-qr-mini {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #fff;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+            cursor: pointer;
+            z-index: 10; /* Nổi lên trên */
+            transition: 0.2s;
+        }
+        .btn-qr-mini:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        body { background: #f8f9fa; }
+        .nav-pills .nav-link.active { background-color: #0d6efd; }
+
+        /* Sơ đồ bàn */
+        .table-card {
+            height: 150px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            border: 2px solid transparent;
+        }
+        .table-card:hover { transform: translateY(-5px); shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
+        .table-free { background-color: #e9ecef; color: #6c757d; border-color: #dee2e6; }
+        .table-busy { background-color: #fff3cd; color: #856404; border-color: #ffecb5; } /* Đang ăn */
+        .table-serving { background-color: #d1e7dd; color: #0f5132; border-color: #badbcc; } /* Đang lên món */
+
+        .table-number { font-size: 2rem; font-weight: bold; }
+        .table-status { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        .notification-badge {
+            position: absolute; top: -5px; right: -5px;
+            background: red; color: white;
+            border-radius: 50%; width: 25px; height: 25px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top px-3 shadow-sm">
+    <a class="navbar-brand fw-bold" href="#"><i class="fas fa-concierge-bell"></i> STAFF PORTAL</a>
+    <span class="text-white ms-auto me-3" id="staffName">NV: ---</span>
+    <button class="btn btn-outline-light btn-sm" onclick="logout()">Đăng xuất</button>
+</nav>
+
+<div class="container-fluid mt-3">
+    <ul class="nav nav-pills mb-3 justify-content-center" id="pills-tab">
+        <li class="nav-item">
+            <button class="nav-link active px-4" onclick="switchTab('tables')"><i class="fas fa-th"></i> Sơ Đồ Bàn</button>
+        </li>
+
+        <li class="nav-item">
+            <button class="nav-link px-4" onclick="switchTab('online-orders')">
+                <i class="fas fa-motorcycle"></i> Đơn Online <span class="badge bg-danger" id="badge-online">0</span>
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link px-4" onclick="switchTab('bookings')">
+                <i class="fas fa-calendar-check"></i> Đặt Bàn <span class="badge bg-danger ms-1" id="badge-booking-count">0</span>
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link px-4" onclick="switchTab('pos')"><i class="fas fa-cash-register"></i> Tạo Đơn Mới</button>
+        </li>
+    </ul>
+
+    <div id="tab-tables">
+        <div class="row g-3" id="table-grid">
+        </div>
+    </div>
+
+    <div id="tab-online-orders" style="display: none;">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark fw-bold">Đơn Giao Hàng Chờ Duyệt</div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Thời gian đặt</th>
+                        <th>Khách hàng</th>
+                        <th>Loại đơn</th>
+                        <th>Tổng tiền</th>
+                        <th>Ghi chú / Hẹn giờ</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody id="online-order-list">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="tab-bookings" style="display: none;">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white fw-bold">Danh sách khách đặt bàn hôm nay</div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Thời gian</th>
+                        <th>Khách hàng</th>
+                        <th>Số người</th>
+                        <th>Ghi chú</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody id="booking-list">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-pos" style="display: none;">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-lg">
+                    <div class="card-header bg-success text-white text-center">
+                        <h5><i class="fas fa-plus-circle"></i> TẠO ĐƠN KHÁCH VÃNG LAI</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label>Số bàn (*)</label>
+                            <input type="number" id="pos-table" class="form-control form-control-lg text-center" placeholder="VD: 5">
+                        </div>
+                        <div class="mb-3">
+                            <label>SĐT Khách (Để tích điểm)</label>
+                            <input type="text" id="pos-phone" class="form-control" placeholder="Nhập SĐT nếu có...">
+                        </div>
+                        <div class="mb-3">
+                            <label>Ghi chú</label>
+                            <textarea id="pos-note" class="form-control" rows="2"></textarea>
+                        </div>
+                        <button class="btn btn-success w-100 py-3 fw-bold" onclick="createQuickOrder()">TẠO ĐƠN & GỌI MÓN</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPayment" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Thanh toán Bàn <span id="pay-table-num"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="pay-order-id">
+                <input type="hidden" id="pay-original-total-value"> <div class="mb-3">
+                <label class="form-label fw-bold">Số điện thoại khách hàng</label>
+                <div class="input-group">
+                    <input type="text" id="pay-phone" class="form-control" placeholder="Nhập SĐT tích điểm...">
+                    <button class="btn btn-primary" onclick="checkCustomerPoint()">Kiểm tra</button>
+                </div>
+                <div id="customer-info" class="mt-2 text-primary small fw-bold" style="display:none;"></div>
+            </div>
+
+                <hr>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Tổng tiền gốc:</span>
+                        <span id="pay-total" class="fw-bold">0đ</span>
+                    </div>
+                </div>
+
+                <div id="point-redeem-section" class="mb-3 p-3 bg-light rounded" style="display:none;">
+                    <label class="form-label small">Sử dụng điểm (1 điểm = 1000đ)</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="number" id="pay-points-use" class="form-control" value="0" min="0" oninput="calculateFinalTotal()">
+                        <span class="small text-muted">điểm</span>
+                    </div>
+                    <div class="small text-danger mt-1" id="discount-display">-0đ</div>
+                </div>
+
+                <div class="d-flex justify-content-between fs-4 fw-bold border-top pt-3 text-success">
+                    <span>KHÁCH CẦN TRẢ:</span>
+                    <span id="pay-final">0đ</span>
+                </div>
+
+                <div class="text-end mt-2 small text-muted">
+                    Sẽ tích thêm: <span id="pay-points-earn" class="fw-bold text-success">+0</span> điểm
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-success fw-bold px-4" onclick="confirmPayment()">
+                    XÁC NHẬN THANH TOÁN
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalQr" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Mã QR Bàn <span id="qr-table-num"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="qrcode-container" class="d-flex justify-content-center my-3"></div>
+                <div class="mb-3 text-break">
+                    <a id="qr-link-display" href="#" target="_blank" class="small text-primary text-decoration-none fw-bold"></a>
+                </div>
+                <p class="small text-muted">Quét để gọi món tại bàn này</p>
+                <div class="d-grid">
+                    <button class="btn btn-outline-primary btn-sm" onclick="printQr()">
+                        <i class="fas fa-print"></i> In Mã QR
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/staff.js"></script>
+</body>
+</html>
