@@ -48,4 +48,36 @@ public class StatisticController {
 
         return ResponseEntity.ok(res);
     }
+
+    // Tuấn thêm đoạn code này để tính doanh thu theo khoảng thời gian
+   @GetMapping("/partner/{restaurantId}/range")
+public ResponseEntity<?> getRevenueByRange(
+    @PathVariable Long restaurantId,
+    @RequestParam String startDate, 
+    @RequestParam String endDate
+) {
+    // Tạo chuỗi thời gian chuẩn SQL Server
+    String start = startDate + " 00:00:00";
+    String end = endDate + " 23:59:59";
+
+    // Gọi hàm lọc theo ngày, KHÔNG gọi hàm tính tổng toàn bộ
+    Double revenue = orderRepository.calculateRevenueByRange(restaurantId, start, end);
+
+    return ResponseEntity.ok(Map.of("revenue", revenue != null ? revenue : 0.0));
+}
+
+// Tuấn thêm đoạn code này để tính tổng doanh thu
+@GetMapping("/partner/{restaurantId}")
+public ResponseEntity<?> getPartnerStats(@PathVariable Long restaurantId) {
+    // 1. Tính tổng toàn bộ để hiện ở Dashboard
+    Double grandTotal = orderRepository.calculateGrandTotalRevenue(restaurantId);
+    
+    // 2. Tính số lượng món ăn và nhân viên (nếu cần)
+    // ... logic khác ...
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("totalRevenue", grandTotal != null ? grandTotal : 0.0);
+    
+    return ResponseEntity.ok(response);
+}
 }

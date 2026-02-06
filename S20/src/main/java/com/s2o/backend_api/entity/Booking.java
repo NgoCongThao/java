@@ -47,6 +47,9 @@ public class Booking {
     @Column(name = "table_number")
     private Integer tableNumber;
 
+     @Column(name = "total_price") //Huy thêm dòng này để tính tổng tiền
+    private Double totalPrice = 0.0;
+
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String note;
 

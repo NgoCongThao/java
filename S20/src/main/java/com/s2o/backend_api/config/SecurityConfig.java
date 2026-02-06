@@ -11,10 +11,16 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // <--- 1. Import BCrypt
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -26,50 +32,67 @@ public class SecurityConfig {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
-    // ... các import và phần đầu file giữ nguyên ...
-
-// ... phần đầu giữ nguyên
-
-@Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .cors(cors -> cors.configure(http))
-        .csrf(csrf -> csrf.disable())
-        .authorizeHttpRequests(auth -> auth
-.requestMatchers(
-                    // 1. API DÀNH RIÊNG CHO KHÁCH HÀNG (USER) - ADMIN KHÔNG ĐƯỢC VÀO
-                    "/api/orders/create",
-                    "/api/bookings/create"
-                ).hasAnyAuthority("USER", "ROLE_USER") // Chỉ Role USER mới được gọi
-
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            // 2. CẤU HÌNH CORS (Cho phép Frontend gọi API)
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                
+                // --- NHÓM 1: CÔNG KHAI (Ai cũng vào được) ---
                 .requestMatchers(
-                    // 2. CÁC API CÔNG KHAI (Ai cũng gọi được)
-                    "/api/auth/**", 
-                    "/api/guest/**", 
-                    "/api/reviews/**", 
-                    "/api/bookings/table-status", // Cho phép xem trạng thái bàn
-                    "/api/bookings/user/**",      // Cho phép xem lịch sử
-                    "/api/chat/**",
-                
-                // --- CÁC TRANG HTML ĐƯỢC PHÉP TRUY CẬP ---
-                "/landing.html", 
-                "/authcus.html", 
-                "/admin-login.html",
-                "/kitchen-auth.html",  // <--- THÊM DÒNG NÀY (Trang đăng nhập bếp)
-                "/kitchen.html",       // <--- THÊM DÒNG NÀY (Trang giao diện bếp)
-                
-                "/img/**", "/css/**", "/js/**"
-            ).permitAll()
-            // Nếu muốn kitchen public tạm thời để test (không khuyến khích lâu dài)
-            // .requestMatchers("/api/kitchen/**").permitAll()
-            .anyRequest().authenticated()
-        )
-        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                    "/api/auth/**",          // Đăng nhập/Đăng ký
+                    "/api/guest/**",         // Xem menu/nhà hàng
+                    "/api/reviews/**",       // Xem review (nếu add review cần login thì tách ra)
+                    "/api/chat/**",          // Chat AI
+                    "/api/bookings/table-status", // Check bàn trống
+                    
+                    // Các file HTML/CSS/JS frontend
+                    "/landing.html", "/authcus.html", "/admin-login.html", 
+                    "/kitchen-auth.html", "/kitchen.html", "/tracking.html",
+                    "/img/**", "/css/**", "/js/**", "/"
+                ).permitAll()
 
-    return http.build();
-}
-// ... phần còn lại của file giữ nguyên ...
+                // --- NHÓM 2: DÀNH RIÊNG CHO KHÁCH HÀNG (USER) ---
+                .requestMatchers(
+                    "/api/orders/create",
+                    "/api/bookings/create",
+                    "/api/bookings/user/**",
+                    "/api/orders/my-orders/**"
+                ).hasAnyAuthority("USER", "ROLE_USER") 
+
+                // --- NHÓM 3: DÀNH RIÊNG CHO BẾP (KITCHEN) ---
+                .requestMatchers(
+                    "/api/kitchen/**"
+                ).hasAnyAuthority("KITCHEN", "ROLE_KITCHEN", "ADMIN", "ROLE_ADMIN")
+
+                // --- NHÓM 4: DÀNH RIÊNG CHO ADMIN ---
+                .requestMatchers(
+                    "/api/admin/**"
+                ).hasAnyAuthority("ADMIN", "ROLE_ADMIN")
+
+                // Các request còn lại bắt buộc phải đăng nhập
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    // --- BEAN CORS (Quan trọng để Frontend không lỗi) ---
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("*")); // Cho phép tất cả nguồn (HTML file)
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -81,8 +104,8 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // Tạm thời chưa mã hóa password để dễ test
-        return NoOpPasswordEncoder.getInstance(); 
+        // 3. QUAN TRỌNG: Đổi sang BCrypt để khớp với AuthController
+        return new BCryptPasswordEncoder(); 
     }
 
     @Bean

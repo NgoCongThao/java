@@ -6,11 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api") // SỬA LẠI: Chỉ để /api, phần còn lại định nghĩa ở từng hàm
+@RequestMapping("/api") 
 @CrossOrigin(origins = "*")
 public class UserController {
 
@@ -18,6 +17,7 @@ public class UserController {
     private UserRepository userRepository;
 
     // --- CÁC API DÀNH CHO USER THƯỜNG (Profile) ---
+    // (Giữ nguyên phần này cho User sử dụng)
 
     // 1. Cập nhật địa chỉ
     // URL: /api/users/{id}/address
@@ -44,39 +44,7 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    // --- CÁC API DÀNH CHO ADMIN (Phải khớp với admin.js) ---
-
-    // 3. Xem danh sách tất cả người dùng
-    // URL: /api/admin/users (Khớp với admin.js)
-    @GetMapping("/admin/users")
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-
-    // 4. Xóa người dùng
-    // URL: /api/admin/users/{id}
-    @DeleteMapping("/admin/users/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        if (!userRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        userRepository.deleteById(id);
-        return ResponseEntity.ok("Đã xóa người dùng thành công");
-    }
-
-    // 5. Sửa thông tin người dùng (Gán role quản lý bếp...)
-    // URL: /api/admin/users/{id}
-    @PutMapping("/admin/users/{id}")
-    public ResponseEntity<?> updateUserByAdmin(@PathVariable Long id, @RequestBody User req) {
-        return userRepository.findById(id).map(user -> {
-            user.setFullName(req.getFullName());
-            user.setRole(req.getRole()); 
-            user.setRestaurantId(req.getRestaurantId());
-            // Giữ nguyên các trường khác nếu không gửi lên
-            if(req.getPhone() != null) user.setPhone(req.getPhone());
-            
-            userRepository.save(user);
-            return ResponseEntity.ok("Cập nhật thông tin user thành công");
-        }).orElse(ResponseEntity.notFound().build());
-    }
+    // ❌ ĐÃ XÓA: getAllUsers (Đã có bên AdminController)
+    // ❌ ĐÃ XÓA: deleteUser (Đã có bên AdminController)
+    // ❌ ĐÃ XÓA: updateUserByAdmin (Đã có bên AdminController)
 }

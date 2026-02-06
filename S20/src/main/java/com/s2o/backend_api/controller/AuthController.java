@@ -2,15 +2,18 @@ package com.s2o.backend_api.controller;
 
 import com.s2o.backend_api.dto.LoginRequest;
 import com.s2o.backend_api.dto.RegisterRequest;
+import com.s2o.backend_api.entity.Restaurant;
 import com.s2o.backend_api.entity.User;
+import com.s2o.backend_api.repository.RestaurantRepository;
 import com.s2o.backend_api.repository.UserRepository;
 import com.s2o.backend_api.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager; // Thêm dòng này
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken; // Thêm dòng này
-import org.springframework.security.core.Authentication; // Thêm dòng này
-import org.springframework.security.core.userdetails.UserDetails; // Thêm dòng này
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -24,15 +27,16 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private RestaurantRepository restaurantRepository;
     @Autowired
     private JwtUtils jwtUtils;
-
-    // Kích hoạt tính năng đăng nhập chuẩn của Spring Security
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    // --- 1. API ĐĂNG KÝ ---
+    // --- 1. ĐĂNG KÝ ---
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -41,44 +45,87 @@ public class AuthController {
 
         User user = new User();
         user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword()); // Pass chưa mã hóa (NoOp)
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setFullName(request.getFullName());
         user.setPhone(request.getPhone());
-        
-        // Phân biệt role
-        if (request.getRestaurantId() != null) {
-            user.setRole("KITCHEN");
-            user.setRestaurantId(request.getRestaurantId());
-        } else {
+        user.setRole(request.getRole());
+
+        // LOGIC PHÂN QUYỀN
+        if ("MANAGER".equals(request.getRole())) {
+            // Tạo nhà hàng mới
+            if (request.getRestaurantName() != null) {
+                Restaurant restaurant = new Restaurant();
+                restaurant.setName(request.getRestaurantName());
+                restaurant.setAddress(request.getAddress());
+                
+                // --- SỬA: Đặt PENDING để chờ Admin tối cao duyệt ---
+                restaurant.setStatus("PENDING"); 
+                // --------------------------------------------------
+                
+                Restaurant savedRes = restaurantRepository.save(restaurant);
+                user.setRestaurantId(savedRes.getId());
+                
+                // --- SỬA: Tài khoản chủ quán cũng PENDING luôn ---
+                user.setStatus("PENDING"); 
+                // -------------------------------------------------
+            }
+        } 
+        else if ("KITCHEN".equals(request.getRole())) {
+            // Đầu bếp xin vào quán
+            if (request.getRestaurantId() != null) {
+                user.setRestaurantId(request.getRestaurantId());
+                
+                // QUAN TRỌNG: Đầu bếp mặc định PENDING (Chờ Chủ quán duyệt)
+                user.setStatus("PENDING"); 
+            } else {
+                return ResponseEntity.badRequest().body("Đầu bếp cần nhập ID Nhà hàng!");
+            }
+        } 
+        else {
+            // Khách hàng
             user.setRole("USER");
+            user.setStatus("ACTIVE");
         }
 
         userRepository.save(user);
-
+        
         Map<String, String> response = new HashMap<>();
-        response.put("message", "Đăng ký thành công!");
+        response.put("message", "Đăng ký thành công! Vui lòng chờ duyệt.");
         return ResponseEntity.ok(response);
     }
 
-    // --- 2. API ĐĂNG NHẬP (ĐÃ SỬA LỖI) ---
+    // --- 2. ĐĂNG NHẬP ---
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequest request) {
         try {
-            // Bước 1: Để Spring Security tự kiểm tra Username và Password
-            // Nếu sai pass, nó sẽ tự ném lỗi (nhảy xuống catch)
+            // 1. Kiểm tra username/password
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
 
-            // Bước 2: Lấy thông tin UserDetails chuẩn từ kết quả đăng nhập
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
-            // Bước 3: Tạo Token (Lúc này hàm generateToken nhận đúng UserDetails)
-            String token = jwtUtils.generateToken(userDetails);
-
-            // Bước 4: Lấy thêm thông tin user từ DB để trả về cho Frontend hiển thị
-            // (Vì UserDetails chỉ chứa username, pass, role chứ không có fullName, phone...)
             User user = userRepository.findByUsername(request.getUsername()).get();
+
+            // 2. CHECK TRẠNG THÁI USER (Cho Đầu bếp & User thường & Manager)
+            if ("PENDING".equals(user.getStatus())) {
+                return ResponseEntity.badRequest().body("Tài khoản đang chờ duyệt! Vui lòng liên hệ quản trị viên.");
+            }
+            if ("BANNED".equals(user.getStatus())) {
+                return ResponseEntity.badRequest().body("Tài khoản đã bị khóa!");
+            }
+
+            // 3. CHECK TRẠNG THÁI NHÀ HÀNG (Chỉ dành cho Manager)
+            if ("MANAGER".equals(user.getRole()) && user.getRestaurantId() != null) {
+                Optional<Restaurant> resOpt = restaurantRepository.findById(user.getRestaurantId());
+                if (resOpt.isPresent()) {
+                    String status = resOpt.get().getStatus();
+                    if ("PENDING".equalsIgnoreCase(status)) return ResponseEntity.badRequest().body("Nhà hàng đang chờ duyệt!");
+                    if ("REJECTED".equalsIgnoreCase(status)) return ResponseEntity.badRequest().body("Nhà hàng đã bị từ chối!");
+                }
+            }
+
+            // 4. Cấp Token
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String token = jwtUtils.generateToken(userDetails);
 
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
@@ -86,14 +133,12 @@ public class AuthController {
             response.put("id", user.getId());
             response.put("username", user.getUsername());
             response.put("fullName", user.getFullName());
+            response.put("role", user.getRole());
             
-            // Lấy role từ userDetails để đảm bảo đúng nhất
-            String role = userDetails.getAuthorities().stream().findFirst().get().getAuthority();
-            response.put("role", role);
-
-            response.put("restaurantId", user.getRestaurantId());
-            response.put("phone", user.getPhone());
-            response.put("address", user.getAddress());
+            if (user.getRestaurantId() != null) {
+                response.put("restaurantId", user.getRestaurantId());
+                response.put("tenantId", user.getRestaurantId());
+            }
 
             return ResponseEntity.ok(response);
 
@@ -101,39 +146,4 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Sai tài khoản hoặc mật khẩu!");
         }
     }
-
-    // --- 3. API ĐỔI MẬT KHẨU ---
-    @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
-        Optional<User> userOpt = userRepository.findById(request.getUserId());
-        
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("User không tồn tại!");
-        }
-
-        User user = userOpt.get();
-
-        if (!user.getPassword().equals(request.getOldPassword())) {
-            return ResponseEntity.badRequest().body("Mật khẩu cũ không đúng!");
-        }
-
-        user.setPassword(request.getNewPassword());
-        userRepository.save(user);
-
-        return ResponseEntity.ok("Đổi mật khẩu thành công!");
-    }
-}
-
-// DTO giữ nguyên
-class ChangePasswordRequest {
-    private Long userId;
-    private String oldPassword;
-    private String newPassword;
-
-    public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
-    public String getOldPassword() { return oldPassword; }
-    public void setOldPassword(String oldPassword) { this.oldPassword = oldPassword; }
-    public String getNewPassword() { return newPassword; }
-    public void setNewPassword(String newPassword) { this.newPassword = newPassword; }
 }
