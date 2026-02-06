@@ -32,7 +32,7 @@ public class OrderItem {
     // Vì trong Entity em đặt tên biến là "itemName", nhưng bên Controller em lỡ gọi "getMenuItemName()"
     // Cách 1: Sửa bên Controller thành item.getItemName() (Cách chuẩn nhất)
     // Cách 2: Thêm hàm phụ trợ (Alias) ở đây để code Controller không bị lỗi:
-    //public String getMenuItemName() {
-     //   return this.itemName;
-    //}
+    public String getMenuItemName() {
+        return this.itemName;
+    }
 }

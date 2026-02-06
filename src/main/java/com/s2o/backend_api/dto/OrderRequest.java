@@ -11,6 +11,8 @@ public class OrderRequest {
     private Integer tableNumber; // <--- Thêm dòng này
     private Double total;
     private String address;
+    private String customerName;  // <--- Thêm dòng này để sửa lỗi
+    private String phone;         // <--- Thêm dòng này (nếu chưa có)
     // ... các field hiện có
     private Long restaurantId; // THÊM DÒNG NÀY
     private List<ItemRequest> items;

@@ -1,6 +1,6 @@
 const API_BASE = "http://localhost:8080/api/staff";
 const token = localStorage.getItem("token");
-
+let tempCheckInItems = [];
 // Auth Check
 if (!token || (localStorage.getItem("role") !== "STAFF" && localStorage.getItem("role") !== "MANAGER")) {
     alert("Bạn không có quyền truy cập Staff Portal!");
@@ -173,7 +173,8 @@ function preFillPos(tableNum) {
     document.getElementById("pos-table").value = tableNum;
 }
 
-// ================= 2. QUẢN LÝ BOOKING =================
+// ================= 2. QUẢN LÝ BOOKING (CẬP NHẬT) =================
+// ================= 2. QUẢN LÝ BOOKING (ĐÃ SỬA LỖI HIỂN THỊ & THÊM HÀM CHECK-IN) =================
 async function loadBookings() {
     try {
         const res = await fetch(`${API_BASE}/bookings`, { headers: { "Authorization": `Bearer ${token}` } });
@@ -183,35 +184,363 @@ async function loadBookings() {
         if(tbody) tbody.innerHTML = "";
 
         let pendingCount = 0;
+        data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
         data.forEach(b => {
             if(b.status === "PENDING") pendingCount++;
 
             const isConfirmed = b.status === "CONFIRMED";
-            const actionBtn = isConfirmed
-                ? `<span class="badge bg-success">Đã xếp bàn ${b.tableNumber}</span>`
-                : `<button class="btn btn-sm btn-primary" onclick="confirmBooking(${b.id})">Xếp bàn</button>`;
+            // Escape JSON để tránh lỗi khi render nút bấm
+            const bookingJson = JSON.stringify(b).replace(/"/g, '&quot;');
+
+            // --- 1. SỬA LỖI HIỂN THỊ "UNDEFINED" ---
+            let itemsHtml = "";
+            let hasFood = false;
+
+            if (b.items && b.items.length > 0) {
+                hasFood = true;
+                // LOGIC FIX: Kiểm tra cả 2 trường hợp tên biến (name/itemName và qty/quantity)
+                const listItems = b.items.map(i => {
+                    const name = i.itemName || i.name || "Món lạ";
+                    const qty = i.quantity || i.qty || 0;
+                    return `- ${name} <strong class="text-dark">x${qty}</strong>`;
+                }).join('<br>');
+
+                itemsHtml = `
+                    <div class="mt-2 small text-primary border-top pt-1 bg-light p-1 rounded">
+                        <i class="fas fa-utensils"></i> <b>Đặt trước:</b><br>
+                        ${listItems}
+                    </div>
+                `;
+            }
+
+            // --- 2. LOGIC NÚT BẤM ---
+            let actionBtn = "";
+
+            if (isConfirmed) {
+                // Đã xếp bàn -> Hiện nút Check-in
+                const btnText = hasFood
+                    ? '<i class="fas fa-utensils"></i> Khách đến & Lên món'
+                    : '<i class="fas fa-door-open"></i> Check-in (Mở bàn)';
+
+                const btnClass = hasFood ? 'btn-success' : 'btn-info text-white';
+                const safeItems = b.items ? JSON.stringify(b.items).replace(/"/g, '&quot;') : '[]';
+                actionBtn = `
+    <div class="mb-2">
+        <span class="badge bg-success" style="font-size: 0.9rem">Bàn ${b.tableNumber}</span>
+    </div>
+    <button class="btn btn-sm ${btnClass} fw-bold shadow-sm" 
+            onclick="openCheckInModal(${b.id}, ${safeItems})">
+        ${btnText}
+    </button>
+`;
+            } else {
+                // Chưa xếp bàn -> Hiện nút Xếp bàn
+                actionBtn = `
+                   <button class="btn btn-sm btn-primary fw-bold" onclick="openAssignModal(${bookingJson})">
+                        <i class="fas fa-chair"></i> Xếp bàn
+                   </button>
+                   <button class="btn btn-sm btn-outline-danger ms-1" onclick="cancelBooking(${b.id})" title="Hủy đơn">
+                        <i class="fas fa-times"></i>
+                   </button>
+                `;
+            }
 
             if(tbody) {
                 tbody.innerHTML += `
                     <tr>
-                        <td>${new Date(b.bookingDate).toLocaleDateString()} ${b.bookingTime}</td>
                         <td>
-                            <div class="fw-bold">${b.customerName || b.user?.fullName || 'Khách'}</div>
-                            <small>${b.phone || b.user?.username || ''}</small>
+                            <span class="badge bg-secondary mb-1">#${b.id}</span>
+                            <div class="fw-bold text-primary">${b.bookingTime}</div>
+                            <div class="small text-muted">${new Date(b.bookingDate).toLocaleDateString('vi-VN')}</div>
                         </td>
-                        <td>${b.peopleCount} người</td>
-                        <td><small>${b.note || ''}</small></td>
-                        <td><span class="badge ${isConfirmed?'bg-success':'bg-warning'}">${b.status}</span></td>
+                        <td>
+                            <div class="fw-bold">${b.customerName}</div>
+                            <div class="small"><i class="fas fa-phone-alt text-muted"></i> ${b.phone}</div>
+                            ${itemsHtml}
+                        </td>
+                        <td>${b.peopleCount} khách</td>
+                        <td><small class="text-muted fst-italic">${b.note || 'Không có ghi chú'}</small></td>
+                        <td>
+                            <span class="badge ${isConfirmed ? 'bg-success' : 'bg-warning text-dark'}">
+                                ${b.status === 'PENDING' ? 'Chờ xếp bàn' : 'Đã xếp bàn'}
+                            </span>
+                        </td>
                         <td>${actionBtn}</td>
                     </tr>
                 `;
             }
         });
+
         const badge = document.getElementById("badge-booking-count");
         if(badge) badge.innerText = pendingCount;
-    } catch(e) { console.error(e); }
+
+    } catch(e) { console.error("Lỗi load booking:", e); }
 }
 
+// --- HÀM MỚI QUAN TRỌNG: CHUYỂN ĐỔI BOOKING -> ORDER (SỬA LỖI REFERENCE ERROR) ---
+async function convertBookingToOrder(bookingId) {
+    if(!confirm("Khách đã đến? Xác nhận check-in và gửi món xuống bếp?")) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/bookings/${bookingId}/check-in`, {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if(res.ok) {
+            const data = await res.json();
+            alert(`✅ ${data.message} (Mã đơn: #${data.orderId})`);
+
+            // Reload lại danh sách để cập nhật trạng thái
+            loadBookings();
+            // Nếu đang ở tab bàn thì reload cả map bàn
+            loadTableMap();
+        } else {
+            const txt = await res.text();
+            alert("Lỗi: " + txt);
+        }
+    } catch(e) {
+        console.error("Vui lòng cập nhật hàm loadBookings trước!");
+    }
+}
+function openCheckInModal(bookingId, items) {
+    document.getElementById("checkin-booking-id").value = bookingId;
+
+    // Chuẩn hóa dữ liệu items (vì tên trường có thể là name/itemName)
+    tempCheckInItems = items.map(i => ({
+        name: i.itemName || i.name,
+        qty: i.quantity || i.qty,
+        price: i.price
+    }));
+
+    renderCheckInItems();
+    new bootstrap.Modal(document.getElementById("modalCheckInConfirm")).show();
+}
+
+// --- HÀM MỚI: RENDER DANH SÁCH TRONG MODAL ---
+function renderCheckInItems() {
+    const tbody = document.getElementById("checkin-items-list");
+    tbody.innerHTML = "";
+    let total = 0;
+
+    if (tempCheckInItems.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" class="text-center text-muted py-3">Không có món ăn</td></tr>`;
+    } else {
+        tempCheckInItems.forEach((item, index) => {
+            total += item.price * item.qty;
+            tbody.innerHTML += `
+                <tr>
+                    <td>
+                        <div class="fw-bold small">${item.name}</div>
+                        <div class="text-muted small">${item.price.toLocaleString()}đ</div>
+                    </td>
+                    <td class="text-center">
+                        <div class="input-group input-group-sm">
+                            <button class="btn btn-outline-secondary" onclick="updateCheckInQty(${index}, -1)">-</button>
+                            <input type="text" class="form-control text-center px-0" value="${item.qty}" readonly>
+                            <button class="btn btn-outline-secondary" onclick="updateCheckInQty(${index}, 1)">+</button>
+                        </div>
+                    </td>
+                    <td class="text-end">
+                        <button class="btn btn-link text-danger p-0" onclick="removeCheckInItem(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    document.getElementById("checkin-total").innerText = total.toLocaleString() + "đ";
+}
+
+// --- HÀM MỚI: TĂNG GIẢM SỐ LƯỢNG ---
+function updateCheckInQty(index, change) {
+    const item = tempCheckInItems[index];
+    const newQty = item.qty + change;
+    if (newQty > 0) {
+        item.qty = newQty;
+        renderCheckInItems();
+    }
+}
+
+// --- HÀM MỚI: XÓA MÓN ---
+function removeCheckInItem(index) {
+    if(confirm("Xóa món này khỏi đơn?")) {
+        tempCheckInItems.splice(index, 1);
+        renderCheckInItems();
+    }
+}
+
+// --- HÀM MỚI: GỬI API CHECK-IN ---
+async function submitCheckIn() {
+    const bookingId = document.getElementById("checkin-booking-id").value;
+    const btn = document.querySelector("#modalCheckInConfirm .btn-success");
+
+    // Payload gửi đi
+    const payload = {
+        items: tempCheckInItems // Gửi danh sách đã sửa
+    };
+
+    btn.disabled = true;
+    btn.innerHTML = "Đang xử lý...";
+
+    try {
+        const res = await fetch(`${API_BASE}/bookings/${bookingId}/check-in`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            alert(`✅ ${data.message} (Mã đơn: #${data.orderId})`);
+            bootstrap.Modal.getInstance(document.getElementById("modalCheckInConfirm")).hide();
+            loadBookings();
+            loadTableMap(); // Refresh sơ đồ bàn để thấy bàn chuyển màu
+        } else {
+            const txt = await res.text();
+            alert("Lỗi: " + txt);
+        }
+    } catch (e) {
+        alert("Lỗi kết nối");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> CHỐT ĐƠN & BẾP NẤU';
+    }
+}
+async function openAssignModal(booking) {
+    // 1. Lưu ID và hiển thị thông tin
+    document.getElementById("assign-booking-id").value = booking.id;
+    document.getElementById("assign-time-display").innerText = `${booking.bookingTime} - ${new Date(booking.bookingDate).toLocaleDateString('vi-VN')}`;
+    document.getElementById("assign-people-display").innerText = booking.peopleCount;
+
+    // 2. Mở Modal
+    const modal = new bootstrap.Modal(document.getElementById("modalAssignTable"));
+    modal.show();
+
+    // 3. Gọi API lấy trạng thái bàn TẠI THỜI ĐIỂM ĐÓ
+    const grid = document.getElementById("assign-table-grid");
+    grid.innerHTML = '<div class="text-center w-100 py-3"><div class="spinner-border text-primary"></div><div class="mt-2">Đang kiểm tra lịch trùng...</div></div>';
+
+    try {
+        // API này Backend cần cung cấp: Check xem vào ngày X giờ Y, bàn nào đang vướng Booking khác hoặc đang có đơn Order chưa thanh toán
+        const res = await fetch(`${API_BASE}/tables/status-at-time?date=${booking.bookingDate}&time=${booking.bookingTime}`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        // Giả sử API trả về mảng: [{number: 1, status: 'FREE'}, {number: 2, status: 'BUSY', reason: 'Booking #123'}]
+        let tables = [];
+        if (res.ok) {
+            tables = await res.json();
+        } else {
+            // NẾU API LỖI -> BÁO LỖI LUÔN, KHÔNG RANDOM NỮA
+            grid.innerHTML = `<div class="text-danger text-center p-3">
+                            <i class="fas fa-exclamation-triangle"></i><br>
+                            Lỗi: Không tải được trạng thái bàn (HTTP ${res.status})
+                          </div>`;
+            return; // Dừng lại, không render tiếp
+        }
+
+        // 4. Render Grid
+        grid.innerHTML = "";
+        tables.forEach(t => {
+            const isBusy = t.status !== 'FREE';
+            const bgClass = isBusy ? 'bg-danger text-white opacity-50' : 'bg-success text-white';
+            const cursor = isBusy ? 'not-allowed' : 'pointer';
+            const clickAction = isBusy ? '' : `onclick="submitAssignTable(${t.number})"`;
+            const icon = isBusy ? '<i class="fas fa-ban"></i>' : '<i class="fas fa-check"></i>';
+            const label = isBusy ? (t.reason || 'Bận') : 'Trống';
+
+            grid.innerHTML += `
+                <div class="col-3 col-md-2">
+                    <div class="p-3 rounded text-center shadow-sm ${bgClass}" 
+                         style="cursor: ${cursor}; transition: 0.2s;"
+                         ${clickAction}
+                         onmouseover="this.style.transform='scale(1.05)'" 
+                         onmouseout="this.style.transform='scale(1)'">
+                        <div class="fs-4 fw-bold">${t.number}</div>
+                        <div class="small">${icon} ${label}</div>
+                    </div>
+                </div>
+            `;
+        });
+
+    } catch (e) {
+        console.error(e);
+        grid.innerHTML = `<div class="text-danger text-center">Lỗi tải dữ liệu bàn: ${e.message}</div>`;
+    }
+}
+async function submitAssignTable(tableNumber) {
+    const bookingId = document.getElementById("assign-booking-id").value;
+
+    if(!confirm(`Xác nhận xếp khách vào Bàn ${tableNumber}?`)) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/bookings/${bookingId}/confirm`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ tableNumber: tableNumber })
+        });
+
+        if(res.ok) {
+            alert("✅ Đã xếp bàn thành công!");
+            // Đóng modal
+            bootstrap.Modal.getInstance(document.getElementById("modalAssignTable")).hide();
+            // Reload lại danh sách
+            loadBookings();
+            // Nếu ngày đặt là hôm nay, reload luôn sơ đồ bàn chính
+            loadTableMap();
+        } else {
+            const txt = await res.text();
+            alert("❌ Lỗi: " + txt);
+        }
+    } catch (e) {
+        alert("Lỗi kết nối server!");
+    }
+}
+function filterBookings() {
+    // 1. Lấy từ khóa tìm kiếm, chuyển về chữ thường
+    const input = document.getElementById("bookingSearchInput");
+    const filter = input.value.toLowerCase();
+
+    // 2. Lấy tất cả các dòng trong bảng
+    const table = document.getElementById("booking-list");
+    const tr = table.getElementsByTagName("tr");
+
+    // 3. Duyệt qua từng dòng
+    for (let i = 0; i < tr.length; i++) {
+        // Lấy cột Tên/SĐT (Cột thứ 2 - index 1)
+        const tdCustomer = tr[i].getElementsByTagName("td")[1];
+
+        if (tdCustomer) {
+            const txtValue = tdCustomer.textContent || tdCustomer.innerText;
+            // Nếu tìm thấy từ khóa trong dòng đó -> Hiện, không thì -> Ẩn
+            if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+}
+// Thêm hàm hủy booking nếu cần
+async function cancelBooking(id) {
+    if(!confirm("Bạn muốn hủy yêu cầu đặt bàn này?")) return;
+    try {
+        const res = await fetch(`${API_BASE}/bookings/${id}/cancel`, {
+            method: "PUT",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        if(res.ok) loadBookings();
+    } catch(e) {}
+}
 async function confirmBooking(id) {
     const tableNum = prompt("Nhập số bàn muốn xếp cho khách này:");
     if(!tableNum) return;

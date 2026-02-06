@@ -1,9 +1,11 @@
 package com.s2o.backend_api.controller;
 
 import com.s2o.backend_api.dto.OrderRequest;
+import com.s2o.backend_api.entity.Booking; // <--- Import Booking
 import com.s2o.backend_api.entity.Order;
 import com.s2o.backend_api.entity.OrderItem;
 import com.s2o.backend_api.entity.User;
+import com.s2o.backend_api.repository.BookingRepository; // <--- Import Repository
 import com.s2o.backend_api.repository.OrderRepository;
 import com.s2o.backend_api.repository.RestaurantRepository;
 import com.s2o.backend_api.repository.UserRepository;
@@ -12,10 +14,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -31,37 +36,89 @@ public class OrderController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private BookingRepository bookingRepository; // <--- QUAN TRỌNG: Thêm cái này để xử lý Booking
+
     // 1. API TẠO ĐƠN HÀNG (Dành cho trang Menu)
     @PostMapping("/create")
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest req) {
-        // 1. Lấy User từ Security Context (Token)
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // =================================================================================
+        // 🔥 LOGIC GỘP ĐƠN: KIỂM TRA BÀN + NHÀ HÀNG ĐANG ĂN 🔥
+        // =================================================================================
+        if (req.getTableNumber() != null && req.getTableNumber() > 0
+                && !"DELIVERY".equalsIgnoreCase(req.getOrderType())
+                && req.getRestaurantId() != null) {
+
+            List<String> activeStatuses = Arrays.asList("PENDING", "COOKING", "DELIVERING", "READY");
+
+            Optional<Order> existingOrderOpt = orderRepository.findFirstByRestaurantIdAndTableNumberAndStatusIn(
+                    req.getRestaurantId(),
+                    req.getTableNumber(),
+                    activeStatuses
+            );
+
+            if (existingOrderOpt.isPresent()) {
+                System.out.println("✅ GỘP ĐƠN: Tìm thấy đơn cũ ID: " + existingOrderOpt.get().getId());
+                Order existingOrder = existingOrderOpt.get();
+
+                if (req.getItems() != null) {
+                    for (var i : req.getItems()) {
+                        OrderItem item = new OrderItem();
+                        item.setItemName(i.getName());
+                        item.setQuantity(i.getQty());
+                        item.setPrice(i.getPrice());
+                        item.setOrder(existingOrder);
+                        item.setStatus("PENDING");
+                        existingOrder.getItems().add(item);
+                    }
+                }
+
+                double additionalTotal = req.getTotal();
+                existingOrder.setTotalPrice(existingOrder.getTotalPrice() + additionalTotal);
+                existingOrder.setFinalPrice(existingOrder.getFinalPrice() + additionalTotal);
+
+                if (req.getNote() != null && !req.getNote().isEmpty()) {
+                    String oldNote = existingOrder.getNote() == null ? "" : existingOrder.getNote();
+                    existingOrder.setNote(oldNote + " | Gọi thêm: " + req.getNote());
+                }
+
+                if ("READY".equals(existingOrder.getStatus())) {
+                    existingOrder.setStatus("PENDING");
+                }
+
+                Order savedOrder = orderRepository.save(existingOrder);
+
+                return ResponseEntity.ok(Map.of(
+                        "message", "Đã thêm món vào đơn hiện tại!",
+                        "orderId", savedOrder.getId(),
+                        "finalPrice", savedOrder.getFinalPrice()
+                ));
+            }
+        }
+
+        // =================================================================================
+        // TẠO ĐƠN MỚI
+        // =================================================================================
         Order order = new Order();
-        // Lấy ID từ user trong DB (an toàn hơn lấy từ req)
         order.setUserId(user.getId());
         order.setCustomerName(user.getFullName());
-
-        // Lưu ngày tạo
         order.setCreatedAt(LocalDateTime.now());
         order.setAddress(req.getAddress());
 
-        // --- MAP CÁC TRƯỜNG DELIVERY ---
-        order.setOrderType(req.getOrderType()); // "DINE_IN" hoặc "DELIVERY"
+        order.setOrderType(req.getOrderType());
         order.setDeliveryAddress(req.getDeliveryAddress());
         order.setCustomerPhone(req.getPhone());
 
-        // Parse giờ hẹn
         if (req.getDesiredTime() != null && !req.getDesiredTime().isEmpty()) {
             try {
                 order.setDesiredTime(LocalDateTime.parse(req.getDesiredTime()));
             } catch (Exception e) { }
         }
 
-        // --- PHÂN LOẠI TRẠNG THÁI ---
         if ("DELIVERY".equalsIgnoreCase(req.getOrderType())) {
             order.setStatus("WAITING_CONFIRM");
             order.setTableNumber(0);
@@ -72,7 +129,6 @@ public class OrderController {
 
         order.setNote(req.getNote());
 
-        // Map Restaurant
         if (req.getRestaurantId() != null) {
             order.setRestaurantId(req.getRestaurantId());
             restaurantRepository.findById(req.getRestaurantId()).ifPresent(res ->
@@ -82,52 +138,32 @@ public class OrderController {
             order.setRestaurantName(req.getRestaurantName());
         }
 
-        // ============================================================
-        // 🔥 LOGIC TÍNH TIỀN & TRỪ ĐIỂM (BẠN ĐANG THIẾU ĐOẠN NÀY) 🔥
-        // ============================================================
-
-        System.out.println("DEBUG: Points to use from Client = " + req.getPointsToUse());
-
         double originalTotal = req.getTotal();
-        order.setTotalPrice(originalTotal); // Giá gốc
+        order.setTotalPrice(originalTotal);
 
         int pointsToUse = req.getPointsToUse() != null ? req.getPointsToUse() : 0;
         double discount = 0;
 
-        // Nếu khách dùng điểm -> Trừ điểm & Tính tiền giảm
         if (pointsToUse > 0) {
             int currentPoints = user.getPoints() == null ? 0 : user.getPoints();
-
-            // Validate: Không được dùng quá số điểm hiện có
             if (currentPoints < pointsToUse) {
                 return ResponseEntity.badRequest().body("Bạn không đủ điểm để sử dụng!");
             }
-
-            // Quy đổi: 1 điểm = 1.000đ
             discount = pointsToUse * 1000;
-
-            // Cập nhật User trong DB (Trừ điểm ngay lập tức)
             user.setPoints(currentPoints - pointsToUse);
-            userRepository.save(user); // <--- QUAN TRỌNG: LƯU USER LẠI
+            userRepository.save(user);
 
-            // Lưu thông tin vào đơn
             order.setPointsUsed(pointsToUse);
-
-            // Ghi chú thêm vào đơn
             String currentNote = order.getNote() == null ? "" : order.getNote();
             order.setNote(currentNote + " [Dùng " + pointsToUse + " điểm (-" + (long)discount + "đ)]");
         } else {
             order.setPointsUsed(0);
         }
 
-        // Tính Final Price (Giá thực thu)
         double finalPrice = originalTotal - discount;
         if (finalPrice < 0) finalPrice = 0;
         order.setFinalPrice(finalPrice);
-        // ============================================================
 
-
-        // Lưu danh sách món
         List<OrderItem> items = new ArrayList<>();
         if (req.getItems() != null) {
             for (var i : req.getItems()) {
@@ -144,7 +180,6 @@ public class OrderController {
 
         Order savedOrder = orderRepository.save(order);
 
-        // Trả về kèm orderId và finalPrice
         return ResponseEntity.ok(Map.of(
                 "message", "Đặt hàng thành công!",
                 "orderId", savedOrder.getId(),
@@ -158,7 +193,7 @@ public class OrderController {
         return orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
-    // 3. API GỌI THANH TOÁN
+    // 3. API KHÁCH GỌI THANH TOÁN
     @PutMapping("/{id}/request-payment")
     public ResponseEntity<?> requestPayment(@PathVariable Long id) {
         Order order = orderRepository.findById(id)
@@ -172,5 +207,39 @@ public class OrderController {
         orderRepository.save(order);
 
         return ResponseEntity.ok(Map.of("message", "Đã gửi yêu cầu thanh toán!"));
+    }
+
+    // =================================================================
+    // 🔥 4. API CHO STAFF: CẬP NHẬT TRẠNG THÁI (QUAN TRỌNG ĐỂ GIẢI PHÓNG BÀN)
+    // =================================================================
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateOrderStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String newStatus = body.get("status");
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng"));
+
+        // 1. Cập nhật trạng thái Order
+        order.setStatus(newStatus);
+        orderRepository.save(order);
+
+        // 2. 🔥 LOGIC ĐỒNG BỘ: NẾU ĐƠN XONG -> ĐÓNG LUÔN BOOKING TẠI BÀN ĐÓ 🔥
+        if ("COMPLETED".equals(newStatus) && order.getTableNumber() > 0) {
+
+            // Tìm Booking đang treo ở bàn này (trong ngày hôm nay)
+            Optional<Booking> activeBooking = bookingRepository.findActiveBookingAtTable(
+                    order.getRestaurantId(),
+                    order.getTableNumber(),
+                    LocalDate.now()
+            );
+
+            if (activeBooking.isPresent()) {
+                Booking booking = activeBooking.get();
+                booking.setStatus("COMPLETED"); // Chuyển booking sang COMPLETED để Repository coi là bàn trống
+                bookingRepository.save(booking);
+                System.out.println("✅ Đã đóng Booking #" + booking.getId() + " theo đơn hàng #" + order.getId());
+            }
+        }
+
+        return ResponseEntity.ok(Map.of("message", "Cập nhật trạng thái thành công!"));
     }
 }

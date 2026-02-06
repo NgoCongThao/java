@@ -124,6 +124,12 @@
     <div id="tab-bookings" style="display: none;">
         <div class="card shadow-sm">
             <div class="card-header bg-white fw-bold">Danh sách khách đặt bàn hôm nay</div>
+            <div class="input-group" style="max-width: 300px;">
+                <span class="input-group-text bg-light border-end-0"><i class="fas fa-search"></i></span>
+                <input type="text" id="bookingSearchInput" class="form-control border-start-0"
+                       placeholder="Tìm SĐT hoặc Tên..." onkeyup="filterBookings()">
+            </div>
+        </div>
             <div class="card-body p-0">
                 <table class="table table-hover mb-0 align-middle">
                     <thead class="table-light">
@@ -226,6 +232,29 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalAssignTable" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Xếp bàn cho khách</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-clock"></i> Thời gian khách đặt: <strong id="assign-time-display">--:--</strong><br>
+                    <i class="fas fa-users"></i> Số lượng: <strong id="assign-people-display">0</strong> người
+                </div>
+
+                <h6 class="fw-bold mb-3">Tình trạng bàn vào giờ này:</h6>
+                <div class="row g-2" id="assign-table-grid">
+                    <div class="text-center py-4"><div class="spinner-border"></div></div>
+                </div>
+
+                <input type="hidden" id="assign-booking-id">
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="modalQr" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
@@ -248,6 +277,50 @@
         </div>
     </div>
 </div>
+    <div class="modal fade" id="modalCheckInConfirm" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold">Xác nhận khách đến & Lên món</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning small mb-3">
+                        <i class="fas fa-info-circle"></i> Kiểm tra kỹ món ăn khách chốt trước khi gửi bếp.
+                    </div>
+
+                    <input type="hidden" id="checkin-booking-id">
+
+                    <h6 class="fw-bold">Danh sách món:</h6>
+                    <div class="table-responsive border rounded mb-3" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-sm table-striped mb-0 align-middle">
+                            <thead class="table-light sticky-top">
+                            <tr>
+                                <th class="ps-3">Tên món</th>
+                                <th class="text-center" width="120">Số lượng</th>
+                                <th class="text-end pe-3">Xóa</th>
+                            </tr>
+                            </thead>
+                            <tbody id="checkin-items-list">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                        <span class="text-muted">Tổng tiền dự kiến:</span>
+                        <span id="checkin-total" class="fs-5 fw-bold text-danger">0đ</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-success fw-bold px-4" onclick="submitCheckIn()">
+                        <i class="fas fa-check"></i> CHỐT ĐƠN & BẾP NẤU
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../js/staff.js"></script>
 </body>

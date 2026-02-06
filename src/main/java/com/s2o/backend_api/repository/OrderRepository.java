@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
@@ -15,36 +16,46 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     // 1. NHÓM HÀM CHO KHÁCH HÀNG (CUSTOMER)
     // ==========================================
 
-    // Tìm đơn hàng theo User ID (Sắp xếp đơn mới nhất lên đầu để khách dễ xem lịch sử)
+    // Tìm các đơn đang phục vụ (chưa thanh toán) để check bàn trống
+    @Query("SELECT o FROM Order o WHERE o.status NOT IN ('PAID', 'CANCELLED') AND o.tableNumber IS NOT NULL")
+    List<Order> findActiveOrders();
+
+    // Tìm lịch sử đơn hàng của user
     List<Order> findByUserIdOrderByCreatedAtDesc(Long userId);
-
-    // Hàm viết tắt (để tương thích code cũ nếu có)
     List<Order> findByUserId(Long userId);
-
-    // Đếm số đơn hàng của khách (Có thể dùng để tính hạng thành viên: Bạc, Vàng...)
     long countByUserId(Long userId);
 
+    // Tìm đơn đang hoạt động theo Bàn (Cũ - Có thể giữ lại hoặc bỏ)
+    Optional<Order> findFirstByTableNumberAndStatusIn(int tableNumber, List<String> statuses);
 
+    // 🔥🔥🔥 [QUAN TRỌNG - THÊM HÀM NÀY] 🔥🔥🔥
+    // Hàm này giúp Controller tìm chính xác đơn cũ của Nhà hàng X tại Bàn Y
+    // Để thực hiện logic GỘP ĐƠN khi quét QR
+    Optional<Order> findFirstByRestaurantIdAndTableNumberAndStatusIn(
+            Long restaurantId,
+            int tableNumber,
+            List<String> statuses
+    );
+
+    @Query("SELECT DISTINCT o.tableNumber FROM Order o " +
+            "WHERE o.restaurantId = :resId " +
+            "AND o.tableNumber > 0 " +
+            "AND o.status IN ('PENDING', 'COOKING', 'DELIVERING', 'READY', 'PAYMENT_REQUEST')")
+    List<Integer> findBusyTableNumbers(@Param("resId") Long resId);
     // ==========================================
     // 2. NHÓM HÀM CHO QUẢN LÝ (MANAGER) & NHÂN VIÊN (STAFF)
     // ==========================================
 
-    // Lấy TOÀN BỘ đơn hàng của quán mình (Sắp xếp mới nhất trước)
-    // Dùng cho: Màn hình quản lý đơn hàng của Staff/Manager
     List<Order> findByRestaurantIdOrderByCreatedAtDesc(Long restaurantId);
 
-    // TÍNH DOANH THU RIÊNG CỦA QUÁN
-    // Logic: Chỉ cộng tổng tiền (totalPrice) các đơn đã hoàn thành (COMPLETED) của quán đó
     @Query("SELECT SUM(o.totalPrice) FROM Order o WHERE o.restaurantId = :restaurantId AND o.status = 'COMPLETED'")
     Double calculateRevenueByRestaurant(@Param("restaurantId") Long restaurantId);
 
 
     // ==========================================
-    // 3. NHÓM HÀM CHO ADMIN HỆ THỐNG (SYSTEM ADMIN)
+    // 3. NHÓM HÀM CHO ADMIN HỆ THỐNG
     // ==========================================
 
-    // TÍNH DOANH THU TOÀN SÀN (TỔNG TẤT CẢ CÁC QUÁN)
-    // Dùng cho: Màn hình Dashboard của Admin hệ thống
     @Query("SELECT SUM(o.totalPrice) FROM Order o WHERE o.status = 'COMPLETED'")
     Double calculateTotalSystemRevenue();
 
@@ -53,11 +64,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     // 4. NHÓM HÀM CHO BẾP (KITCHEN)
     // ==========================================
 
-    // Lấy danh sách đơn CẦN XỬ LÝ (Không lấy đơn đã xong hoặc hủy)
-    // Param status thường truyền vào là "COMPLETED" (nghĩa là lấy tất cả status KHÁC Completed)
-    // Sắp xếp cũ nhất lên đầu (Asc) để bếp làm theo thứ tự ai đến trước phục vụ trước
     List<Order> findByRestaurantIdAndStatusNotOrderByCreatedAtAsc(Long restaurantId, String status);
     List<Order> findByRestaurantId(Long restaurantId);
     List<Order> findByRestaurantIdAndStatus(Long resId, String status);
-
 }

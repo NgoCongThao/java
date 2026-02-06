@@ -1,35 +1,103 @@
 package com.s2o.backend_api.controller;
 
 import com.s2o.backend_api.dto.BookingRequest;
-import com.s2o.backend_api.entity.Booking;
-import com.s2o.backend_api.entity.Restaurant;
-import com.s2o.backend_api.entity.User;
+import com.s2o.backend_api.entity.*;
 import com.s2o.backend_api.repository.BookingRepository;
+import com.s2o.backend_api.repository.OrderRepository;
 import com.s2o.backend_api.repository.RestaurantRepository;
 import com.s2o.backend_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.s2o.backend_api.entity.BookingItem;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/bookings")
+@RequestMapping({"/api/bookings", "/api/staff/bookings"})
 @CrossOrigin(origins = "*")
 public class BookingController {
 
     @Autowired
     private BookingRepository bookingRepository;
-    
+    @Autowired
+    private OrderRepository orderRepo;
     @Autowired
     private UserRepository userRepository;
     
     @Autowired
     private RestaurantRepository restaurantRepository;
+    @PostMapping("/{id}/check-in")
+    // Thêm @RequestBody để nhận danh sách món đã chỉnh sửa
+    public ResponseEntity<?> checkInBooking(@PathVariable Long id, @RequestBody(required = false) CheckInRequest req) {
 
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        if ("COMPLETED".equals(booking.getStatus())) {
+            return ResponseEntity.badRequest().body("Booking này đã check-in rồi!");
+        }
+
+        // 1. Tạo Order cơ bản
+        Order newOrder = new Order();
+        newOrder.setCustomerName(booking.getCustomerName());
+        newOrder.setCustomerPhone(booking.getPhone());
+        newOrder.setTableNumber(booking.getTableNumber());
+        newOrder.setOrderType("DINE_IN");
+        newOrder.setStatus("PENDING");
+        newOrder.setCreatedAt(LocalDateTime.now());
+        if (booking.getUser() != null) newOrder.setUserId(booking.getUser().getId());
+        if (booking.getRestaurant() != null) {
+            newOrder.setRestaurantId(booking.getRestaurant().getId());
+            // 🔥 FIX: Copy thêm tên nhà hàng
+            newOrder.setRestaurantName(booking.getRestaurant().getName());
+        }
+        newOrder.setNote("Booking #" + booking.getId() + ". " + booking.getNote());
+
+        // 2. XỬ LÝ DANH SÁCH MÓN (LOGIC MỚI)
+        List<OrderItem> orderItems = new ArrayList<>();
+        double total = 0;
+
+        // Nếu Frontend có gửi danh sách món đã sửa -> Dùng danh sách đó
+        if (req != null && req.items != null) {
+            for (var reqItem : req.items) {
+                OrderItem oItem = new OrderItem();
+                oItem.setItemName(reqItem.getName());
+                oItem.setPrice(reqItem.getPrice());
+                oItem.setQuantity(reqItem.getQty());
+                oItem.setStatus("PENDING");
+                oItem.setOrder(newOrder);
+                orderItems.add(oItem);
+                total += (reqItem.getPrice() * reqItem.getQty());
+            }
+        }
+        // Nếu không gửi gì -> Dùng danh sách gốc trong Booking (Fallback)
+        else if (booking.getItems() != null) {
+            for (BookingItem bItem : booking.getItems()) {
+                OrderItem oItem = new OrderItem();
+                oItem.setItemName(bItem.getItemName());
+                oItem.setPrice(bItem.getPrice());
+                oItem.setQuantity(bItem.getQuantity());
+                oItem.setStatus("PENDING");
+                oItem.setOrder(newOrder);
+                orderItems.add(oItem);
+                total += (bItem.getPrice() * bItem.getQuantity());
+            }
+        }
+
+        newOrder.setItems(orderItems);
+        newOrder.setTotalPrice(total);
+        newOrder.setFinalPrice(total);
+
+        orderRepo.save(newOrder);
+
+        booking.setStatus("COMPLETED");
+        bookingRepository.save(booking);
+
+        return ResponseEntity.ok(Map.of("message", "Check-in thành công!", "orderId", newOrder.getId()));
+    }
     // API tạo booking
     @PostMapping("/create")
     public ResponseEntity<?> createBooking(@RequestBody BookingRequest request) {
@@ -165,63 +233,72 @@ public class BookingController {
     }
 
     // THÊM API MỚI: Lấy trạng thái bàn theo ngày giờ
+
     @GetMapping("/table-status")
     public ResponseEntity<?> getTableStatus(
             @RequestParam Long restaurantId,
             @RequestParam String date,
             @RequestParam String time) {
-        
+
         try {
-            // 1. Kiểm tra nhà hàng
+            // 1. Chuẩn bị dữ liệu
             Restaurant restaurant = restaurantRepository.findById(restaurantId)
                     .orElseThrow(() -> new RuntimeException("Nhà hàng không tồn tại"));
-            
-            // 2. Lấy tổng số bàn
-            Integer totalTables = restaurant.getTotalTables();
-            if (totalTables == null || totalTables <= 0) {
-                totalTables = 10; // Mặc định nếu chưa cấu hình
-            }
-            
-            // 3. Parse thời gian
-            LocalTime bookingTime = LocalTime.parse(time);
-            LocalTime startCheck = bookingTime.minusHours(2);
-            LocalTime endCheck = bookingTime.plusHours(2);
-            
-            // 4. Lấy danh sách bàn đã đặt
-            List<Integer> bookedTableNumbers;
+            int totalTables = (restaurant.getTotalTables() != null && restaurant.getTotalTables() > 0)
+                    ? restaurant.getTotalTables() : 10;
+
+            LocalDate checkDate = LocalDate.parse(date);
+            LocalTime checkTime = LocalTime.parse(time);
+
+            // Set chứa các bàn BẬN (Dùng Set để tự động loại bỏ trùng lặp)
+            Set<Integer> busyTables = new HashSet<>();
+
+            // =================================================================
+            // 🛑 PHẦN 1: CHECK BOOKING (Áp dụng cho CẢ hôm nay và tương lai)
+            // =================================================================
+            // Logic: Tìm các bàn bị Booking giữ chỗ trong khung giờ +/- 2 tiếng
+            // (Lưu ý: Repo đã loại bỏ các đơn COMPLETED nên rất an toàn)
+            LocalTime startCheck = checkTime.minusHours(2);
+            LocalTime endCheck = checkTime.plusHours(2);
+
             if (startCheck.isBefore(endCheck)) {
-                bookedTableNumbers = bookingRepository.findBookedTableNumbers(
-                        restaurantId,
-                        LocalDate.parse(date),
-                        startCheck,
-                        endCheck
+                List<Integer> bookedTables = bookingRepository.findBookedTableNumbers(
+                        restaurantId, checkDate, startCheck, endCheck
                 );
-            } else {
-                // Trường hợp qua đêm, không lấy danh sách bàn đã đặt
-                bookedTableNumbers = new ArrayList<>();
+                busyTables.addAll(bookedTables);
             }
-            
-            // 5. Tạo Set để kiểm tra nhanh
-            Set<Integer> bookedSet = new HashSet<>(bookedTableNumbers);
-            
-            // 6. Tạo danh sách trạng thái tất cả các bàn
-            List<Map<String, Object>> tableStatusList = new ArrayList<>();
+
+            // =================================================================
+            // 🛑 PHẦN 2: CHECK ORDER (CHỈ Áp dụng cho HÔM NAY)
+            // =================================================================
+            // Logic: Nếu đang check ngày hôm nay, phải xem có ai đang ngồi ăn thật không
+            // (Bao gồm cả khách Booking đã đến check-in và khách vãng lai)
+            if (checkDate.equals(LocalDate.now())) {
+                List<Integer> diningTables = orderRepo.findBusyTableNumbers(restaurantId);
+                busyTables.addAll(diningTables);
+            }
+
+            // =================================================================
+            // 3. TỔNG HỢP KẾT QUẢ
+            // =================================================================
+            List<Map<String, Object>> result = new ArrayList<>();
             for (int i = 1; i <= totalTables; i++) {
-                Map<String, Object> tableStatus = new HashMap<>();
-                tableStatus.put("number", i);
-                tableStatus.put("status", bookedSet.contains(i) ? "booked" : "available");
-                tableStatusList.add(tableStatus);
+                Map<String, Object> map = new HashMap<>();
+                map.put("number", i);
+
+                if (busyTables.contains(i)) {
+                    map.put("status", "booked"); // Hoặc "busy"
+                } else {
+                    map.put("status", "available");
+                }
+                result.add(map);
             }
-            
-            return ResponseEntity.ok(tableStatusList);
-            
+
+            return ResponseEntity.ok(result);
+
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.internalServerError()
-                    .body(Map.of(
-                        "success", false,
-                        "message", "Lỗi khi lấy trạng thái bàn: " + e.getMessage()
-                    ));
+            return ResponseEntity.internalServerError().body(Map.of("message", e.getMessage()));
         }
     }
     // --- API MỚI CHO BẾP: Cập nhật trạng thái Booking ---
@@ -242,5 +319,8 @@ public class BookingController {
                     ));
                 })
                 .orElse(ResponseEntity.badRequest().body(Map.of("success", false, "message", "Booking không tồn tại")));
+    }
+    public static class CheckInRequest {
+        public List<BookingRequest.BookingItemRequest> items; // Tận dụng DTO món ăn cũ
     }
 }

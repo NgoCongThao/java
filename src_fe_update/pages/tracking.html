@@ -4,18 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>S2O - Theo dõi đơn hàng</title>
-  <link
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-  />
-  <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css"
-  />
-  <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-  />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 
   <style>
     :root {
@@ -24,327 +15,129 @@
       --gray: #adb5bd;
       --bg: #f8f9fa;
     }
-    body {
-      font-family: "Inter", sans-serif;
-      background-color: var(--bg);
-      padding-bottom: 80px;
-    }
+    body { font-family: "Inter", sans-serif; background-color: var(--bg); padding-bottom: 80px; }
 
-    /* HEADER & NOTIF */
+    /* HEADER */
     .sticky-header {
-      position: sticky;
-      top: 0;
-      z-index: 1020;
-      background: white;
-      padding: 15px 0;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-    .notif-dropdown {
-      width: 300px;
-      max-height: 400px;
-      overflow-y: auto;
-      border: none;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-      border-radius: 12px;
+      position: sticky; top: 0; z-index: 1020; background: white;
+      padding: 15px 0; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     }
 
     /* TABS */
-    .order-tabs {
-      display: flex;
-      background: white;
-      border-bottom: 1px solid #eee;
-      overflow-x: auto;
-    }
+    .order-tabs { display: flex; background: white; border-bottom: 1px solid #eee; overflow-x: auto; }
     .order-tab {
-      flex: 1;
-      padding: 15px;
-      border: none;
-      background: none;
-      font-weight: 600;
-      color: #666;
-      border-bottom: 3px solid transparent;
-      white-space: nowrap;
-      cursor: pointer;
+      flex: 1; padding: 15px; border: none; background: none;
+      font-weight: 600; color: #666; border-bottom: 3px solid transparent;
+      white-space: nowrap; cursor: pointer;
     }
-    .order-tab.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
+    .order-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-    /* ORDER CARD */
+    /* CARDS */
     .order-card {
-      background: white;
-      border-radius: 16px;
-      margin-bottom: 20px;
-      border: none;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-      overflow: hidden;
+      background: white; border-radius: 12px; margin-bottom: 16px;
+      border: none; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); overflow: hidden;
     }
     .order-header {
-      padding: 15px;
-      border-bottom: 1px solid #f0f0f0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #fff;
-    }
-    .res-img {
-      width: 45px;
-      height: 45px;
-      border-radius: 10px;
-      object-fit: cover;
-      background: #eee;
+      padding: 12px 15px; border-bottom: 1px solid #f8f9fa;
+      display: flex; justify-content: space-between; align-items: center;
     }
     .status-badge {
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 700;
+      padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
     }
 
     /* PROGRESS BAR */
     .progress-track {
-      display: flex;
-      justify-content: space-between;
-      position: relative;
-      margin: 25px 10px 10px;
+      display: flex; justify-content: space-between; position: relative; margin: 20px 10px 10px;
     }
     .progress-bg {
-      position: absolute;
-      top: 14px;
-      left: 0;
-      width: 100%;
-      height: 4px;
-      background: #eee;
-      z-index: 1;
-      border-radius: 2px;
+      position: absolute; top: 12px; left: 0; width: 100%; height: 4px;
+      background: #eee; z-index: 1; border-radius: 2px;
     }
     .progress-fill {
-      position: absolute;
-      top: 14px;
-      left: 0;
-      height: 4px;
-      background: var(--primary);
-      z-index: 1;
-      transition: 0.5s;
-      border-radius: 2px;
+      position: absolute; top: 12px; left: 0; height: 4px;
+      background: var(--primary); z-index: 1; transition: 0.5s; border-radius: 2px;
     }
-    .step {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      width: 25%;
-    }
+    .step { position: relative; z-index: 2; text-align: center; width: 25%; }
     .step-icon {
-      width: 32px;
-      height: 32px;
-      background: #eee;
-      border-radius: 50%;
-      margin: 0 auto 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #adb5bd;
-      border: 3px solid white;
-      font-size: 0.9rem;
+      width: 28px; height: 28px; background: #eee; border-radius: 50%;
+      margin: 0 auto 6px; display: flex; align-items: center; justify-content: center;
+      color: #adb5bd; border: 3px solid white; font-size: 0.8rem;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     }
     .step.active .step-icon {
-      background: var(--primary);
-      color: white;
+      background: var(--primary); color: white;
       box-shadow: 0 0 0 3px rgba(232, 93, 4, 0.2);
     }
-    .step.completed .step-icon {
-      background: var(--success);
-      color: white;
-    }
-    .step-label {
-      font-size: 0.7rem;
-      color: #999;
-      font-weight: 500;
-    }
-    .step.active .step-label {
-      color: var(--primary);
-      font-weight: 700;
-    }
+    .step.completed .step-icon { background: var(--success); color: white; }
+    .step-label { font-size: 0.65rem; color: #999; font-weight: 500; }
+    .step.active .step-label { color: var(--primary); font-weight: 700; }
 
-    /* STYLE HÓA ĐƠN (RECEIPT) */
+    /* BOOKING SPECIFIC */
+    .booking-info-row {
+      display: flex; gap: 15px; margin-bottom: 8px; font-size: 0.9rem; color: #555;
+    }
+    .booking-info-row i { color: var(--primary); width: 20px; text-align: center; }
+
+    /* RECEIPT MODAL */
     .bill-receipt {
-      font-family: 'Courier New', Courier, monospace;
-      background: #fff;
-      padding: 15px;
-      color: #000;
-      font-size: 0.9rem;
-      border: 1px solid #eee;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      font-family: 'Courier New', Courier, monospace; background: #fff;
+      padding: 15px; color: #000; font-size: 0.9rem; border: 1px solid #eee;
     }
-    .bill-header {
-      text-align: center;
-      margin-bottom: 15px;
-    }
-    .bill-logo {
-      font-weight: 800;
-      font-size: 1.2rem;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
-    .bill-divider {
-      border-top: 2px dashed #000;
-      margin: 10px 0;
-    }
-    .bill-divider-thin {
-      border-top: 1px dashed #aaa;
-      margin: 8px 0;
-    }
-    .bill-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 4px;
-    }
-    .bill-total-section {
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 2px dashed #000;
-    }
-    .bill-footer {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 0.8rem;
-      font-style: italic;
-    }
-
-    /* NOTE & TABLE */
-    .note-box {
-      background-color: #fff8e1;
-      color: #b7791f;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      margin-top: 12px;
-      border: 1px dashed #f6e05e;
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-    }
-
-    /* UTILS */
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-    }
-    .empty-state i {
-      font-size: 4rem;
-      color: #dee2e6;
-      margin-bottom: 20px;
-    }
+    .bill-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .bill-divider { border-top: 2px dashed #000; margin: 10px 0; }
 
     /* NAV */
     .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      padding: 10px 0;
-      border-top: 1px solid #eee;
-      z-index: 1030;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: white; padding: 10px 0; border-top: 1px solid #eee; z-index: 1030;
     }
-    .nav-link-custom {
-      text-align: center;
-      color: #999;
-      text-decoration: none;
-      flex: 1;
-      display: block;
-    }
-    .nav-link-custom.active {
-      color: var(--primary);
-    }
-    .nav-link-custom i {
-      font-size: 1.4rem;
-    }
-    .nav-link-custom span {
-      font-size: 0.7rem;
-      display: block;
-      font-weight: 500;
-    }
-
-    /* GUEST MODE UTILS */
-    .guest-hidden {
-      display: none !important;
-    }
+    .nav-link-custom { text-align: center; color: #999; text-decoration: none; flex: 1; display: block; }
+    .nav-link-custom.active { color: var(--primary); }
+    .nav-link-custom i { font-size: 1.4rem; }
+    .nav-link-custom span { font-size: 0.7rem; display: block; font-weight: 500; }
   </style>
 </head>
 <body>
+
 <header class="sticky-header">
-  <div class="container d-flex justify-content-between align-items-center">
-    <h1 class="h5 mb-0 fw-bold">Đơn hàng của bạn</h1>
-    <div class="dropdown" id="notifContainer">
-      <div
-              class="position-relative cursor-pointer"
-              data-bs-toggle="dropdown"
-      >
-        <i class="bi bi-bell fs-4"></i>
-        <span
-                id="notifBadge"
-                class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle d-none"
-        ></span>
-      </div>
-      <ul class="dropdown-menu dropdown-menu-end notif-dropdown">
-        <li class="text-center p-3 text-muted small">
-          Không có thông báo mới
-        </li>
-      </ul>
-    </div>
+  <div class="container">
+    <h1 class="h6 mb-0 fw-bold text-center text-uppercase ls-1">Quản lý đơn hàng</h1>
   </div>
 </header>
 
-<div class="order-tabs">
+<div class="order-tabs" id="mainTabs">
   <button id="tab-SHIP" class="order-tab active" onclick="App.filter('SHIP', this)">
-    Đơn Online
+    <i class="bi bi-truck"></i> Giao hàng
   </button>
   <button id="tab-TABLE" class="order-tab" onclick="App.filter('TABLE', this)">
-    Tại Bàn / Đặt Bàn
+    <i class="bi bi-shop"></i> Tại bàn / Đặt chỗ
   </button>
   <button id="tab-HISTORY" class="order-tab" onclick="App.filter('HISTORY', this)">
-    Lịch sử
+    <i class="bi bi-clock-history"></i> Lịch sử
   </button>
 </div>
 
 <main class="container mt-3" id="ordersContainer">
   <div class="text-center py-5 text-muted">
-    <div
-            class="spinner-border spinner-border-sm text-warning"
-            role="status"
-    ></div>
+    <div class="spinner-border spinner-border-sm text-warning" role="status"></div>
     <div class="mt-2 small">Đang tải dữ liệu...</div>
   </div>
 </main>
 
 <template id="emptyStateTpl">
-  <div class="empty-state">
-    <i class="bi bi-clipboard2-x"></i>
-    <h5 class="text-muted">Không có đơn hàng nào</h5>
-    <p class="text-muted small mb-4">
-      Bạn chưa có đơn hàng nào trong mục này.
-    </p>
-    <a
-            href="restaurant-list.html"
-            class="btn btn-warning text-white rounded-pill px-4 fw-bold shadow-sm"
-    >Về trang chủ</a
-    >
+  <div class="text-center py-5">
+    <i class="bi bi-inbox fs-1 text-black-50 opacity-25"></i>
+    <h6 class="text-muted mt-3">Chưa có đơn hàng nào</h6>
+    <a href="restaurant-list.html" class="btn btn-sm btn-outline-warning mt-3 px-4 rounded-pill">Đặt món ngay</a>
   </div>
 </template>
 
 <template id="loginRequiredTpl">
   <div class="text-center py-5">
-    <i class="bi bi-shield-lock display-1 text-muted"></i>
+    <i class="bi bi-shield-lock fs-1 text-muted"></i>
     <h5 class="mt-3">Vui lòng đăng nhập</h5>
-    <p class="text-muted mb-4">Bạn cần đăng nhập để xem lịch sử gọi món</p>
-    <a
-            href="authcus.html"
-            class="btn btn-warning text-white px-4 rounded-pill fw-bold"
-    >Đăng nhập ngay</a
-    >
+    <p class="text-muted small">Bạn cần đăng nhập để xem lịch sử đơn hàng</p>
+    <a href="authcus.html" class="btn btn-warning text-white px-4 rounded-pill fw-bold shadow-sm">Đăng nhập</a>
   </div>
 </template>
 
@@ -363,17 +156,17 @@
   </div>
 </div>
 
-<nav class="bottom-nav">
+<nav class="bottom-nav" id="bottomNav">
   <div class="d-flex justify-content-around">
-    <a href="restaurant-list.html" class="nav-link-custom"
-    ><i class="bi bi-house"></i><span>Trang chủ</span></a
-    >
-    <a href="tracking.html" class="nav-link-custom active"
-    ><i class="bi bi-receipt"></i><span>Đơn hàng</span></a
-    >
-    <a href="profile.html" class="nav-link-custom"
-    ><i class="bi bi-person"></i><span>Tài khoản</span></a
-    >
+    <a href="restaurant-list.html" class="nav-link-custom">
+      <i class="bi bi-house"></i><span>Trang chủ</span>
+    </a>
+    <a href="tracking.html" class="nav-link-custom active">
+      <i class="bi bi-receipt"></i><span>Đơn hàng</span>
+    </a>
+    <a href="profile.html" class="nav-link-custom">
+      <i class="bi bi-person"></i><span>Tài khoản</span>
+    </a>
   </div>
 </nav>
 
@@ -388,48 +181,25 @@
     GUEST_PAYMENT_ENDPOINT: (id) => `/guest/orders/${id}/request-payment`
   };
 
-  // MAPPING TRẠNG THÁI
+  // --- CẤU HÌNH TRẠNG THÁI (STATUS MAP) ---
+  // CẬP NHẬT: Thêm thuộc tính 'bg' cho tất cả trạng thái để tránh lỗi CSS
   const STATUS_MAP = {
-    WAITING_CONFIRM: { label: "Chờ duyệt", color: "#ffc107", step: 1 },
-    PENDING: { label: "Bếp đang nấu", color: "#e85d04", step: 2 },
-    COOKING: { label: "Bếp đang nấu", color: "#e85d04", step: 2 },
-    DELIVERING: { label: "Đang lên món", color: "#0dcaf0", step: 3 },
-    READY: { label: "Đang lên món", color: "#0dcaf0", step: 3 },
-    COMPLETED: { label: "Hoàn tất", color: "#198754", step: 4 },
-    CANCELLED: { label: "Đã hủy", color: "#dc3545", step: 0 },
-    REJECTED: { label: "Từ chối", color: "#dc3545", step: 0 },
-    PAYMENT_REQUEST: { label: "Đang gọi T.Toán", color: "#6610f2", step: 3 }
-  };
+    // BOOKING STATUS
+    PENDING_BOOKING: { label: "Chờ xác nhận", color: "#856404", bg: "#fff3cd" },
+    CONFIRMED_BOOKING: { label: "Đã xếp bàn", color: "#084298", bg: "#cfe2ff" },
 
-  const IMG_BACKUP = "../img/anhbackup.jpg";
+    // ORDER STATUS
+    WAITING_CONFIRM: { label: "Chờ quán nhận", color: "#41464b", bg: "#e2e3e5", step: 1 },
+    PENDING: { label: "Bếp đang nấu", color: "#b02a37", bg: "#f8d7da", step: 2 }, // Đỏ nhạt
+    COOKING: { label: "Bếp đang nấu", color: "#b02a37", bg: "#f8d7da", step: 2 },
+    DELIVERING: { label: "Đang giao / Lên món", color: "#055160", bg: "#cff4fc", step: 3 }, // Xanh cyan nhạt
+    READY: { label: "Sẵn sàng / Lên món", color: "#055160", bg: "#cff4fc", step: 3 },
+    PAYMENT_REQUEST: { label: "Đợi thanh toán", color: "#3c009d", bg: "#e0cffc", step: 3 }, // Tím nhạt
 
-  const ApiService = {
-    async get(endpoint) {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(`${API_CONFIG.BASE_URL}${endpoint}`, {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : "",
-            "Content-Type": "application/json",
-          },
-        });
-        if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-        return await res.json();
-      } catch (error) {
-        console.error("API Error:", error);
-        return [];
-      }
-    },
-    async put(endpoint) {
-      const token = localStorage.getItem("token");
-      const headers = { "Content-Type": "application/json" };
-      if(token) headers["Authorization"] = `Bearer ${token}`;
-
-      const res = await fetch(`${API_CONFIG.BASE_URL}${endpoint}`, {
-        method: 'PUT', headers: headers
-      });
-      return res;
-    }
+    // COMPLETED / FAILED
+    COMPLETED: { label: "Hoàn tất", color: "#0f5132", bg: "#d1e7dd", step: 4 }, // Xanh lá nhạt
+    CANCELLED: { label: "Đã hủy", color: "#842029", bg: "#f8d7da", step: 0 },
+    REJECTED: { label: "Từ chối", color: "#842029", bg: "#f8d7da", step: 0 }
   };
 
   const App = {
@@ -440,359 +210,294 @@
       const container = document.getElementById("ordersContainer");
       const urlParams = new URLSearchParams(window.location.search);
 
-      // --- 1. KIỂM TRA CHẾ ĐỘ GUEST ---
+      // 1. CHẾ ĐỘ GUEST
       if (urlParams.get('mode') === 'guest') {
         this.isGuestMode = true;
-
-        // Ẩn các thành phần không cần thiết cho khách vãng lai
-        document.querySelector('.order-tabs').style.display = 'none';
-        document.querySelector('.bottom-nav').style.display = 'none';
-        document.getElementById('notifContainer').style.display = 'none';
+        this.setupGuestMode();
 
         const guestOrderId = localStorage.getItem("currentGuestOrderId");
-
         if (!guestOrderId) {
-          container.innerHTML = `<div class="text-center py-5"><h5>Không tìm thấy đơn hàng!</h5><a href="restaurant-list.html" class="btn btn-primary mt-3">Về trang chủ</a></div>`;
+          container.innerHTML = `<div class="text-center py-5"><h5>Không tìm thấy thông tin đơn hàng!</h5></div>`;
           return;
         }
 
-        // Gọi API Guest
         try {
           const res = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.GUEST_ORDER_ENDPOINT(guestOrderId)}`);
           if (res.ok) {
             const order = await res.json();
-            order.type = 'order'; // Gán type để render đúng
-            this.renderItems([order]);
+            order.type = 'order';
+            this.allItems = [order];
+
+            this.renderList(this.allItems);
           } else {
-            container.innerHTML = `<div class="text-center py-5 text-danger">Không tải được đơn hàng #${guestOrderId}</div>`;
+            container.innerHTML = `<div class="text-center text-danger py-5">Lỗi tải đơn hàng #${guestOrderId}</div>`;
           }
-        } catch (e) {
-          console.error(e);
-        }
+        } catch (e) { console.error(e); }
         return;
       }
 
-      // --- 2. LOGIC THÀNH VIÊN (MEMBER) ---
+      // 2. CHẾ ĐỘ THÀNH VIÊN
       const token = localStorage.getItem("token");
       const userStr = localStorage.getItem("user");
 
       if (!token || !userStr) {
         container.innerHTML = document.getElementById("loginRequiredTpl").innerHTML;
-        document.querySelector(".order-tabs").style.display = "none";
+        document.getElementById("mainTabs").style.display = "none";
         return;
       }
 
       const user = JSON.parse(userStr);
-      const userId = user.id || 1;
-
       try {
-        const [orders, bookings] = await Promise.all([
-          ApiService.get(API_CONFIG.ORDERS_ENDPOINT(userId)),
-          ApiService.get(API_CONFIG.BOOKINGS_ENDPOINT(userId)),
+        const [ordersData, bookingsData] = await Promise.all([
+          this.fetchData(API_CONFIG.ORDERS_ENDPOINT(user.id)),
+          this.fetchData(API_CONFIG.BOOKINGS_ENDPOINT(user.id))
         ]);
 
-        const ordersWithType = orders.map((o) => ({ ...o, type: "order" }));
-        const bookingsWithType = bookings.map((b) => ({ ...b, type: "booking" }));
+        const orders = ordersData.map(o => ({ ...o, type: 'order' }));
+        const bookings = bookingsData.map(b => ({ ...b, type: 'booking', status: b.status === 'PENDING' ? 'PENDING_BOOKING' : (b.status === 'CONFIRMED' ? 'CONFIRMED_BOOKING' : b.status) }));
 
-        const allItems = [...ordersWithType, ...bookingsWithType];
-        allItems.sort((a, b) => {
-          const dateA = new Date(a.createdAt || a.bookingDate || 0);
-          const dateB = new Date(b.createdAt || b.bookingDate || 0);
-          return dateB - dateA;
+        this.allItems = [...orders, ...bookings].sort((a, b) => {
+          const tA = new Date(a.createdAt || a.bookingDate || 0).getTime();
+          const tB = new Date(b.createdAt || b.bookingDate || 0).getTime();
+          return tB - tA;
         });
 
-        this.allItems = allItems;
         this.filter('SHIP', document.getElementById('tab-SHIP'));
 
       } catch (err) {
-        console.error("Init error:", err);
-        container.innerHTML = `<div class="text-center py-5 text-danger">Không tải được dữ liệu.</div>`;
+        console.error(err);
+        container.innerHTML = `<div class="text-center text-danger py-5">Không thể kết nối máy chủ</div>`;
       }
     },
 
-    renderItems(items) {
-      const container = document.getElementById("ordersContainer");
+    setupGuestMode() {
+      document.getElementById('mainTabs').style.display = 'none';
+      document.getElementById('bottomNav').style.display = 'none';
+      document.querySelector('.sticky-header h1').innerText = "Đơn hàng tại bàn";
+    },
 
+    async fetchData(url) {
+      const token = localStorage.getItem("token");
+      try {
+        const res = await fetch(`${API_CONFIG.BASE_URL}${url}`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        return res.ok ? await res.json() : [];
+      } catch { return []; }
+    },
+
+    filter(tabName, btn) {
+      if (this.isGuestMode) return;
+      document.querySelectorAll(".order-tab").forEach(b => b.classList.remove("active"));
+      if(btn) btn.classList.add("active");
+
+      const container = document.getElementById("ordersContainer");
+      container.innerHTML = '<div class="text-center py-5 text-muted"><div class="spinner-border spinner-border-sm"></div></div>';
+
+      setTimeout(() => {
+        let filtered = [];
+        const isActive = s => !['COMPLETED', 'CANCELLED', 'REJECTED'].includes(s);
+        const isHistory = s => ['COMPLETED', 'CANCELLED', 'REJECTED'].includes(s);
+
+        if (tabName === 'SHIP') {
+          filtered = this.allItems.filter(i => i.type === 'order' && (!i.tableNumber || i.tableNumber === 0) && isActive(i.status));
+        } else if (tabName === 'TABLE') {
+          filtered = this.allItems.filter(i => {
+            const isDineInOrder = i.type === 'order' && i.tableNumber > 0 && isActive(i.status);
+            const isActiveBooking = i.type === 'booking' && isActive(i.status);
+            return isDineInOrder || isActiveBooking;
+          });
+        } else if (tabName === 'HISTORY') {
+          filtered = this.allItems.filter(i => isHistory(i.status));
+        }
+        this.renderList(filtered);
+      }, 300);
+    },
+
+    renderList(items) {
+      const container = document.getElementById("ordersContainer");
       if (!items || items.length === 0) {
         container.innerHTML = document.getElementById("emptyStateTpl").innerHTML;
         return;
       }
 
-      let html = "";
-      items.forEach((item) => {
-        const statusCfg = STATUS_MAP[item.status] || STATUS_MAP["PENDING"];
-        const isDone = ["COMPLETED", "CANCELLED", "REJECTED"].includes(item.status);
-
-        // Xử lý danh sách món ăn
-        const itemsHtml = (item.items || [])
-                .map((i) => `<div><b class="text-primary">${i.quantity || i.qty}x</b> ${i.itemName || i.name}</div>`)
-                .join("");
-
-        // --- 1. XỬ LÝ THANH TIẾN TRÌNH ---
-        let progressHtml = "";
-        if (!isDone && item.type === "order") {
-          const pct = ((statusCfg.step - 1) / 3) * 100;
-          progressHtml = `
-                <div class="progress-track">
-                  <div class="progress-bg"></div>
-                  <div class="progress-fill" style="width: ${pct}%"></div>
-                  ${this.renderSteps(statusCfg.step)}
-                </div>
-              `;
-        }
-
-        // --- 2. INFO ---
-        let dateInfo = "";
-        const dateStr = item.createdAt || item.bookingDate;
-        if (dateStr) {
-          dateInfo = new Date(dateStr).toLocaleString("vi-VN", {
-            hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit"
-          });
-        }
-
-        let restaurantName = item.restaurantName || "Nhà hàng S2O";
-        let restaurantImage = item.img || IMG_BACKUP;
-        if (item.type === "booking" && item.restaurant) {
-          restaurantName = item.restaurant.name;
-          restaurantImage = item.restaurant.image || IMG_BACKUP;
-        }
-
-        let tableHtml = "";
-        const tableNumber = item.tableNumber || 0;
-        if (item.type === "booking") {
-          tableHtml = `<span class="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1"><i class="bi bi-calendar-check me-1"></i> Đặt bàn ${tableNumber > 0 ? `Bàn ${tableNumber}` : ""}</span>`;
-        } else if (tableNumber > 0) {
-          tableHtml = `<span class="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1"><i class="bi bi-shop me-1"></i> Bàn số ${tableNumber}</span>`;
-        } else {
-          tableHtml = `<span class="badge bg-warning bg-opacity-10 text-warning border border-warning px-2 py-1"><i class="bi bi-bag me-1"></i> Online</span>`;
-        }
-
-        // --- 3. NÚT GỌI THANH TOÁN (Cho đơn đang ăn) ---
-        let actionBtn = "";
-        if (item.type === "order" && item.tableNumber > 0 && !isDone) {
-          if (item.status === 'PAYMENT_REQUEST') {
-            actionBtn = `<button class="btn btn-secondary w-100 mt-3 fw-bold" disabled><i class="bi bi-hourglass-split"></i> Đã gọi nhân viên...</button>`;
-          } else {
-            actionBtn = `<button onclick="App.requestPayment(${item.id})" class="btn btn-warning w-100 mt-3 fw-bold text-white shadow-sm py-2">🛎️ GỌI THANH TOÁN</button>`;
-          }
-        }
-
-        // Nút trạng thái hoàn tất
-        if (isDone && item.status === 'COMPLETED') {
-          actionBtn = `<div class="alert alert-success text-center mt-3 mb-0 py-2 fw-bold"><i class="bi bi-check-circle"></i> Đơn hàng hoàn tất</div>`;
-        } else if (item.status === 'CANCELLED' || item.status === 'REJECTED') {
-          actionBtn = `<div class="alert alert-danger text-center mt-3 mb-0 py-2 fw-bold"><i class="bi bi-x-circle"></i> Đơn đã hủy</div>`;
-        }
-
-        // --- 4. TÍNH TIỀN ---
-        let totalAmount = 0;
-        if (item.type === "order") {
-          if (item.finalPrice != null) {
-            totalAmount = item.finalPrice;
-          } else {
-            totalAmount = item.totalPrice || item.total || 0;
-          }
-        } else if (item.items && item.items.length > 0) {
-          totalAmount = item.items.reduce((s, i) => s + (i.price||0)*(i.quantity||i.qty||0), 0);
-        }
-
-        let pointNote = "";
-        if(item.pointsUsed > 0) {
-          pointNote = `<div class="text-success small"><i class="bi bi-gift-fill"></i> Đã dùng ${item.pointsUsed} điểm</div>`;
-        }
-
-        // --- 5. NÚT XEM HÓA ĐƠN (Thay thế nút Đánh giá ở History) ---
-        let billBtn = "";
-        // Hiển thị nút Xem hóa đơn cho tất cả các đơn Order (kể cả đang chạy hoặc đã xong)
-        if(item.type === "order") {
-          billBtn = `<button class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-bold" onclick="App.viewBill(${item.id})"><i class="bi bi-receipt"></i> Xem hóa đơn</button>`;
-        }
-
-        // --- RENDER HTML ---
-        html += `
-              <div class="order-card">
-                <div class="order-header">
-                  <div class="d-flex align-items-center gap-3">
-                    <img src="${restaurantImage}" class="res-img" onerror="this.src='${IMG_BACKUP}'">
-                    <div>
-                      <div class="fw-bold text-dark">${restaurantName}</div>
-                      <div class="d-flex align-items-center gap-2 mt-1">
-                          ${tableHtml}
-                          <span class="small text-muted">#${item.id} • ${dateInfo}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <span class="status-badge" style="background:${statusCfg.color}20; color:${statusCfg.color}">${statusCfg.label}</span>
-                </div>
-
-                <div class="p-3 pt-0">
-                  ${progressHtml}
-                  <div class="mt-3 small text-secondary" style="line-height:1.6; border-left: 3px solid #eee; padding-left: 10px;">
-                      ${itemsHtml}
-                  </div>
-                  ${item.note ? `<div class="note-box"><i class="bi bi-pencil-square mt-1"></i> <div><strong>Ghi chú:</strong> ${item.note}</div></div>` : ''}
-
-                  ${actionBtn}
-                </div>
-
-                <div class="p-3 border-top d-flex justify-content-between align-items-center bg-light">
-                  <div>
-                    <span class="small text-muted">Thanh toán:</span>
-                    <span class="fw-bold text-primary fs-5 ms-1">${totalAmount.toLocaleString()}đ</span>
-                    ${pointNote}
-                  </div>
-                  <div>
-                    ${billBtn}
-                  </div>
-                </div>
-              </div>
-            `;
-      });
-      container.innerHTML = html;
+      container.innerHTML = items.map(item => {
+        if (item.type === 'booking') return this.renderBookingCard(item);
+        return this.renderOrderCard(item);
+      }).join('');
     },
 
-    // HÀM HIỂN THỊ HÓA ĐƠN
+    renderBookingCard(item) {
+      const status = STATUS_MAP[item.status] || { label: item.status, color: '#000', bg: '#eee' };
+      const dateStr = new Date(item.bookingDate).toLocaleDateString('vi-VN');
+
+      let itemsHtml = "";
+      if (item.items && item.items.length > 0) {
+        const list = item.items.map(i => `${i.itemName || i.name} (x${i.quantity || i.qty})`).join(', ');
+        itemsHtml = `<div class="booking-info-row text-primary small"><i class="bi bi-bag-check"></i> Đặt trước: ${list}</div>`;
+      }
+
+      return `
+                <div class="order-card border-start border-5 border-primary">
+                    <div class="order-header">
+                        <div class="fw-bold"><i class="bi bi-calendar-check me-2 text-primary"></i>ĐẶT BÀN #${item.id}</div>
+                        <span class="badge" style="background-color:${status.bg}; color:${status.color}">${status.label}</span>
+                    </div>
+                    <div class="p-3">
+                        <div class="booking-info-row"><i class="bi bi-shop"></i> <span>${item.restaurantName || item.restaurant?.name || 'Nhà hàng'}</span></div>
+                        <div class="booking-info-row"><i class="bi bi-clock"></i> <span>${item.bookingTime} - ${dateStr}</span></div>
+                        <div class="booking-info-row"><i class="bi bi-people"></i> <span>${item.guestCount || item.peopleCount} khách</span></div>
+                        ${item.tableNumber ? `<div class="booking-info-row fw-bold text-success"><i class="bi bi-geo-alt-fill"></i> <span>Đã xếp bàn số: ${item.tableNumber}</span></div>` : ''}
+                        ${itemsHtml}
+                        <div class="mt-2 text-muted fst-italic small border-top pt-2">
+                             ${item.note ? `"${item.note}"` : 'Không có ghi chú'}
+                        </div>
+                    </div>
+                </div>
+            `;
+    },
+
+    renderOrderCard(item) {
+      // Fallback an toàn nếu status không tồn tại
+      const statusCfg = STATUS_MAP[item.status] || STATUS_MAP.PENDING;
+      const isDineIn = item.tableNumber > 0;
+      const isDone = ['COMPLETED', 'CANCELLED', 'REJECTED'].includes(item.status);
+      const resName = item.restaurantName || item.restaurant?.name || "Nhà hàng S2O";
+
+      let progressHtml = "";
+      if (!isDone) {
+        const pct = ((statusCfg.step - 1) / 3) * 100;
+        const step3Label = isDineIn ? "Lên món" : "Giao hàng";
+        const stepsHtml = `
+                    <div class="step ${statusCfg.step >= 1 ? 'completed' : ''} ${statusCfg.step===1?'active':''}"><div class="step-icon"><i class="bi bi-receipt"></i></div><div class="step-label">Chờ duyệt</div></div>
+                    <div class="step ${statusCfg.step >= 2 ? 'completed' : ''} ${statusCfg.step===2?'active':''}"><div class="step-icon"><i class="bi bi-fire"></i></div><div class="step-label">Bếp nấu</div></div>
+                    <div class="step ${statusCfg.step >= 3 ? 'completed' : ''} ${statusCfg.step===3?'active':''}"><div class="step-icon"><i class="bi ${isDineIn?'bi-bell':'bi-truck'}"></i></div><div class="step-label">${step3Label}</div></div>
+                    <div class="step"><div class="step-icon"><i class="bi bi-star"></i></div><div class="step-label">Hoàn tất</div></div>
+                `;
+        progressHtml = `<div class="progress-track"><div class="progress-bg"></div><div class="progress-fill" style="width: ${pct}%"></div>${stepsHtml}</div>`;
+      }
+
+      const itemsList = (item.items || []).map(i =>
+              `<div><b class="text-primary me-2">${i.quantity || i.qty}x</b> ${i.itemName || i.name}</div>`
+      ).join('');
+
+      let actionBtn = "";
+      if (!isDone && isDineIn) {
+        if (item.status === 'PAYMENT_REQUEST') {
+          actionBtn = `<button class="btn btn-secondary w-100 mt-3 disabled"><i class="bi bi-hourglass-split"></i> Đã gọi thanh toán...</button>`;
+        } else {
+          actionBtn = `<button onclick="App.requestPayment(${item.id})" class="btn btn-warning text-white w-100 mt-3 shadow-sm fw-bold">🛎️ GỌI THANH TOÁN</button>`;
+        }
+      } else if (isDone && item.status === 'COMPLETED') {
+        actionBtn = `<div class="alert alert-success text-center py-2 mt-3 mb-0 fw-bold"><i class="bi bi-check-circle me-1"></i> Đơn hoàn tất</div>`;
+      } else if (isDone) {
+        actionBtn = `<div class="alert alert-danger text-center py-2 mt-3 mb-0 fw-bold"><i class="bi bi-x-circle me-1"></i> Đã hủy / Từ chối</div>`;
+      }
+
+      let finalPrice = item.finalPrice != null ? item.finalPrice : item.totalPrice;
+      const pointsUsed = item.pointsUsed || 0;
+
+      return `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="bg-light rounded p-2 text-center" style="width:45px; height:45px">
+                                <i class="bi ${isDineIn ? 'bi-shop' : 'bi-bag-check'} fs-4 text-primary"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-dark">${resName}</div>
+                                <div class="small text-muted">#${item.id} • ${isDineIn ? `Bàn ${item.tableNumber}` : 'Online'}</div>
+                            </div>
+                        </div>
+                        <span class="status-badge" style="background-color:${statusCfg.bg}; color:${statusCfg.color}">${statusCfg.label}</span>
+                    </div>
+
+                    <div class="p-3 pt-0">
+                        ${progressHtml}
+                        <div class="mt-3 small border-start border-3 ps-2 border-light text-secondary" style="line-height:1.6">
+                            ${itemsList}
+                        </div>
+                        ${item.note ? `<div class="bg-warning bg-opacity-10 text-warning p-2 rounded small mt-2"><i class="bi bi-pencil me-1"></i>${item.note}</div>` : ''}
+                        ${actionBtn}
+                    </div>
+
+                    <div class="p-3 border-top bg-light d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="small text-muted">Tổng thanh toán</div>
+                            <div class="fw-bold text-primary fs-5">${finalPrice.toLocaleString()}đ</div>
+                            ${pointsUsed > 0 ? `<div class="small text-success"><i class="bi bi-gift-fill"></i> -${pointsUsed} điểm</div>` : ''}
+                        </div>
+                        <button class="btn btn-sm btn-outline-dark rounded-pill px-3" onclick="App.viewBill(${item.id})">
+                            <i class="bi bi-receipt"></i> Hóa đơn
+                        </button>
+                    </div>
+                </div>
+            `;
+    },
+
     viewBill(orderId) {
       const order = this.allItems.find(o => o.id === orderId);
-      if(!order) return;
+      if (!order) return;
 
-      let subTotal = 0;
-      if (order.items) {
-        subTotal = order.items.reduce((s, i) => s + (i.price||0)*(i.quantity||i.qty||0), 0);
-      } else {
-        subTotal = order.totalPrice || 0;
-      }
+      const subTotal = order.items ? order.items.reduce((s, i) => s + (i.price||0)*(i.quantity||1), 0) : order.totalPrice;
+      const discount = (order.pointsUsed || 0) * 1000;
+      const final = order.finalPrice != null ? order.finalPrice : (subTotal - discount);
+      const restaurantName = order.restaurantName || order.restaurant?.name || "NHÀ HÀNG S2O";
+      const dateStr = new Date(order.createdAt).toLocaleString('vi-VN');
 
-      const pointsUsed = order.pointsUsed || 0;
-      const discount = pointsUsed * 1000;
-      const finalTotal = order.finalPrice != null ? order.finalPrice : (subTotal - discount);
-
-      const dateObj = new Date(order.createdAt);
-      const dateStr = dateObj.toLocaleDateString('vi-VN');
-      const timeStr = dateObj.toLocaleTimeString('vi-VN');
-
-      let itemsListHtml = "";
-      if(order.items) {
-        order.items.forEach(i => {
-          const itemTotal = (i.price || 0) * (i.quantity || 1);
-          itemsListHtml += `
-                    <div class="bill-row">
-                        <span style="flex:1">${i.itemName || i.name}</span>
-                        <span style="width:30px; text-align:center">x${i.quantity || 1}</span>
-                        <span style="width:70px; text-align:right">${itemTotal.toLocaleString()}</span>
+      const html = `
+                <div class="bill-receipt">
+                    <div class="text-center mb-3">
+                        <div class="fw-bold fs-5 text-uppercase">${restaurantName}</div>
+                        <div class="small text-muted">Mã đơn: #${order.id}</div>
+                        <div class="small text-muted">${dateStr}</div>
+                        <div class="bill-divider"></div>
                     </div>
-                `;
-        });
-      }
+                    ${(order.items||[]).map(i => `
+                        <div class="bill-row">
+                            <span style="flex:1">${i.itemName||i.name}</span>
+                            <span class="text-end" style="width:30px">x${i.quantity||i.qty}</span>
+                            <span class="text-end" style="width:80px">${((i.price||0)*(i.quantity||1)).toLocaleString()}</span>
+                        </div>
+                    `).join('')}
+                    <div class="bill-divider"></div>
+                    <div class="bill-row"><span>Tạm tính:</span><span>${subTotal.toLocaleString()}</span></div>
+                    ${discount > 0 ? `<div class="bill-row text-danger"><span>Giảm điểm:</span><span>-${discount.toLocaleString()}</span></div>` : ''}
+                    <div class="bill-row fw-bold fs-5 mt-2"><span>TỔNG CỘNG:</span><span>${final.toLocaleString()}đ</span></div>
 
-      const billHtml = `
-            <div class="bill-receipt">
-                <div class="bill-header">
-                    <div class="bill-logo">S2O FOOD</div>
-                    <div>${order.restaurantName || "Chi nhánh trung tâm"}</div>
-                    <div class="small text-muted">Hóa đơn: #${order.id}</div>
-                    <div class="small text-muted">${dateStr} - ${timeStr}</div>
+                    <div class="bill-divider"></div>
+                    <div class="text-center mt-3 fst-italic small">
+                        <div>Cảm ơn quý khách!</div>
+                        <div>Hẹn gặp lại tại ${restaurantName}</div>
+                    </div>
                 </div>
-
-                <div class="bill-divider"></div>
-                ${itemsListHtml}
-                <div class="bill-divider-thin"></div>
-
-                <div class="bill-row">
-                    <span>Tổng tiền món:</span>
-                    <span>${subTotal.toLocaleString()}</span>
-                </div>
-                ${pointsUsed > 0 ? `
-                <div class="bill-row text-danger">
-                    <span>Dùng ${pointsUsed} điểm:</span>
-                    <span>-${discount.toLocaleString()}</span>
-                </div>` : ''}
-
-                <div class="bill-total-section bill-row fw-bold fs-5">
-                    <span>THANH TOÁN:</span>
-                    <span>${finalTotal.toLocaleString()}đ</span>
-                </div>
-
-                <div class="bill-divider"></div>
-                <div class="bill-footer">
-                    <div>Cảm ơn quý khách!</div>
-                    <div>Hẹn gặp lại</div>
-                    <div class="mt-2 small">Wifi: S2O_Free / Pass: 12345678</div>
-                </div>
-            </div>
-        `;
-
-      document.getElementById("bill-content").innerHTML = billHtml;
-      new bootstrap.Modal(document.getElementById("billModal")).show();
+            `;
+      document.getElementById('bill-content').innerHTML = html;
+      new bootstrap.Modal(document.getElementById('billModal')).show();
     },
 
-    renderSteps(current) {
-      const steps = ["Chờ duyệt", "Bếp nấu", "Lên món", "Hoàn tất"];
-      const icons = ["bi-receipt", "bi-fire", "bi-bell-fill", "bi-check-circle-fill"];
-      return steps.map((label, idx) => {
-        const stepNum = idx + 1;
-        let cls = "";
-        if (stepNum < current) cls = "completed";
-        else if (stepNum === current) cls = "active";
-        return `<div class="step ${cls}"><div class="step-icon"><i class="bi ${icons[idx]}"></i></div><div class="step-label">${label}</div></div>`;
-      }).join("");
-    },
-
-    async requestPayment(orderId) {
-      if(!confirm("Bạn muốn gọi nhân viên thanh toán cho bàn này?")) return;
-
-      let endpoint = "";
-      if (this.isGuestMode) {
-        endpoint = API_CONFIG.GUEST_PAYMENT_ENDPOINT(orderId);
-      } else {
-        endpoint = `/orders/${orderId}/request-payment`;
-      }
+    async requestPayment(id) {
+      if(!confirm("Gọi nhân viên thanh toán cho bàn này?")) return;
+      const url = this.isGuestMode ? API_CONFIG.GUEST_PAYMENT_ENDPOINT(id) : `/orders/${id}/request-payment`;
 
       try {
-        const res = await ApiService.put(endpoint);
-        if (res.ok) {
-          alert("Đã gửi yêu cầu! Nhân viên sẽ tới ngay.");
+        const res = await fetch(`${API_CONFIG.BASE_URL}${url}`, {
+          method: 'PUT',
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`
+          }
+        });
+        if(res.ok) {
+          alert("Đã gọi nhân viên! Vui lòng đợi trong giây lát.");
           location.reload();
         } else {
-          alert("Lỗi: Không thể gửi yêu cầu.");
+          alert("Không thể gửi yêu cầu lúc này.");
         }
-      } catch (e) {
-        console.error(e);
-        alert("Lỗi kết nối!");
-      }
-    },
-
-    filter(type, btn) {
-      if (this.isGuestMode) return;
-
-      if (btn) {
-        document.querySelectorAll(".order-tab").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-      }
-
-      const isActive = (status) => !["COMPLETED", "CANCELLED", "REJECTED"].includes(status);
-      let filtered = [];
-
-      if (type === "SHIP") {
-        filtered = this.allItems.filter((item) =>
-                item.type === "order" &&
-                (!item.tableNumber || item.tableNumber === 0) &&
-                isActive(item.status)
-        );
-      } else if (type === "TABLE") {
-        filtered = this.allItems.filter((item) =>
-                (item.type === "booking" && isActive(item.status)) ||
-                (item.type === "order" && item.tableNumber > 0 && isActive(item.status))
-        );
-      } else if (type === "HISTORY") {
-        filtered = this.allItems.filter((item) => !isActive(item.status));
-      }
-
-      this.renderItems(filtered);
+      } catch(e) { alert("Lỗi kết nối mạng"); }
     }
   };
 
   document.addEventListener("DOMContentLoaded", () => App.init());
-</script>
-</body>
+</script></body>
 </html>

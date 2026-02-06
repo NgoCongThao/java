@@ -595,6 +595,10 @@
 
     if (IS_GUEST_MODE) {
       showTableBanner(TABLE_NUM);
+      // 1. Ẩn cụm nút "Đặt bàn" & "Mang về" vì khách đang ngồi tại quán rồi
+      const actionBtns = document.querySelector(".header-actions");
+      if (actionBtns) actionBtns.style.display = 'none';
+
       localStorage.setItem("currentTable", TABLE_NUM);
       localStorage.setItem("currentRestaurant", REST_ID);
     }
@@ -990,7 +994,26 @@
       return;
     }
     bookingWithCart = withCart;
+// Thêm vào trong hàm openBookingModal() trong menu.html
+    function openBookingModal(withCart = false) {
+      // ... code cũ ...
 
+      // --- LOGIC GIỚI HẠN NGÀY ---
+      const dateInput = document.getElementById("bookDate");
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      // Format YYYY-MM-DD
+      const formatDate = (date) => date.toISOString().split("T")[0];
+
+      dateInput.min = formatDate(today);      // Không cho chọn quá khứ
+      dateInput.max = formatDate(tomorrow);   // Chỉ cho phép chọn đến ngày mai
+      dateInput.value = formatDate(today);    // Mặc định là hôm nay
+      // ----------------------------
+
+      new bootstrap.Modal(document.getElementById("bookingModal")).show();
+    }
     // Update count in Booking Modal
     const countEl = document.getElementById("cartItemCount");
     const alertEl = document.getElementById("cartSummaryAlert");
