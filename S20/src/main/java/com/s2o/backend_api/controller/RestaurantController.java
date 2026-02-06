@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api") // Giữ nguyên prefix chung
+@RequestMapping("/api/restaurants") // Giữ nguyên prefix chung
 @CrossOrigin(origins = "*")
 public class RestaurantController {
 
@@ -35,7 +35,14 @@ public class RestaurantController {
         if(res.isEmpty()) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(res.get());
     }
-
+    // 👇 THÊM API NÀY: Lấy danh sách quán đang ACTIVE 👇
+    @GetMapping("/public")
+    public ResponseEntity<?> getActiveRestaurants() {
+        // Giả sử bạn có trường 'status' trong Entity Restaurant.
+        // Nếu chưa có hàm findByStatus, hãy thêm vào Repository (xem bước 1.1 bên dưới)
+        List<Restaurant> list = restaurantRepository.findByStatus("ACTIVE");
+        return ResponseEntity.ok(list);
+    }
     // ❌ ĐÃ XÓA: createRestaurant (Đã có bên AdminController)
     // ❌ ĐÃ XÓA: updateRestaurant (Đã có bên AdminController)
     // ❌ ĐÃ XÓA: deleteRestaurant (Đã có bên AdminController)

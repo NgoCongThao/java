@@ -173,8 +173,10 @@ public class PartnerController {
         if (resId == null) return ResponseEntity.status(403).body("Lỗi quyền hạn!");
 
         // Gọi hàm tìm kiếm đã viết trong UserRepository
-        List<User> staff = userRepository.findByRestaurantIdAndRoleAndStatus(resId, "KITCHEN", status);
-        return ResponseEntity.ok(staff);
+        List<User> kitchen = userRepository.findByRestaurantIdAndRoleAndStatus(resId, "KITCHEN", status);
+        List<User> staff = userRepository.findByRestaurantIdAndRoleAndStatus(resId, "STAFF", status);
+        kitchen.addAll(staff);
+        return ResponseEntity.ok(kitchen);
     }
     // 2. Duyệt nhân viên
     @PutMapping("/staff/{userId}/approve")
