@@ -45,4 +45,6 @@ Double calculateRevenueByRange(
 Double calculateGrandTotalRevenue(@Param("resId") Long resId);
 
 List<Order> findByRestaurantIdOrderByCreatedAtDesc(Long restaurantId);
+
+    List<Order> findByRestaurantIdAndStatus(Long restaurantId, String status);
 }

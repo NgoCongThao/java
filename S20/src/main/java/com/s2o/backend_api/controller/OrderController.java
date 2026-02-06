@@ -24,7 +24,7 @@ public class OrderController {
 //ngày 4/2 thêm lớp bảo vệ hàm tạo đơn hàng
    // 1. API TẠO ĐƠN HÀNG (Dành cho trang Menu)
     // Thêm PreAuthorize để chặn Admin ở tầng Controller
-    @org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('USER', 'ROLE_USER')")
+@org.springframework.security.access.prepost.PreAuthorize("hasAnyAuthority('USER', 'ROLE_USER', 'STAFF', 'ROLE_STAFF')")
     @PostMapping("/create")
     public ResponseEntity<?> createOrder(@RequestBody OrderRequest req) {
         Order order = new Order();
