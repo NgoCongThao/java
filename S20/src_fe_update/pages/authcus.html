@@ -711,6 +711,11 @@
                   Bếp
                 </a>
               </div>
+              <div class="text-center mt-2">
+                <a href="staff-auth.html" class="text-decoration-none text-secondary small fw-bold">
+                  <i class="fas fa-concierge-bell me-1"></i> Dành cho Nhân viên Phục vụ
+                </a>
+              </div>
               <div class="text-center mt-3 pt-3 border-top">
                 <a
                   href="admin-login.html"
@@ -739,6 +744,7 @@
                   >
                     <option value="USER">Khách hàng (Đặt món)</option>
                     <option value="MANAGER">Chủ Nhà Hàng (Kinh doanh)</option>
+                    <option value="STAFF">Nhân viên Phục vụ (Xin việc)</option>
                     <option value="KITCHEN">Nhân viên Bếp (Xin việc)</option>
                   </select>
                   <label for="signup-role">Bạn muốn đăng ký là?</label>
@@ -876,7 +882,7 @@
         if (role === "MANAGER") {
           partnerFields.style.display = "block";
           resNameInput.setAttribute("required", "true");
-        } else if (role === "KITCHEN") {
+        } else if (role === "KITCHEN" || role === "STAFF") {
           kitchenFields.style.display = "block";
           resIdInput.setAttribute("required", "true");
         }
@@ -988,6 +994,8 @@
               window.location.href = "admin.html";
             else if (result.role === "KITCHEN")
               window.location.href = "kitchen.html";
+            else if (result.role === "STAFF")
+              window.location.href = "staff.html";
             else window.location.href = "restaurant-list.html";
           } catch (err) {
             showError(loginError, err.message || "Đăng nhập thất bại");
@@ -1034,7 +1042,7 @@
                 phone: phone,
                 role: role,
                 restaurantName: role === "MANAGER" ? resName : null,
-                restaurantId: role === "KITCHEN" ? resId : null,
+                restaurantId: (role === "KITCHEN" || role === "STAFF") ? resId : null,
               }),
             });
             if (!res.ok) throw new Error(await res.text());
