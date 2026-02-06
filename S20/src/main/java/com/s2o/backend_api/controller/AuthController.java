@@ -80,7 +80,17 @@ public class AuthController {
             } else {
                 return ResponseEntity.badRequest().body("Đầu bếp cần nhập ID Nhà hàng!");
             }
-        } 
+        }
+        else if ("STAFF".equals(request.getRole())) {
+            // Nhân viên phục vụ xin vào quán
+            if (request.getRestaurantId() != null) {
+                user.setRestaurantId(request.getRestaurantId());
+                // Mặc định PENDING chờ Manager duyệt
+                user.setStatus("PENDING");
+            } else {
+                return ResponseEntity.badRequest().body("Nhân viên cần nhập ID Nhà hàng!");
+            }
+        }
         else {
             // Khách hàng
             user.setRole("USER");

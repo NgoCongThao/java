@@ -47,7 +47,7 @@ public class SecurityConfig {
                     "/api/reviews/**",       // Xem review (nếu add review cần login thì tách ra)
                     "/api/chat/**",          // Chat AI
                     "/api/bookings/table-status", // Check bàn trống
-                    
+                        "/api/restaurants/public",
                     // Các file HTML/CSS/JS frontend
                     "/landing.html", "/authcus.html", "/admin-login.html", 
                     "/kitchen-auth.html", "/kitchen.html", "/tracking.html",
@@ -56,12 +56,14 @@ public class SecurityConfig {
 
                 // --- NHÓM 2: DÀNH RIÊNG CHO KHÁCH HÀNG (USER) ---
                 .requestMatchers(
-                    "/api/orders/create",
-                    "/api/bookings/create",
+
                     "/api/bookings/user/**",
                     "/api/orders/my-orders/**"
-                ).hasAnyAuthority("USER", "ROLE_USER") 
-
+                ).hasAnyAuthority("USER", "ROLE_USER")
+                            .requestMatchers(
+                                    "/api/orders/create", // Staff cũng được tạo đơn
+                                    "/api/bookings/create"
+                            ).hasAnyAuthority("USER", "ROLE_USER", "STAFF", "ROLE_STAFF")
                 // --- NHÓM 3: DÀNH RIÊNG CHO BẾP (KITCHEN) ---
                 .requestMatchers(
                     "/api/kitchen/**"
@@ -71,7 +73,10 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/api/admin/**"
                 ).hasAnyAuthority("ADMIN", "ROLE_ADMIN")
-
+// --- 👇 THÊM NHÓM 5: DÀNH RIÊNG CHO STAFF 👇 ---
+                            .requestMatchers(
+                                    "/api/staff/**"
+                            ).hasAnyAuthority("STAFF", "ROLE_STAFF", "MANAGER", "ROLE_MANAGER", "ADMIN")
                 // Các request còn lại bắt buộc phải đăng nhập
                 .anyRequest().authenticated()
             )
