@@ -448,7 +448,7 @@
         try {
           // --- SỬA ĐỔI: Gọi API từ Java Backend (Cổng 8080) ---
           const res = await fetch(
-            "http://localhost:8080/api/guest/restaurants",
+            "http://localhost:8080/api/restaurants/public",
           );
           if (!res.ok) throw new Error("Lỗi kết nối API Backend");
           state.restaurants = await res.json();
@@ -480,7 +480,7 @@
 
         // Lọc dữ liệu
         const filtered = display.filter((r) => {
-          if (r.status !== "active") return false;
+          if (!r.status || r.status.toLowerCase() !== "active") return false;
           if (state.filter.favOnly && !isFav(r.id)) return false;
           if (
             state.filter.category !== "all" &&

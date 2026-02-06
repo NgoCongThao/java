@@ -898,7 +898,7 @@
         try {
           // A. Lấy thông tin nhà hàng
           const resRest = await fetch(
-            `http://localhost:8080/api/guest/restaurants`,
+                  `http://localhost:8080/api/restaurants/public`,
           );
           const restaurants = await resRest.json();
           const info = restaurants.find((r) => r.id == REST_ID);

@@ -152,11 +152,17 @@
 
           let btnHtml = "";
           if (item.status === "PENDING") {
-            btnHtml = `<button class="btn btn-primary status-btn" onclick="updateStatus(${item.id}, 'COOKING', '${item.type}')">Nhận đơn</button>`;
+            // PENDING -> COOKING (Bắt đầu nấu)
+            btnHtml = `<button class="btn btn-primary status-btn" onclick="updateStatus(${item.id}, 'COOKING', '${item.type}')">Nhận đơn & Nấu</button>`;
           } else if (item.status === "COOKING") {
-            btnHtml = `<button class="btn btn-warning status-btn text-dark" onclick="updateStatus(${item.id}, 'DELIVERING', '${item.type}')">Lên món</button>`;
-          } else if (item.status === "DELIVERING") {
-            btnHtml = `<button class="btn btn-success status-btn" onclick="updateStatus(${item.id}, 'COMPLETED', '${item.type}')">Hoàn tất</button>`;
+            // COOKING -> READY (Nấu xong, chờ Staff bưng)
+            // 👇 QUAN TRỌNG: Phải chuyển sang 'READY' thì Staff mới thấy
+            btnHtml = `<button class="btn btn-warning status-btn text-dark" onclick="updateStatus(${item.id}, 'READY', '${item.type}')">✅ Nấu Xong (Báo Staff)</button>`;
+          } else if (item.status === "READY") {
+            // READY -> (Chờ Staff bấm Served, Bếp chỉ xem thôi hoặc bấm ẩn đi)
+            btnHtml = `<span class="badge bg-success p-2">Đang chờ phục vụ</span>`;
+          } else if (item.status === "SERVED" || item.status === "COMPLETED") {
+            btnHtml = `<span class="badge bg-secondary">Đã hoàn tất</span>`;
           }
 
           html += `

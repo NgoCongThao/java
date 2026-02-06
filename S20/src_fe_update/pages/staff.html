@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhân Viên - S2O</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #f4f6f9; }
+        .card-order { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s; }
+        .card-order:hover { transform: translateY(-3px); }
+        .badge-table { font-size: 1.2rem; background-color: #007bff; color: white; padding: 5px 15px; border-radius: 20px; }
+        .btn-serve { width: 100%; border-radius: 0 0 10px 10px; font-weight: bold; text-transform: uppercase; }
+        .animate-new { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#"><i class="fas fa-concierge-bell"></i> S2O - STAFF</a>
+        <div class="d-flex align-items-center">
+            <span class="text-white me-3" id="staff-name">Xin chào, Staff</span>
+            <button class="btn btn-outline-light btn-sm" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+            </button>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-primary"><i class="fas fa-utensils"></i> Món Ăn Chờ Phục Vụ</h3>
+        <span class="badge bg-success" id="last-update">Cập nhật: Vừa xong</span>
+    </div>
+
+    <div class="row" id="order-list">
+        <div class="col-12 text-center text-muted mt-5">
+            <i class="fas fa-spinner fa-spin fa-2x"></i><br>Đang tải dữ liệu...
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../js/staff.js"></script>
+</body>
+</html>

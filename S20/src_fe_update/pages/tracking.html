@@ -357,7 +357,11 @@
       const STATUS_MAP = {
         PENDING: { label: "Chờ xác nhận", color: "#ffc107", step: 1 },
         COOKING: { label: "Bếp đang nấu", color: "#e85d04", step: 2 },
-        DELIVERING: { label: "Đang lên món", color: "#0dcaf0", step: 3 },
+        READY:   { label: "Món đã xong",  color: "#0dcaf0", step: 3 },
+
+        // Có thể giữ hoặc bỏ DELIVERING tùy bạn, nhưng Staff bưng xong là SERVED
+        SERVED:  { label: "Đã phục vụ",   color: "#198754", step: 4 },
+
         COMPLETED: { label: "Hoàn tất", color: "#198754", step: 4 },
         CANCELLED: { label: "Đã hủy", color: "#dc3545", step: 0 },
       };

@@ -34,7 +34,7 @@
                 <i class="fas fa-book-open me-2"></i> Quản lý Menu
             </a>
             <a class="nav-link" onclick="switchTab('staff', this)">
-                <i class="fas fa-users me-2"></i> Nhân viên Bếp
+                <i class="fas fa-users me-2"></i> Quản lý Nhân sự
             </a>
             <a class="nav-link" onclick="switchTab('info', this)">
                 <i class="fas fa-store me-2"></i> Thông tin Quán
@@ -188,7 +188,7 @@
         </div>
 
         <div id="tab-staff" style="display: none;">
-            <h4 class="fw-bold mb-3">Quản lý Nhân sự Bếp</h4>
+            <h4 class="fw-bold mb-3">Quản lý Nhân sự</h4>
             <ul class="nav nav-tabs mb-3" id="staffTabs">
                 <li class="nav-item">
                     <button class="nav-link active fw-bold text-warning" onclick="loadStaff('PENDING', this)">
@@ -330,7 +330,8 @@
                     if(o.status === 'COMPLETED') statusBadge = 'bg-success';
                     if(o.status === 'PENDING') statusBadge = 'bg-warning text-dark';
                     if(o.status === 'CANCELLED') statusBadge = 'bg-danger';
-
+                    if(o.status === 'COOKING') statusBadge = 'bg-primary'; // Xanh dương đậm
+                    if(o.status === 'READY') statusBadge = 'bg-info text-dark'; // Xanh dương nhạt (Sáng)
                     const price = o.totalPrice ? o.totalPrice.toLocaleString('vi-VN') + ' ₫' : '0 ₫';
                     
                     tbody.innerHTML += `
@@ -406,8 +407,8 @@
             }
 
             try {
-                const res = await fetch(`${API_BASE}/partner/staff?status=${status}`, { 
-                    headers: { "Authorization": `Bearer ${token}` } 
+                const res = await fetch(`${API_BASE}/partner/staff?status=${status}`, {
+                    headers: { "Authorization": `Bearer ${token}` }
                 });
                 const staffList = await res.json();
                 const tbody = document.getElementById("staff-tbody");
@@ -421,23 +422,37 @@
                 }
 
                 staffList.forEach(s => {
+                    // 1. Tạo nút hành động
                     let actionBtn = '';
                     if(status === 'PENDING') {
                         actionBtn = `<button class="btn btn-sm btn-success me-2" onclick="approveStaff(${s.id})"><i class="fas fa-check"></i> Duyệt</button>
-                                     <button class="btn btn-sm btn-danger" onclick="deleteStaff(${s.id})"><i class="fas fa-times"></i> Từ chối</button>`;
+                             <button class="btn btn-sm btn-danger" onclick="deleteStaff(${s.id})"><i class="fas fa-times"></i> Từ chối</button>`;
                     } else {
                         actionBtn = `<button class="btn btn-sm btn-outline-danger" onclick="deleteStaff(${s.id})"><i class="fas fa-ban"></i> Sa thải</button>`;
                     }
 
+                    // 2. Tính toán Badge Role (Xử lý TRƯỚC khi đưa vào HTML)
+                    let roleBadge = '';
+                    if (s.role === 'KITCHEN') {
+                        roleBadge = '<span class="badge bg-warning text-dark"><i class="fas fa-utensils"></i> Đầu Bếp</span>';
+                    } else if (s.role === 'STAFF') {
+                        roleBadge = '<span class="badge bg-info text-dark"><i class="fas fa-concierge-bell"></i> Phục vụ</span>';
+                    } else {
+                        roleBadge = '<span class="badge bg-secondary">' + s.role + '</span>';
+                    }
+
+                    // 3. Đưa vào HTML
                     tbody.innerHTML += `
-                        <tr>
-                            <td class="ps-4 fw-bold">${s.fullName}</td>
-                            <td>${s.phone || s.username}</td>
-                            <td><span class="badge bg-secondary">Đầu Bếp</span></td>
-                            <td>${status === 'PENDING' ? '<span class="badge bg-warning text-dark">Chờ duyệt</span>' : '<span class="badge bg-success">Đang làm</span>'}</td>
-                            <td class="text-end pe-4">${actionBtn}</td>
-                        </tr>
-                    `;
+                <tr>
+                    <td class="ps-4 fw-bold">${s.fullName}</td>
+                    <td>${s.phone || s.username}</td>
+
+                    <td>${roleBadge}</td>
+
+                    <td>${status === 'PENDING' ? '<span class="badge bg-warning text-dark">Chờ duyệt</span>' : '<span class="badge bg-success">Đang làm</span>'}</td>
+                    <td class="text-end pe-4">${actionBtn}</td>
+                </tr>
+            `;
                 });
             } catch(e) { console.error("Lỗi tải staff:", e); }
         }
@@ -540,7 +555,7 @@
 
                 items.forEach(i => {
                     const status = i.isAvailable ? '<span class="badge bg-success">Còn hàng</span>' : '<span class="badge bg-secondary">Hết</span>';
-                    tbody.innerHTML += `<tr><td class="ps-4"><img src="${i.imageUrl || 'https://via.placeholder.com/60'}" class="menu-img"></td><td class="fw-bold">${i.name}</td><td class="text-danger fw-bold">${parseInt(i.price).toLocaleString()}đ</td><td>${i.category || '-'}</td><td>${status}</td><td class="text-end pe-4"><button class="btn btn-sm btn-light text-primary" onclick="editMenu(${i.id})"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-light text-danger" onclick="deleteMenu(${i.id})"><i class="fas fa-trash"></i></button></td></tr>`;
+                    tbody.innerHTML += `<tr><td class="ps-4"><img src="${i.imageUrl || '../img/anhbackup.jpg'}" class="menu-img" onerror="this.src='../img/anhbackup.jpg'"></td><td class="fw-bold">${i.name}</td><td class="text-danger fw-bold">${parseInt(i.price).toLocaleString()}đ</td><td>${i.category || '-'}</td><td>${status}</td><td class="text-end pe-4"><button class="btn btn-sm btn-light text-primary" onclick="editMenu(${i.id})"><i class="fas fa-edit"></i></button> <button class="btn btn-sm btn-light text-danger" onclick="deleteMenu(${i.id})"><i class="fas fa-trash"></i></button></td></tr>`;
                 });
             } catch(e) { console.error("Lỗi tải menu:", e); }
         }
